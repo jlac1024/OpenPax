@@ -1,0 +1,78 @@
+<!-- Every control of the forms toolkit, for looking at and trying (console: gallery). -->
+<Form xmlns="https://openpax.local/forms" xmlns:x="https://openpax.local/forms/x">
+  <DockPanel Margin="10">
+    <Border DockPanel.Dock="Top" Look="Strip" Height="20">
+      <TextBlock Text="CONTROL GALLERY" Look="Heading" Bold="True" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Border>
+    <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6" Margin="0,8,0,0">
+      <TextBlock Text="{Binding Status}" Look="Dim" VerticalAlignment="Center" Margin="0,0,10,0" />
+      <Button x:Name="Close" Text="CLOSE" Width="122" Click="OnClose" ToolTip="Back to the game" />
+    </StackPanel>
+    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,8,0,0">
+      <GroupBox Header="BUTTONS AND CHOICES" Grid.Column="0">
+        <StackPanel Spacing="6">
+          <Button Text="PUSH ME" Click="OnPush" ToolTip="Counts the pushes" />
+          <Button Text="DISABLED" IsEnabled="False" />
+          <Separator />
+          <CheckBox Text="Play surface animation" IsChecked="{Binding Animate}" />
+          <CheckBox Text="Auto save game" IsChecked="True" />
+          <Separator />
+          <RadioButton GroupName="Size" Text="Small galaxy" IsChecked="True" />
+          <RadioButton GroupName="Size" Text="Medium galaxy" />
+          <RadioButton GroupName="Size" Text="Large galaxy" />
+          <Separator />
+          <TextBlock TextWrapping="True" Text="Every control here is drawn from the game's own art and fonts, at a whole-number scale of the window." />
+        </StackPanel>
+      </GroupBox>
+      <GroupBox Header="TEXT AND LISTS" Grid.Column="1">
+        <StackPanel Spacing="6">
+          <TextBlock Text="Name" Look="Dim" />
+          <TextBox Text="{Binding Name}" Placeholder="Type a name" />
+          <TextBlock Text="Species" Look="Dim" />
+          <ComboBox ItemsSource="{Binding Species}" SelectedIndex="{Binding SpeciesIndex}" />
+          <TextBlock Text="Stars" Look="Dim" />
+          <NumericUpDown Minimum="20" Maximum="100" Step="5" Value="{Binding Stars}" />
+          <ListBox Height="84">
+            <Item>Sol</Item>
+            <Item>Alpha Centauri</Item>
+            <Item>Barnard's Star</Item>
+            <Item>Wolf 359</Item>
+            <Item>Lalande 21185</Item>
+            <Item>Sirius</Item>
+            <Item>Luyten 726-8</Item>
+            <Item>Ross 154</Item>
+          </ListBox>
+        </StackPanel>
+      </GroupBox>
+      <TabControl Grid.Column="2">
+        <TabItem Header="TREE">
+          <TreeView>
+            <TreeViewItem Header="Empire" IsExpanded="True">
+              <TreeViewItem Header="Colonies" IsExpanded="True">
+                <TreeViewItem Header="Terra" />
+                <TreeViewItem Header="Mars" />
+              </TreeViewItem>
+              <TreeViewItem Header="Fleets">
+                <TreeViewItem Header="Home Fleet" />
+                <TreeViewItem Header="Scouts" />
+              </TreeViewItem>
+            </TreeViewItem>
+            <TreeViewItem Header="Research">
+              <TreeViewItem Header="Weapons" />
+              <TreeViewItem Header="Drives" />
+            </TreeViewItem>
+          </TreeView>
+        </TabItem>
+        <TabItem Header="SLIDERS">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Music volume" Look="Dim" />
+            <Slider Minimum="0" Maximum="10" Value="{Binding Volume}" />
+            <ProgressBar Maximum="10" Value="{Binding Volume}" />
+            <Separator />
+            <TextBlock TextWrapping="True" Text="The slider and the bar share one value through the view model." />
+          </StackPanel>
+        </TabItem>
+      </TabControl>
+    </Grid>
+  </DockPanel>
+</Form>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenPax.Net/OpenPax.Net.csproj" />
+    <!-- Games for the tests are made from the real data, as the simulation's tests make them. -->
+    <ProjectReference Include="../../src/OpenPax.Data/OpenPax.Data.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../src/OpenPax.Host/Headless/GameTablesLoader.cs" Link="GameTablesLoader.cs" />
+    <Compile Include="../OpenPax.Sim.Tests/GameTablesForTests.cs" Link="GameTablesForTests.cs" />
+  </ItemGroup>
+</Project>

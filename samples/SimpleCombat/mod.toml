@@ -1,0 +1,5 @@
+id = "simple-combat"
+name = "Simple Combat"
+version = "1.0"
+description = "No battle screen: fleets that attack fight on their own over a few days, and fleets besiege a planet from orbit, wearing its defenses down, then its people, then taking it. The game never stops for a battle."
+assembly = "SimpleCombat.dll"

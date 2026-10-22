@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../OpenPax.Sdl/OpenPax.Sdl.csproj" />
+    <ProjectReference Include="../OpenPax.Media/OpenPax.Media.csproj" />
+  </ItemGroup>
+</Project>

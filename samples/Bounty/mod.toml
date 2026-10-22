@@ -1,0 +1,5 @@
+id = "bounty"
+name = "Bounty"
+version = "1.0"
+description = "Credits for every enemy ship your fleets destroy, now and then a bonus. The getting started guide's example mod."
+assembly = "Bounty.dll"

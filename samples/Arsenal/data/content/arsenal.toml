@@ -1,0 +1,57 @@
+# Arsenal (docs/modding/content.md): new content by copying the game's own
+# techs ("like") and changing what differs. Each new entry has a key, which
+# other entries use to name it. Numbers are the game's tech ids.
+
+# A beam weapon past the best the game has (107), in the same research line.
+[[tech]]
+key = "storm-lance"
+like = 107
+name = "Storm Lance"
+description = "A beam that holds together at long range. Heavy, slow to recharge, and devastating."
+research_cost = 900000
+prerequisites = [107]
+damage_by_range = [700, 450, 300, 0]
+reload = 24
+size = 900
+
+# A shield past the best (156): more soaked, a little more cut.
+[[tech]]
+key = "aegis-shield"
+like = 156
+name = "Aegis Shield"
+description = "Layered fields that take a beating before they give."
+research_cost = 800000
+prerequisites = [156]
+capacity = 900
+percentereduction = 45
+
+# A planetary improvement, its own slot in every colony: food from orbit.
+[[tech]]
+key = "orbital-farms"
+like = 190
+name = "Orbital Farms"
+description = "Farm stations in orbit feed a larger population."
+research_cost = 150000
+prerequisites = [190]
+per_population = [0.0, 0.0, 0.0, 0.0, 0.05]
+flat = [0.0, 0.0, 0.0, 0.0, 2.0]
+
+# A planet type that looks like atmosphere class 2 and that nobody can breathe,
+# but rich: about as common as each of the original's five classes.
+[[planet]]
+key = "crystalline"
+name = "Crystalline"
+like = 2
+weight = 1
+breathable = "none"
+rating_bonus = 2
+
+# A premade cruiser, given to human players once they know both parts.
+[[design]]
+name = "Lancer"
+hull = 3
+quality = 4
+parts = [
+  ["storm-lance", 0, 2],
+  ["aegis-shield", 1],
+]

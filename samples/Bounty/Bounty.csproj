@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- The getting started guide's mod (docs/modding/getting-started.md). The game's own assemblies are referenced, not copied: the game supplies them. -->
+  <PropertyGroup>
+    <AssemblyName>Bounty</AssemblyName>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenPax.Modding/OpenPax.Modding.csproj" Private="false" ExcludeAssets="runtime" />
+    <ProjectReference Include="../../src/OpenPax.Sim/OpenPax.Sim.csproj" Private="false" ExcludeAssets="runtime" />
+    <ProjectReference Include="../../src/OpenPax.Data/OpenPax.Data.csproj" Private="false" ExcludeAssets="runtime" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mod.toml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="settings.toml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

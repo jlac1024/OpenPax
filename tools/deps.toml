@@ -1,0 +1,57 @@
+# Pinned versions and hashes for everything downloaded into deps/.
+# tools/deps.py fetches, verifies and unpacks these. Change a pin here and
+# build.sh rebuilds whatever depends on it.
+
+[sdl3]
+version = "3.4.18"
+url = "https://github.com/libsdl-org/SDL/releases/download/release-3.4.18/SDL3-3.4.18.tar.gz"
+sha256 = "9c75cf16330322c217dedd2e0609f1124f1b54b8633e763467b4684d0f4334a3"
+unpack = "SDL3-3.4.18"
+
+# InstallShield 5 cabinet extractor. Only for unpacking the 1.072 update
+# package into build/ for comparison with the GOG executable.
+[unshield]
+version = "1.6.2"
+url = "https://github.com/twogood/unshield/archive/refs/tags/1.6.2.tar.gz"
+sha256 = "a937ef596ad94d16e7ed2c8553ad7be305798dcdcfd65ae60210b1e54ab51a2f"
+unpack = "unshield-1.6.2"
+
+# FFmpeg, built twice from this source (docs/decisions.md, video codec):
+# a dev-tool ffmpeg with x264 for the import step (never shipped), and a
+# decode-only LGPL build of the libraries the game ships for MP4 playback.
+# ffmpeg.org publishes PGP signatures, not checksums; this hash is ours.
+[ffmpeg]
+version = "9.0.2"
+url = "https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz"
+sha256 = "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e"
+unpack = "ffmpeg-9.0.2"
+
+# x264 has no releases; this is the head of its stable branch (2025-06-08).
+# Only linked into the dev-tool ffmpeg.
+[x264]
+version = "stable-b35605ac"
+url = "https://code.videolan.org/videolan/x264/-/archive/b35605ace3ddf7c1a5d67a2eb553f034aef41d55/x264-b35605ace3ddf7c1a5d67a2eb553f034aef41d55.tar.bz2"
+sha256 = "6eeb82934e69fd51e043bd8c5b0d152839638d1ce7aa4eea65a3fedcf83ff224"
+unpack = "x264-b35605ace3ddf7c1a5d67a2eb553f034aef41d55"
+
+# Not downloaded: the system SDK (10.0.112) is used. Recorded so builds are comparable.
+[dotnet-sdk]
+version = "10.0.112"
+source = "system"
+
+# NuGet packages, approved by Jeff. Versions are also set in Directory.Packages.props.
+[nuget]
+"xunit.v3" = "4.0.2"
+
+# The modern text font (decisions.md, "Upscaled art and a modern font").
+# SIL Open Font License; OFL.txt ships beside the fonts. Not a tool: build.sh
+# copies the fonts into the game's data.
+[titillium-web]
+version = "google-fonts main 2026-10-20"
+base = "https://github.com/google/fonts/raw/main/ofl/titilliumweb/"
+unpack = "fonts/titillium-web"
+
+[titillium-web.files]
+"TitilliumWeb-Regular.ttf" = "7b6b4452c65cc8b8522e92e7d4d4c2e6d7675341ceafd041bb6bd30297517ea5"
+"TitilliumWeb-Bold.ttf" = "e2e8e1812041e2c5868f1d03ac24994312052c5381cca2e80748f08cb7e13093"
+"OFL.txt" = "c0562e066174197902a4a10606673d189f067970ef89c6013943b9cf182aadbc"

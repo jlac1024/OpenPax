@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenPax.Ui/OpenPax.Ui.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The host's table loader, so tests and the game build tables the same way. -->
+    <Compile Include="../../src/OpenPax.Host/Headless/GameTablesLoader.cs" Link="GameTablesLoader.cs" />
+  </ItemGroup>
+</Project>

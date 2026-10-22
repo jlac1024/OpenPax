@@ -1,0 +1,8 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <!-- Helpers every test project shares, such as finding the GOG install. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Shared/**/*.cs" LinkBase="Shared" />
+    <Using Include="OpenPax.TestSupport" />
+  </ItemGroup>
+</Project>

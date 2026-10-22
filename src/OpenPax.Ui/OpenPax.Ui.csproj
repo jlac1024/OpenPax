@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenPax.Ui.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The game's forms ship inside the assembly; mods bring theirs as files. -->
+    <EmbeddedResource Include="Forms/Markup/*.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../OpenPax.Render/OpenPax.Render.csproj" />
+    <ProjectReference Include="../OpenPax.Audio/OpenPax.Audio.csproj" />
+    <ProjectReference Include="../OpenPax.Sim/OpenPax.Sim.csproj" />
+    <ProjectReference Include="../OpenPax.Net/OpenPax.Net.csproj" />
+    <ProjectReference Include="../OpenPax.Forms/OpenPax.Forms.csproj" />
+  </ItemGroup>
+</Project>

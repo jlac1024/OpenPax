@@ -1,0 +1,32 @@
+<!-- The lobby (mode 3): its rooms, the picked one described, and the chat of everyone outside rooms. -->
+<Form xmlns="https://openpax.local/forms" xmlns:x="https://openpax.local/forms/x">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="12" RowSpacing="8">
+    <Border Grid.Row="0" Look="Strip" Height="20">
+      <TextBlock Text="{Binding Title}" Look="Heading" Bold="True" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Border>
+    <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="8">
+      <GroupBox Grid.Column="0" Header="ROOMS">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="0,6,0,0">
+            <TextBlock Text="{Binding Details}" Look="Dim" />
+            <TextBlock Text="Room password, to open or join a locked room" Look="Dim" />
+            <TextBox x:Name="Password" Text="{Binding Password}" IsPassword="True" />
+            <TextBlock Text="{Binding Status}" TextWrapping="True" />
+          </StackPanel>
+          <ListBox x:Name="Rooms" ItemsSource="{Binding Rooms}" SelectedIndex="{Binding Picked}" ItemActivated="OnJoin" />
+        </DockPanel>
+      </GroupBox>
+      <GroupBox Grid.Column="1" Header="LOBBY CHAT">
+        <DockPanel>
+          <TextBox DockPanel.Dock="Bottom" x:Name="Say" Text="{Binding Say}" Placeholder="Say something, then Return" Submitted="OnSay" Margin="0,6,0,0" />
+          <ListBox x:Name="Chat" ItemsSource="{Binding Chat}" FollowLast="True" />
+        </DockPanel>
+      </GroupBox>
+    </Grid>
+    <DockPanel Grid.Row="2" LastChildFill="False">
+      <Button DockPanel.Dock="Left" x:Name="Leave" Text="LEAVE" Width="122" Click="OnLeave" />
+      <Button DockPanel.Dock="Right" x:Name="Join" Text="JOIN" Width="122" Click="OnJoin" IsEnabled="{Binding CanJoin}" Margin="6,0,0,0" />
+      <Button DockPanel.Dock="Right" x:Name="NewRoom" Text="NEW ROOM" Width="122" Click="OnNewRoom" />
+    </DockPanel>
+  </Grid>
+</Form>

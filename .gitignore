@@ -1,0 +1,14 @@
+# Private or generated, never committed
+build/
+deploy/
+deps/
+references/
+media/
+
+# .NET
+bin/
+obj/
+*.user
+.vs/
+.idea/
+/replay.toml

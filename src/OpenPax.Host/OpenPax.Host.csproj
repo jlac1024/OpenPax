@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- On Windows a game opens no console window beside it. -->
+    <OutputType Condition="$(RuntimeIdentifier.StartsWith('win'))">WinExe</OutputType>
+    <AssemblyName>openpax</AssemblyName>
+    <!-- Mods may ship assemblies, so nothing can be trimmed or compiled ahead of time. -->
+    <PublishTrimmed>false</PublishTrimmed>
+    <PublishAot>false</PublishAot>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../OpenPax.Sdl/OpenPax.Sdl.csproj" />
+    <ProjectReference Include="../OpenPax.Data/OpenPax.Data.csproj" />
+    <ProjectReference Include="../OpenPax.Media/OpenPax.Media.csproj" />
+    <ProjectReference Include="../OpenPax.Sim/OpenPax.Sim.csproj" />
+    <ProjectReference Include="../OpenPax.Ai/OpenPax.Ai.csproj" />
+    <ProjectReference Include="../OpenPax.Render/OpenPax.Render.csproj" />
+    <ProjectReference Include="../OpenPax.Audio/OpenPax.Audio.csproj" />
+    <ProjectReference Include="../OpenPax.Ui/OpenPax.Ui.csproj" />
+    <ProjectReference Include="../OpenPax.Net/OpenPax.Net.csproj" />
+    <ProjectReference Include="../OpenPax.Modding/OpenPax.Modding.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenPax.Host.Tests" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,9 @@
+<!-- The chat line of a network game, opened with Return in the game's screens. -->
+<Form xmlns="https://openpax.local/forms" xmlns:x="https://openpax.local/forms/x" Background="False">
+  <Border Look="Panel" Padding="4" VerticalAlignment="Bottom" HorizontalAlignment="Center" Width="420" Margin="0,0,0,40">
+    <DockPanel>
+      <TextBlock DockPanel.Dock="Left" Text="SAY" Look="Heading" Bold="True" VerticalAlignment="Center" Margin="2,0,6,0" />
+      <TextBox x:Name="Line" Text="{Binding Line}" MaxLength="200" Placeholder="Return sends, Escape closes" Submitted="OnSend" />
+    </DockPanel>
+  </Border>
+</Form>

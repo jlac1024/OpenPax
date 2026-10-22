@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Writes the mod API reference (docs/modding/api.md) from the assemblies
+    mods see and their doc comments, and the HTML site of the modding docs
+    (deploy/docs/modding/). build.sh runs it; see docs/modding.md.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenPax.Modding/OpenPax.Modding.csproj" />
+    <ProjectReference Include="../../src/OpenPax.Sim/OpenPax.Sim.csproj" />
+    <ProjectReference Include="../../src/OpenPax.Data/OpenPax.Data.csproj" />
+  </ItemGroup>
+</Project>

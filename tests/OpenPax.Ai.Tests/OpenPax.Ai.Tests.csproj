@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenPax.Ai/OpenPax.Ai.csproj" />
+    <!-- Tests load the real game data; the AI itself never reads files. -->
+    <ProjectReference Include="../../src/OpenPax.Data/OpenPax.Data.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The host's table loader, so tests and the game build tables the same way. -->
+    <Compile Include="../../src/OpenPax.Host/Headless/GameTablesLoader.cs" Link="GameTablesLoader.cs" />
+  </ItemGroup>
+</Project>

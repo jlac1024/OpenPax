@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenPax.Modding/OpenPax.Modding.csproj" />
+    <ProjectReference Include="../../src/OpenPax.Sim/OpenPax.Sim.csproj" />
+    <ProjectReference Include="../../src/OpenPax.Data/OpenPax.Data.csproj" />
+    <!-- The sample mod: its rules are tested directly, and it is installed from its own build into a mods folder and loaded as the game loads it. -->
+    <ProjectReference Include="../../samples/SimpleCombat/SimpleCombat.csproj" />
+    <!-- Built first, then installed from its own build and loaded as the game loads it. -->
+    <ProjectReference Include="../../samples/Bounty/Bounty.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The host's table loader, so tests and the game build tables the same way. -->
+    <Compile Include="../../src/OpenPax.Host/Headless/GameTablesLoader.cs" Link="GameTablesLoader.cs" />
+  </ItemGroup>
+</Project>

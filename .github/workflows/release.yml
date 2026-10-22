@@ -1,0 +1,108 @@
+# Builds the release bundles (docs/platforms.md) and puts them on a GitHub
+# release: Linux x64 and Windows x64 on Ubuntu, Apple Silicon on macOS.
+# None of the game is in them; the first run imports the player's own copy
+# (docs/first-run.md). Runs for a version tag (v0.1.0) or by hand.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version, such as 0.1.0 (a draft release v0.1.0 is made)
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  VERSION: ${{ inputs.version || github.ref_name }}
+  JOBS: 4
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      # tools/deps.py reads TOML with tomllib (Python 3.11 and later).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Packages
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends $(cat .github/linux-packages.txt)
+      - name: Build and test
+        run: ./build.sh
+      - name: Package
+        run: tools/package.sh linux-x64 "${VERSION#v}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64
+          path: build/release/*.tar.gz
+
+  windows:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      # tools/deps.py reads TOML with tomllib (Python 3.11 and later).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Packages
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 cmake nasm pkg-config zip rsync
+      - name: Native libraries and the movie converter, cross-compiled
+        run: tools/build_native_windows.sh
+      - name: Package
+        run: tools/package.sh win-x64 "${VERSION#v}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: win-x64
+          path: build/release/*.zip
+
+  macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      # tools/deps.py reads TOML with tomllib (Python 3.11 and later).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Packages
+        run: brew install cmake pkg-config
+      - name: Native libraries and the movie converter
+        run: tools/build_native_macos.sh
+      - name: Package
+        run: tools/package.sh osx-arm64 "${VERSION#v}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: osx-arm64
+          path: build/release/*.tar.gz
+
+  publish:
+    needs: [linux, windows, macos]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: bundles
+          merge-multiple: true
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v${VERSION#v}"
+          draft=()
+          if [[ "${{ github.event_name }}" == workflow_dispatch ]]; then draft=(--draft); fi
+          gh release create "$tag" bundles/* "${draft[@]}" --title "OpenPax ${VERSION#v}" --notes-file docs/release-notes.md --target "${{ github.sha }}"

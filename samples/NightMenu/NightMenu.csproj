@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    A sample data pack (docs/modding.md). The pack's picture is made from the
+    game's own at build time, so no game art is ever in the repository:
+    build.sh runs this with the imported data and writes the pack into
+    deploy/mods/night-menu/.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenPax.Data/OpenPax.Data.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mod.toml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

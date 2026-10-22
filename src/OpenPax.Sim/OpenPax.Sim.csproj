@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Doc comments go out with the assembly, for the mod API reference (tools/ApiDocs); not every public member or parameter has one. -->
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenPax.Sim.Tests" />
+    <InternalsVisibleTo Include="OpenPax.Ai" />
+    <InternalsVisibleTo Include="OpenPax.Ai.Tests" />
+    <InternalsVisibleTo Include="OpenPax.Ui.Tests" />
+    <!-- The sample mods' tests set up wars and battles directly. -->
+    <InternalsVisibleTo Include="OpenPax.Modding.Tests" />
+  </ItemGroup>
+</Project>

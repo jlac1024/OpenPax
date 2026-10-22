@@ -1,0 +1,82 @@
+<!-- Game Start's Options (mode 5): who the player is in new games and lobby rooms, and how the game looks. -->
+<Form xmlns="https://openpax.local/forms" xmlns:x="https://openpax.local/forms/x">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="12" RowSpacing="8">
+    <Border Grid.Row="0" Look="Strip" Height="20">
+      <TextBlock Text="OPTIONS" Look="Heading" Bold="True" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Border>
+    <Grid Grid.Row="1" ColumnDefinitions="*,280,280,*" RowDefinitions="*,Auto,*" ColumnSpacing="8">
+      <GroupBox Grid.Row="1" Grid.Column="1" Header="PLAYER">
+        <StackPanel Spacing="6">
+          <TextBlock Text="Your name" Look="Dim" />
+          <TextBox x:Name="PlayerName" Text="{Binding Name}" MaxLength="24" />
+          <TextBlock Text="Species in lobby rooms" Look="Dim" />
+          <ComboBox x:Name="Species" ItemsSource="{Binding Species}" SelectedIndex="{Binding SpeciesIndex}" />
+          <TextBlock Text="Flag" Look="Dim" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <NumericUpDown x:Name="Flag" Minimum="1" Maximum="30" Value="{Binding Flag}" VerticalAlignment="Center" />
+            <Image Source="{Binding FlagImage}" />
+          </StackPanel>
+          <TextBlock Text="Fleet: the look of your ships" Look="Dim" />
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <NumericUpDown x:Name="Fleet" Minimum="1" Maximum="16" Value="{Binding Fleet}" VerticalAlignment="Center" />
+            <Image Source="{Binding ShipSmall}" VerticalAlignment="Center" />
+            <Image Source="{Binding ShipMedium}" VerticalAlignment="Center" />
+          </StackPanel>
+        </StackPanel>
+      </GroupBox>
+      <TabControl Grid.Row="1" Grid.Column="2">
+        <TabItem Header="DISPLAY">
+        <StackPanel Spacing="6">
+          <CheckBox x:Name="Fullscreen" Text="Fullscreen (Alt+Enter)" IsChecked="{Binding Fullscreen}" />
+          <CheckBox x:Name="UpscaledArt" Text="Upscaled art" IsChecked="{Binding UpscaledArt}" />
+          <CheckBox x:Name="VSync" Text="Wait for the display (vsync)" IsChecked="{Binding VSync}" />
+          <CheckBox x:Name="PlayMovies" Text="Play movies" IsChecked="{Binding PlayMovies}" />
+          <CheckBox x:Name="MadeSkies" Text="A sky made for each system" IsChecked="{Binding MadeSkies}" />
+          <CheckBox x:Name="MovingStars" Text="Stars fly by behind menus" IsChecked="{Binding MovingStars}" />
+          <TextBlock Text="{Binding StarSpeedText}" Look="Dim" />
+          <Slider x:Name="StarSpeed" Minimum="0" Maximum="100" Step="5" Value="{Binding StarSpeed}" />
+          <TextBlock Text="Text font" Look="Dim" />
+          <ComboBox x:Name="TextFont" ItemsSource="{Binding TextFonts}" SelectedIndex="{Binding TextFont}" />
+          <TextBlock Text="Text outline" Look="Dim" />
+          <ComboBox x:Name="TextOutline" ItemsSource="{Binding TextOutlines}" SelectedIndex="{Binding TextOutline}" />
+        </StackPanel>
+        </TabItem>
+        <TabItem Header="GAMEPLAY">
+        <StackPanel Spacing="4">
+          <CheckBox x:Name="ZeroPauses" Text="Speed 0 pauses the game" IsChecked="{Binding ZeroPauses}" />
+          <TextBlock Text="Fixes to the original's bugs, for new games" Look="Dim" />
+          <CheckBox x:Name="FixComputerKeepsShips" Text="Ships given to the computer reach it" IsChecked="{Binding FixComputerKeepsShips}" />
+          <CheckBox x:Name="FixTradeKeepsAllShips" Text="Trading over 21 ships loses none" IsChecked="{Binding FixTradeKeepsAllShips}" />
+          <CheckBox x:Name="FixScrapUnderWork" Text="Stop Work spares damaged units" IsChecked="{Binding FixScrapUnderWork}" />
+          <CheckBox x:Name="FixShipyardOverflow" Text="Shipyard leftover work carries over" IsChecked="{Binding FixShipyardOverflow}" />
+          <CheckBox x:Name="FixFleetsJoinBattles" Text="Nearby fleets join battles" IsChecked="{Binding FixFleetsJoinBattles}" />
+          <CheckBox x:Name="FixPlanetBattleSides" Text="Fleets join planet battles by side" IsChecked="{Binding FixPlanetBattleSides}" />
+          <CheckBox x:Name="FixShotsHitPlanets" Text="Fast shots hit planets" IsChecked="{Binding FixShotsHitPlanets}" />
+          <CheckBox x:Name="FixShotsLeadTrue" Text="Shots aim where they meet" IsChecked="{Binding FixShotsLeadTrue}" />
+          <CheckBox x:Name="FixExperienceOnce" Text="Battle experience given once" IsChecked="{Binding FixExperienceOnce}" />
+          <CheckBox x:Name="FixOwnYardRefits" Text="Refits only at your own yards" IsChecked="{Binding FixOwnYardRefits}" />
+          <CheckBox x:Name="FixColonizeNeedsShip" Text="Colonizing needs a colony ship" IsChecked="{Binding FixColonizeNeedsShip}" />
+          <CheckBox x:Name="FixStrangersIndifferent" Text="Strangers ignore your attacks" IsChecked="{Binding FixStrangersIndifferent}" />
+        </StackPanel>
+        </TabItem>
+        <TabItem Header="MODS">
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="0,6,0,0">
+            <TextBlock Text="{Binding ModDetails}" Look="Dim" TextWrapping="True" />
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Button x:Name="ToggleMod" Text="ON / OFF" Width="80" Click="OnToggleMod" IsEnabled="{Binding ModPicked}" />
+              <Button x:Name="ModUp" Text="UP" Width="50" Click="OnModUp" IsEnabled="{Binding ModPicked}" />
+              <Button x:Name="ModDown" Text="DOWN" Width="60" Click="OnModDown" IsEnabled="{Binding ModPicked}" />
+            </StackPanel>
+            <TextBlock Text="Turned on mods load in this order, the lower winning. Changes load when you leave Options; with a game running, when the next one starts." Look="Dim" TextWrapping="True" />
+          </StackPanel>
+          <ListBox x:Name="Mods" ItemsSource="{Binding Mods}" SelectedIndex="{Binding ModIndex}" ItemActivated="OnToggleMod" />
+        </DockPanel>
+        </TabItem>
+      </TabControl>
+    </Grid>
+    <DockPanel Grid.Row="2" LastChildFill="False">
+      <Button DockPanel.Dock="Left" x:Name="Done" Text="DONE" Width="122" Click="OnDone" />
+    </DockPanel>
+  </Grid>
+</Form>

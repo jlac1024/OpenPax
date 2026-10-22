@@ -1,0 +1,41 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{props,targets,csproj,slnx,toml,json,yml,yaml}]
+indent_size = 2
+
+[*.sh]
+indent_size = 2
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:error
+dotnet_style_qualification_for_field = false:warning
+csharp_style_var_for_built_in_types = true:silent
+dotnet_sort_system_directives_first = true
+
+# One type per file is enforced by review, not an analyzer.
+
+# Naming: private fields are _camelCase.
+dotnet_naming_rule.private_fields.symbols = private_fields
+dotnet_naming_rule.private_fields.style = underscore_camel
+dotnet_naming_rule.private_fields.severity = warning
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_symbols.private_fields.required_modifiers =
+dotnet_naming_style.underscore_camel.capitalization = camel_case
+dotnet_naming_style.underscore_camel.required_prefix = _
+
+dotnet_naming_rule.private_consts.symbols = private_consts
+dotnet_naming_rule.private_consts.style = pascal
+dotnet_naming_rule.private_consts.severity = warning
+dotnet_naming_symbols.private_consts.applicable_kinds = field
+dotnet_naming_symbols.private_consts.applicable_accessibilities = private
+dotnet_naming_symbols.private_consts.required_modifiers = const
+dotnet_naming_style.pascal.capitalization = pascal_case

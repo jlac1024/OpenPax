@@ -1,0 +1,10 @@
+{
+  // The lobby PUBLIC LOBBY connects to: "host", "host:port",
+  // or "wss://lobby.example.com" behind a Cloudflare tunnel
+  // (docs/netcode/cloudflare-tunnel.md).
+  "publicLobby": "127.0.0.1:10421",
+
+  // Hosts the LAN (TCP/IP) page asks directly, by address or name, besides
+  // its broadcasts, small VPN subnets and Tailscale peers.
+  "lanHosts": []
+}

@@ -1,0 +1,40 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OpenPax.Ai/OpenPax.Ai.csproj" />
+    <Project Path="src/OpenPax.Audio/OpenPax.Audio.csproj" />
+    <Project Path="src/OpenPax.Data/OpenPax.Data.csproj" />
+    <Project Path="src/OpenPax.Forms/OpenPax.Forms.csproj" />
+    <Project Path="src/OpenPax.Host/OpenPax.Host.csproj" />
+    <Project Path="src/OpenPax.LobbyServer/OpenPax.LobbyServer.csproj" />
+    <Project Path="src/OpenPax.Media/OpenPax.Media.csproj" />
+    <Project Path="src/OpenPax.Modding/OpenPax.Modding.csproj" />
+    <Project Path="src/OpenPax.Net/OpenPax.Net.csproj" />
+    <Project Path="src/OpenPax.Render/OpenPax.Render.csproj" />
+    <Project Path="src/OpenPax.Sdl/OpenPax.Sdl.csproj" />
+    <Project Path="src/OpenPax.Sim/OpenPax.Sim.csproj" />
+    <Project Path="src/OpenPax.Ui/OpenPax.Ui.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Bounty/Bounty.csproj" />
+    <Project Path="samples/NightMenu/NightMenu.csproj" />
+    <Project Path="samples/SimpleCombat/SimpleCombat.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/ApiDocs/ApiDocs.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/OpenPax.Ai.Tests/OpenPax.Ai.Tests.csproj" />
+    <Project Path="tests/OpenPax.Audio.Tests/OpenPax.Audio.Tests.csproj" />
+    <Project Path="tests/OpenPax.Data.Tests/OpenPax.Data.Tests.csproj" />
+    <Project Path="tests/OpenPax.Forms.Tests/OpenPax.Forms.Tests.csproj" />
+    <Project Path="tests/OpenPax.Host.Tests/OpenPax.Host.Tests.csproj" />
+    <Project Path="tests/OpenPax.LobbyServer.Tests/OpenPax.LobbyServer.Tests.csproj" />
+    <Project Path="tests/OpenPax.Media.Tests/OpenPax.Media.Tests.csproj" />
+    <Project Path="tests/OpenPax.Modding.Tests/OpenPax.Modding.Tests.csproj" />
+    <Project Path="tests/OpenPax.Net.Tests/OpenPax.Net.Tests.csproj" />
+    <Project Path="tests/OpenPax.Render.Tests/OpenPax.Render.Tests.csproj" />
+    <Project Path="tests/OpenPax.Sdl.Tests/OpenPax.Sdl.Tests.csproj" />
+    <Project Path="tests/OpenPax.Sim.Tests/OpenPax.Sim.Tests.csproj" />
+    <Project Path="tests/OpenPax.Ui.Tests/OpenPax.Ui.Tests.csproj" />
+  </Folder>
+</Solution>

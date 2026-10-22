@@ -1,0 +1,39 @@
+namespace OpenPax.Host;
+
+/// <summary>User-facing strings for the host.</summary>
+internal static class Strings
+{
+    public const string WindowTitle = "OpenPax";
+    public const string Organization = "OpenPax";
+    public const string SaveFailed = "Could not save or delete the game {0}: {1}";
+    public const string LoadFailed = "Could not load the game {0}: {1}";
+    public const string ConfigBroken = "Could not read the config file {0} ({1}); using the defaults.";
+    public const string SdlInitFailed = "Could not start SDL: {0}";
+    public const string WindowFailed = "Could not open the game window: {0}";
+    public const string CarryOverFailed = "Could not copy the old settings and saves from {0}: {1}";
+    public const string BadArgument = "Unknown or malformed argument: {0}";
+    public const string NoData = "No imported game data in {0}. Start the game once to import it from your GOG copy, or run build.sh with the GOG game in references/gog.";
+    public const string InstallerFilter = "GOG installer";
+    public const string RendererFailed = "Could not start drawing: {0}";
+    public const string MovieMissing = "Movie not found: {0}";
+    public const string Upscaled = "Pictures remade at 2x: {0}";
+    public const string DedicatedBadAddress = "--dedicated wants a lobby address, host or host:port, not \"{0}\"";
+    public const string DedicatedNoLobby = "The lobby did not take the server in: {0}";
+    public const string DedicatedNoAnswer = "no answer";
+    public const string DedicatedRoomSuffix = "'s game";
+    public const string DedicatedOpen = "Room \"{0}\" is open; the game starts when {1} or more players are in and ready.";
+    public const string DedicatedStarted = "The game has started: {0} players, {1} stars.";
+    public const string DedicatedOver = "The game is over at tick {0}.";
+    public const string DedicatedEmpty = "Every player has left; stopping.";
+    public const string DedicatedReplay = "Replay written to {0} ({1} steps).";
+    public const string SpeciesUnreadable = "Designed species could not be read from {0}: {1}";
+    public const string SpeciesUnwritable = "Designed species could not be written to {0}: {1}";
+    public const string HeadlessDone = "Played {0} ticks, last state hash {1:x16}, replay written to {2}";
+    public const string ReplayDiverged = "Replay differs at tick {0}: expected {1:x16}, got {2:x16}";
+    public const string ReplayMatched = "Replay matches for all {0} ticks";
+    public const string SoakTick = "tick {0}: {1} wars, {2} alliances, {3} battles so far";
+    public const string SoakPlayer = "  player {0} {1}: colonies {2}, fleets {3}, ships {4}, techs {5}, money {6}, missions {7}, treaties {8}";
+    public const string SoakEliminated = "tick {0}: a player is eliminated";
+    public const string SoakOver = "Game over at tick {0}";
+    public const string SoakNotOver = "Not over after {0} ticks";
+}

@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenPax.Forms.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../OpenPax.Render/OpenPax.Render.csproj" />
+  </ItemGroup>
+</Project>

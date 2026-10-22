@@ -1,0 +1,57 @@
+# Simple Combat's numbers. Changes take effect when the game next starts.
+# docs/modding.md tells how a round is fought.
+
+# A round of fighting every this many strategic steps.
+round_every = 5
+
+# Fleets at war engage on their own when they come within this distance of
+# each other in a system (map units; 50 is how near a fleet must be to join
+# a battle in the original), or circle the same uncolonized planet. At a
+# colony, only an attack starts a fight: a siege.
+engage_distance = 50
+
+# Of what lands after hit chances, interception and shields, the share that
+# is dealt each round. Lower makes every fight take longer.
+attack_share = 0.25
+
+# Against missiles and drones, point defense counts in full; short range
+# weapons (reach 500 or less) and a side's own drones count this much of
+# their damage too.
+short_range_vs_small_craft = 0.5
+drones_vs_small_craft = 0.5
+
+# However much point defense a side has, at most this share of the
+# missiles or drones coming at it is stopped.
+most_stopped = 0.8
+
+# With no defender or orbital left, the people are fired on, and every
+# round lands (no hit chance, as the original's bombing). Planet bombs and
+# area weapons count in full, other weapons by this share; each point of
+# that, times attack_share, kills this many millions.
+other_weapons_on_people = 0.5
+population_per_attack = 0.02
+
+# A colony with no defenders and no defense structures left falls when its
+# population is at or below this (millions).
+capture_at = 0.5
+
+# Mine fields: mines in each unit, and the share of them that strike the
+# besiegers each round. Besiegers with no minesweeper of the field's level
+# or better cannot see the mines: every strike lands and the field cannot
+# be cleared. With one, only swept_strikes of the strikes land, and the
+# sweepers clear sweep_rate of the mines a round, more with point defense.
+mines_per_unit = 75
+mine_strikes = 0.02
+swept_strikes = 0.15
+sweep_rate = 0.05
+
+# Of a mine's damage, the share that lands.
+mine_damage_share = 0.25
+
+# Experience: after each round, every ship of a side that fought gains
+# this many points, plus its share of the kill credit (a tenth of each
+# enemy ship's structure, as the original). Levels come at 100, 1000,
+# 1500, 2500, 4000 and 6000 points (a fifth more for warriors) and raise
+# a ship's aim and hull defense; training bases still train ships up to
+# level 2 outside battle.
+experience_per_round = 1

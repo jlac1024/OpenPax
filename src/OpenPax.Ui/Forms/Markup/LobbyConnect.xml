@@ -1,0 +1,28 @@
+<!-- MULTIPLAYER (mode 2): the page for the lobby choice made on Game Start's multiplayer menu. -->
+<Form xmlns="https://openpax.local/forms" xmlns:x="https://openpax.local/forms/x">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="12" RowSpacing="8">
+    <Border Grid.Row="0" Look="Strip" Height="20">
+      <TextBlock Text="MULTIPLAYER" Look="Heading" Bold="True" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Border>
+    <Grid Grid.Row="1" ColumnDefinitions="*,320,*" RowDefinitions="*,Auto,*">
+      <GroupBox Grid.Row="1" Grid.Column="1" Header="{Binding Heading}">
+        <StackPanel Spacing="6">
+          <TextBlock Text="Lobbies found on this network" Look="Dim" Visibility="{Binding ListShown}" />
+          <ListBox x:Name="Found" ItemsSource="{Binding Found}" SelectedIndex="{Binding Picked}" ItemActivated="OnConnect" Height="80" Visibility="{Binding ListShown}" />
+          <TextBlock Text="{Binding PublicLine}" Look="Dim" Visibility="{Binding PublicShown}" />
+          <TextBlock Text="{Binding AddressLabel}" Look="Dim" Visibility="{Binding AddressShown}" />
+          <TextBox x:Name="Address" Text="{Binding Address}" Submitted="OnConnect" Visibility="{Binding AddressShown}" />
+          <TextBlock Text="Your name" Look="Dim" />
+          <TextBox x:Name="PlayerName" Text="{Binding Name}" MaxLength="24" Submitted="OnConnect" />
+          <Border Look="Well" Padding="6" MinHeight="44">
+            <TextBlock Text="{Binding Status}" Look="Bright" TextWrapping="True" />
+          </Border>
+        </StackPanel>
+      </GroupBox>
+    </Grid>
+    <DockPanel Grid.Row="2" LastChildFill="False">
+      <Button DockPanel.Dock="Left" x:Name="Back" Text="BACK" Width="122" Click="OnBack" />
+      <Button DockPanel.Dock="Right" x:Name="Connect" Text="CONNECT" Width="122" Click="OnConnect" />
+    </DockPanel>
+  </Grid>
+</Form>

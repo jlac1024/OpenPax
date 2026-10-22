@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- A sample C# mod (docs/modding.md): the game's own assemblies are referenced, not copied, as the game supplies them. -->
+  <PropertyGroup>
+    <AssemblyName>SimpleCombat</AssemblyName>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/OpenPax.Modding/OpenPax.Modding.csproj" Private="false" ExcludeAssets="runtime" />
+    <ProjectReference Include="../../src/OpenPax.Sim/OpenPax.Sim.csproj" Private="false" ExcludeAssets="runtime" />
+    <ProjectReference Include="../../src/OpenPax.Data/OpenPax.Data.csproj" Private="false" ExcludeAssets="runtime" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mod.toml" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="simple-combat.toml" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,46 @@
+# Checks every push and pull request the way build.sh does at home:
+# format, build with warnings as errors, and the tests. Tests that need the
+# game's files skip, since none of the game is in the repository.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      # tools/deps.py reads TOML with tomllib (Python 3.11 and later).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Packages for building SDL3 and FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends $(cat .github/linux-packages.txt)
+
+      # SDL3, FFmpeg and x264 take most of a build: kept between runs, keyed
+      # on their pins and the scripts that build them.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps/archives
+            deps/SDL3-*
+            deps/ffmpeg-*
+            deps/x264-*
+            deps/fonts
+            build/native
+          key: native-linux-${{ hashFiles('tools/deps.toml', 'tools/build_ffmpeg.sh', 'build.sh') }}
+
+      - name: Build and test
+        run: ./build.sh

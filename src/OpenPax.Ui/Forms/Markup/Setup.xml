@@ -1,0 +1,31 @@
+<!-- The first-run setup (docs/first-run.md): the player's own copy of the game, imported before anything else runs. Drawn without the game's art, which is not there yet. -->
+<Form xmlns="https://openpax.local/forms" xmlns:x="https://openpax.local/forms/x">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16" RowSpacing="10">
+    <StackPanel Grid.Row="0" Spacing="4">
+      <TextBlock Text="OpenPax" Look="Heading" Bold="True" HorizontalAlignment="Center" />
+      <TextBlock Text="OpenPax plays Pax Imperia: Eminent Domain from your own copy of the game. Point it at the GOG version once, and it imports the game's art, sounds, movies and data." TextWrapping="True" HorizontalAlignment="Center" />
+    </StackPanel>
+    <Grid Grid.Row="1" ColumnDefinitions="*,440,*" RowDefinitions="*,Auto,*">
+      <GroupBox Grid.Row="1" Grid.Column="1" Header="YOUR COPY OF THE GAME">
+        <StackPanel Spacing="6">
+          <TextBlock Text="Found on this machine" Look="Dim" />
+          <ListBox x:Name="Found" ItemsSource="{Binding Found}" SelectedIndex="{Binding FoundIndex}" ItemActivated="OnImport" Height="60" IsEnabled="{Binding Idle}" />
+          <TextBlock Text="The game's folder, or GOG's offline installer" Look="Dim" />
+          <TextBox x:Name="Path" Text="{Binding Path}" Submitted="OnImport" IsEnabled="{Binding Idle}" />
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Button x:Name="BrowseFolder" Text="FOLDER..." Width="110" Click="OnBrowseFolder" IsEnabled="{Binding Idle}" />
+            <Button x:Name="BrowseInstaller" Text="INSTALLER..." Width="110" Click="OnBrowseInstaller" IsEnabled="{Binding Idle}" />
+          </StackPanel>
+          <ProgressBar x:Name="Progress" Maximum="1000" Value="{Binding Progress}" />
+          <Border Look="Well" Padding="6" MinHeight="44">
+            <TextBlock Text="{Binding Status}" Look="Bright" TextWrapping="True" />
+          </Border>
+        </StackPanel>
+      </GroupBox>
+    </Grid>
+    <DockPanel Grid.Row="2" LastChildFill="False">
+      <Button DockPanel.Dock="Left" x:Name="Quit" Text="QUIT" Width="122" Click="OnQuit" IsEnabled="{Binding Idle}" />
+      <Button DockPanel.Dock="Right" x:Name="Import" Text="IMPORT" Width="122" Click="OnImport" IsEnabled="{Binding CanImport}" />
+    </DockPanel>
+  </Grid>
+</Form>
