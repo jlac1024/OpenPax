@@ -205,6 +205,7 @@ done
 # so no game art is in the repository.
 # What the first run needs beside the program (docs/first-run.md): the
 # modern font for its text, and the ffmpeg tool to convert the movies.
+deps fetch titillium-web
 mkdir -p "$PUBLISH/game/fonts/modern" "$PUBLISH/game/tools"
 cp -p "$ROOT/deps/fonts/titillium-web/"* "$PUBLISH/game/fonts/modern/"
 cp -p "$ROOT/build/native/ffmpeg-tool/bin/ffmpeg" "$PUBLISH/game/tools/ffmpeg"
