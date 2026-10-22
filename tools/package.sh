@@ -107,9 +107,14 @@ PLIST
   # a downloaded copy still needs prepare_mac.sh to clear the quarantine.
   if command -v codesign > /dev/null; then
     for f in "$APP"/Contents/MacOS/*.dylib "$APP/Contents/MacOS/tools/ffmpeg" "$APP/Contents/MacOS/openpax" "$OUT"/lobby-server/*.dylib "$OUT/lobby-server/openpax-lobby"; do
-      [[ -e "$f" ]] && codesign --force --sign - "$f"
+      if [[ -e "$f" ]]; then
+        codesign --force --sign - "$f"
+      fi
     done
-    codesign --force --sign - "$APP"
+    # Each program and library is signed, which is what Apple Silicon needs
+    # to run it. The bundle as a whole is not: codesign refuses a bundle whose
+    # program folder also holds .NET's .dll files, and a bundle signed only
+    # ad hoc gains nothing a downloaded copy keeps anyway.
   fi
 else
   rsync -a "$GAME/" "$OUT/"

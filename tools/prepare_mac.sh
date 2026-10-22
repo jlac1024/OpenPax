@@ -8,13 +8,15 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 xattr -dr com.apple.quarantine "$HERE" 2> /dev/null || true
 
-# Each library and program first, then the app around them.
+# Each library and program, which is what Apple Silicon needs to run them.
+# Not the app as a whole: codesign refuses a bundle whose program folder
+# also holds .NET's .dll files.
 for f in "$HERE"/OpenPax.app/Contents/MacOS/*.dylib "$HERE"/OpenPax.app/Contents/MacOS/openpax \
+  "$HERE"/OpenPax.app/Contents/MacOS/tools/ffmpeg \
   "$HERE"/lobby-server/*.dylib "$HERE"/lobby-server/openpax-lobby; do
   if [[ -e "$f" ]]; then
     codesign --force --sign - "$f"
   fi
 done
 
-codesign --force --sign - "$HERE/OpenPax.app"
 echo "Ready: open OpenPax.app"
