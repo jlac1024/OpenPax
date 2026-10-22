@@ -29,7 +29,8 @@ step() { printf '\n== %s\n' "$*"; }
 STAMPS="$ROOT/build/stamps"
 mkdir -p "$STAMPS"
 # A fingerprint of a set of files: their names, sizes and modification times.
-fingerprint() { find "$@" -type f -printf '%p %s %T@\n' 2>/dev/null | sort | md5sum | cut -d' ' -f1; }
+# A path that is not there (no imported data, as on CI) counts as empty.
+fingerprint() { { find "$@" -type f -printf '%p %s %T@\n' 2>/dev/null || true; } | sort | md5sum | cut -d' ' -f1; }
 fresh() { [[ $FULL == 0 && -f "$STAMPS/$1" && "$(cat "$STAMPS/$1")" == "$2" ]]; }
 deps() { python3 -I "$ROOT/tools/deps.py" "$@"; }
 
