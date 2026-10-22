@@ -83,7 +83,8 @@ version 3](LICENSE). The libraries and tools it builds on are listed in
 
 ## Disclaimer
 
-OpenPax is a fan project. It is not affiliated with or endorsed by the
-game's developers or rights holders. *Pax Imperia* is a trademark of its
-respective owner. No part of the original game is included in this
-repository or in OpenPax's builds.
+OpenPax is a fan project. *Pax Imperia: Eminent Domain* was developed by
+Heliotrope Studios, and the game and the *Pax Imperia* name belong to THQ
+Nordic GmbH. OpenPax is not affiliated with or endorsed by Heliotrope
+Studios, THQ Nordic or GOG. No part of the original game is included in
+this repository or in OpenPax's builds.
