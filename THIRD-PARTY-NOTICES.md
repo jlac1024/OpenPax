@@ -20,6 +20,24 @@ Used only to develop OpenPax, never shipped:
 | [xUnit.net](https://xunit.net) | tests | Apache 2.0 |
 | [unshield](https://github.com/twogood/unshield) | comparing the original release's update package | MIT |
 
+## Source of FFmpeg and x264
+
+The release bundles include FFmpeg's libraries (LGPL) and an FFmpeg
+program built with x264 (GPL). Each release on GitHub carries, beside the
+bundles, the exact source archives they were built from:
+
+- `source-ffmpeg-VERSION.tar.xz`, FFmpeg as released at
+  <https://ffmpeg.org/releases/>
+- `source-x264-COMMIT.tar.bz2`, x264 from
+  <https://code.videolan.org/videolan/x264> at that commit
+
+The versions, download addresses and SHA-256 hashes are pinned in
+`tools/deps.toml`. How they are
+configured and built is in this repository: `tools/build_ffmpeg.sh`
+(Linux), `tools/build_native_windows.sh` (Windows) and
+`tools/build_native_macos.sh` (macOS). The archives on each release are the
+ones its bundles were built from.
+
 No part of *Pax Imperia: Eminent Domain* is included. Its art, sound,
 music, movies, text and data are read at run time from the player's own
 copy of the game.

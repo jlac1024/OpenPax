@@ -98,6 +98,22 @@ jobs:
         with:
           path: bundles
           merge-multiple: true
+      # tools/deps.py reads TOML with tomllib (Python 3.11 and later).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # The bundles ship FFmpeg (LGPL libraries, and the GPL movie converter
+      # with x264), so the exact source archives they were built from go on
+      # the release beside them (THIRD-PARTY-NOTICES.md). deps.py checks
+      # each against its pinned SHA-256; the build scripts are in tools/.
+      - name: Source of the shipped FFmpeg and x264
+        run: |
+          python3 -I tools/deps.py fetch ffmpeg x264
+          for name in ffmpeg x264; do
+            archive="deps/archives/$(basename "$(python3 -I tools/deps.py get "$name" url)")"
+            cp "$archive" "bundles/source-$(basename "$archive")"
+          done
+          ls -l bundles
       - name: Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -105,4 +121,7 @@ jobs:
           tag="v${VERSION#v}"
           draft=()
           if [[ "${{ github.event_name }}" == workflow_dispatch ]]; then draft=(--draft); fi
-          gh release create "$tag" bundles/* "${draft[@]}" --title "OpenPax ${VERSION#v}" --notes-file docs/release-notes.md --target "${{ github.sha }}"
+          # A version's own notes if written (docs/releases/), else the general ones.
+          notes="docs/releases/${VERSION#v}.md"
+          [[ -f "$notes" ]] || notes=docs/release-notes.md
+          gh release create "$tag" bundles/* "${draft[@]}" --title "OpenPax ${VERSION#v}" --notes-file "$notes" --target "${{ github.sha }}"

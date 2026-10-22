@@ -27,7 +27,8 @@ sha256 = "8c3850283eb25fa026482078a04051e0be17347b09ef81a0849bec15a96e002e"
 unpack = "ffmpeg-9.0.2"
 
 # x264 has no releases; this is the head of its stable branch (2025-06-08).
-# Only linked into the dev-tool ffmpeg.
+# Linked only into the ffmpeg program that converts the movies on import,
+# which the release bundles ship (THIRD-PARTY-NOTICES.md).
 [x264]
 version = "stable-b35605ac"
 url = "https://code.videolan.org/videolan/x264/-/archive/b35605ace3ddf7c1a5d67a2eb553f034aef41d55/x264-b35605ace3ddf7c1a5d67a2eb553f034aef41d55.tar.bz2"
