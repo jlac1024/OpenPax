@@ -79,6 +79,19 @@ cp "$ROOT/LICENSE" "$ROOT/THIRD-PARTY-NOTICES.md" "$ROOT/README.md" "$GAME/"
 
 # The bundle's shape: a folder on Windows and Linux, an app on macOS.
 if [[ "$RID" == osx-* ]]; then
+  # Each program and library signed ad hoc, which is what Apple Silicon
+  # needs to run it; the signature lives inside each file, so it survives
+  # the copy below and the download. Signed here, before the folder is an
+  # app: inside one, codesign takes the main program for the whole bundle,
+  # and refuses a bundle that also holds .NET's .dll files.
+  if command -v codesign > /dev/null; then
+    for f in "$GAME"/*.dylib "$GAME/tools/ffmpeg" "$GAME/openpax" "$WORK"/lobby-server/*.dylib "$WORK/lobby-server/openpax-lobby"; do
+      if [[ -e "$f" ]]; then
+        codesign --force --sign - "$f"
+      fi
+    done
+  fi
+
   APP="$OUT/OpenPax.app"
   mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
   rsync -a "$GAME/" "$APP/Contents/MacOS/"
@@ -103,19 +116,6 @@ PLIST
   cp "$ROOT/tools/prepare_mac.sh" "$OUT/prepare_mac.sh"
   cp "$ROOT/LICENSE" "$ROOT/THIRD-PARTY-NOTICES.md" "$ROOT/README.md" "$OUT/"
 
-  # Signed for running here only (not by a known developer): on a Mac, now;
-  # a downloaded copy still needs prepare_mac.sh to clear the quarantine.
-  if command -v codesign > /dev/null; then
-    for f in "$APP"/Contents/MacOS/*.dylib "$APP/Contents/MacOS/tools/ffmpeg" "$APP/Contents/MacOS/openpax" "$OUT"/lobby-server/*.dylib "$OUT/lobby-server/openpax-lobby"; do
-      if [[ -e "$f" ]]; then
-        codesign --force --sign - "$f"
-      fi
-    done
-    # Each program and library is signed, which is what Apple Silicon needs
-    # to run it. The bundle as a whole is not: codesign refuses a bundle whose
-    # program folder also holds .NET's .dll files, and a bundle signed only
-    # ad hoc gains nothing a downloaded copy keeps anyway.
-  fi
 else
   rsync -a "$GAME/" "$OUT/"
   rsync -a "$WORK/lobby-server/" "$OUT/lobby-server/"
