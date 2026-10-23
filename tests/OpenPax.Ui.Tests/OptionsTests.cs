@@ -139,4 +139,20 @@ public sealed class OptionsTests
         var game = InGame(app);
         Assert.Equal(OpenPax.Sim.Fixes.FleetsJoinBattles | OpenPax.Sim.Fixes.ExperienceOnce, game.Session!.Game.Fixes);
     }
+
+    [Fact]
+    public void TheModsListShowsWhichAreOn()
+    {
+        var app = NewApp();
+        app.AvailableMods.Add(new ModListing("simple-combat", "Simple Combat", "1.0", "Fights on the map"));
+        app.AvailableMods.Add(new ModListing("bounty", "Bounty", "1.0", "Credits for kills"));
+        app.EnabledMods.Add("simple-combat");
+        var model = Open(app);
+
+        // Rows the list draws with a green light (on) or a red one (off), the turned-on first.
+        Assert.Equal([new OpenPax.Forms.Controls.ToggleItem("Simple Combat 1.0", true), new OpenPax.Forms.Controls.ToggleItem("Bounty 1.0", false)], model.Mods);
+        model.ModIndex = 1;
+        model.OnToggleMod();
+        Assert.All(model.Mods, row => Assert.True(((OpenPax.Forms.Controls.ToggleItem)row).On));
+    }
 }

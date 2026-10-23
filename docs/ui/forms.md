@@ -33,6 +33,7 @@ palette (`GameTheme`):
 | Buttons, tabs | Main 44501, pressed 44601 |
 | Check boxes | Game Options' green box, Main 32033 and 32133 |
 | Radio buttons | Player Design's indicator light, Main 25004 and 25104 |
+| On and off lights in lists (`ToggleItem`: the mods) | the lit indicator, Main 25104, green; red is the same light with red and green swapped, as the game has no red one |
 | Spinner arrows | Main 44502, 44504 and their pressed 44602, 44604 |
 | Scroll bars | track Main 44313 (its arrows at the ends), thumb 44310 |
 | Combo box arrow | Main 44311 |
@@ -105,3 +106,9 @@ spinners and sliders.
 
 The developer console's `gallery` shows every control
 (`Forms/Markup/Gallery.xml`).
+
+A form laid over a classic screen (`Background="False"`) takes only the
+clicks that land on its controls; one with `Modal="True"` takes every
+click while it is open, so the screen under it waits (the update dialog,
+`Update.xml`, drawn in true color because the game's own popup art takes
+each screen's palette and came out pink over the main menu's).

@@ -31,6 +31,9 @@ public sealed class FormHost(Theme theme)
 
     public void Close(Form form) => _forms.Remove(form);
 
+    /// <summary>Whether the form is shown (not closed yet).</summary>
+    public bool Contains(Form form) => _forms.Contains(form);
+
     public void Clear() => _forms.Clear();
 
     /// <summary>The time of the last tick, which drawing animates by.</summary>

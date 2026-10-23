@@ -1057,29 +1057,29 @@ public sealed class UiApp
         Updates.Busy = true;
         Updates.Status = string.Format(System.Globalization.CultureInfo.InvariantCulture, UiText.UpdateStarting, Updates.Available);
         Request(new HostRequest(HostRequestKind.Update));
-        Open(new UpdatePopup(Assets, PaletteIndex, () => Request(new HostRequest(HostRequestKind.CancelUpdate)), ClassicWidth, ClassicHeight));
+        if (_updateDialog is not { IsOpen: true })
+        {
+            _updateDialog = OpenPax.Ui.Forms.UpdateDialog.Working(this);
+        }
     }
 
-    // An update found is offered once, on the main menu with nothing open over
-    // it; a download's popup follows it, and says why when it stops short.
+    private OpenPax.Ui.Forms.UpdateDialog? _updateDialog;
+
+    // An update found is offered once, on the main menu with nothing open
+    // over it; the dialog then follows the download and says how it ended.
     private void FollowUpdates()
     {
-        if (Popup is UpdatePopup downloading)
+        if (_updateDialog is { IsOpen: true } dialog)
         {
-            downloading.Show(Updates);
-            if (!Updates.Busy)
-            {
-                ClosePopup();
-                Tell(Updates.Status);
-            }
-
+            dialog.Follow();
             return;
         }
 
-        if (Updates is { Available: { } version, Offered: false, Busy: false } && Current is Screens.GameStartScreen && Popup is null && Forms.Top is null)
+        _updateDialog = null;
+        if (Updates is { Available: not null, Offered: false, Busy: false } && Current is Screens.GameStartScreen && Popup is null && Forms.Top is null)
         {
             Updates.Offered = true;
-            Confirm(string.Format(System.Globalization.CultureInfo.InvariantCulture, UiText.UpdateOffer, version, Updates.Running), StartUpdate);
+            _updateDialog = OpenPax.Ui.Forms.UpdateDialog.Offer(this);
         }
     }
 

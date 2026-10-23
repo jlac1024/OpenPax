@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using OpenPax.Forms;
+using OpenPax.Forms.Controls;
 using OpenPax.Sim;
 using OpenPax.Ui.Screens;
 using OpenPax.Ui.Widgets;
@@ -211,7 +212,7 @@ public sealed class OptionsModel(UiApp app) : Observable
     }
 
     /// <summary>The mods folder's mods (docs/modding.md): those turned on first, in their order, then the rest.</summary>
-    public ObservableCollection<string> Mods
+    public ObservableCollection<object> Mods
     {
         get
         {
@@ -225,7 +226,7 @@ public sealed class OptionsModel(UiApp app) : Observable
         }
     }
 
-    private ObservableCollection<string>? _mods;
+    private ObservableCollection<object>? _mods;
     private List<ModListing> _modOrder = [];
 
     public int ModIndex
@@ -289,7 +290,7 @@ public sealed class OptionsModel(UiApp app) : Observable
         list.Clear();
         foreach (var m in _modOrder)
         {
-            list.Add((app.EnabledMods.Contains(m.Id) ? UiText.ModOn : UiText.ModOff) + m.Name + " " + m.Version);
+            list.Add(new ToggleItem(m.Name + " " + m.Version, app.EnabledMods.Contains(m.Id)));
         }
 
         ModIndex = picked is null ? -1 : _modOrder.FindIndex(m => m.Id == picked);

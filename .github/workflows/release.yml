@@ -128,6 +128,36 @@ jobs:
           name: win-x64
           path: build/release/*.zip
 
+  # The Windows installer, from the bundle the windows job made: Inno Setup
+  # runs only on Windows (tools/installer/openpax.iss).
+  windows-installer:
+    needs: [check, windows]
+    if: needs.check.outputs.build == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: win-x64
+          path: bundle
+      - name: Installer
+        shell: pwsh
+        run: |
+          $version = "$env:VERSION".TrimStart('v')
+          Expand-Archive "bundle/OpenPax-$version-win-x64.zip" -DestinationPath unpacked
+          # The runner's own Inno Setup, else one from Chocolatey.
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) {
+            choco install innosetup -y --no-progress
+          }
+          & $iscc "/DAppVersion=$version" "/DSourceDir=$PWD\unpacked\OpenPax-$version-win-x64" "/DOutputDir=$PWD\installer" tools\installer\openpax.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem installer
+      - uses: actions/upload-artifact@v4
+        with:
+          name: win-x64-setup
+          path: installer/*.exe
+
   macos:
     needs: check
     if: needs.check.outputs.build == 'true'
@@ -158,7 +188,7 @@ jobs:
           path: build/release/*.tar.gz
 
   publish:
-    needs: [linux, windows, macos]
+    needs: [linux, windows, windows-installer, macos]
     runs-on: ubuntu-24.04
     permissions:
       contents: write

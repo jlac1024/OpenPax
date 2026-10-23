@@ -49,6 +49,13 @@ for a version tag such as `v0.1.0`, or by hand as a draft:
   `tools/package.sh linux-x64 VERSION`.
 - **Windows x64** on Ubuntu, cross-compiled: `tools/build_native_windows.sh`,
   then `tools/package.sh win-x64 VERSION`.
+  A Windows runner then makes the installer from that bundle with Inno
+  Setup (`tools/installer/openpax.iss`): `OpenPax-VERSION-win-x64-setup.exe`,
+  beside the zip. It installs for the user who runs it, with no admin
+  prompt, into `%LOCALAPPDATA%\Programs\OpenPax`, with a Start menu entry,
+  a desktop shortcut if wanted, and an uninstaller. Per user because the
+  game updates itself in place (updates.md), which a Program Files install
+  would not let it do. An upgrade keeps the player's `config.json`.
 - **macOS, Apple Silicon** on a GitHub Mac: `tools/build_native_macos.sh`,
   then `tools/package.sh osx-arm64 VERSION`, signed ad hoc.
 

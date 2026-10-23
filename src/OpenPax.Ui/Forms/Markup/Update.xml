@@ -1,0 +1,20 @@
+<!-- An update from GitHub (docs/updates.md): offered, then downloading, then why it stopped short.
+     A true-color form, so it looks the same over any screen's palette. Modal: it takes every
+     click while open, so the screen under it waits. -->
+<Form xmlns="https://openpax.local/forms" xmlns:x="https://openpax.local/forms/x" Background="False" Modal="True">
+  <Grid>
+    <Border Look="Panel" Padding="10" Width="360" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <StackPanel Spacing="8">
+        <TextBlock Text="UPDATE" Look="Heading" Bold="True" HorizontalAlignment="Center" />
+        <TextBlock Text="{Binding Message}" TextWrapping="True" />
+        <ProgressBar x:Name="Progress" Maximum="1000" Value="{Binding Progress}" Visibility="{Binding WorkingShown}" />
+        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Visibility="{Binding OfferShown}">
+          <Button x:Name="UpdateNow" Text="UPDATE" Width="100" Click="OnUpdate" />
+          <Button x:Name="Later" Text="LATER" Width="100" Click="OnLater" />
+        </StackPanel>
+        <Button x:Name="Cancel" Text="CANCEL" Width="100" HorizontalAlignment="Center" Click="OnCancel" Visibility="{Binding WorkingShown}" />
+        <Button x:Name="Ok" Text="OK" Width="100" HorizontalAlignment="Center" Click="OnOk" Visibility="{Binding DoneShown}" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</Form>

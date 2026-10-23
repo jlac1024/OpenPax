@@ -97,6 +97,11 @@ public sealed class Theme
 
     public RgbaImage? RadioOn { get; init; }
 
+    /// <summary>The lights beside a list row that is on or off (ToggleItem): green, and red.</summary>
+    public RgbaImage? LightOn { get; init; }
+
+    public RgbaImage? LightOff { get; init; }
+
     public RgbaImage? ArrowLeft { get; init; }
 
     public RgbaImage? ArrowLeftPressed { get; init; }

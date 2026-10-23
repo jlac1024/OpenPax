@@ -27,14 +27,19 @@ public class ListBox : ItemsControl
 
     protected int FontIndex => Font ?? Theme.DefaultFont;
 
-    protected int RowHeight => Theme.LineHeight(FontIndex) + 2;
+    protected int RowHeight => Math.Max(Theme.LineHeight(FontIndex) + 2, Items.Any(i => i is ToggleItem) ? Light.Height + 1 : 0);
+
+    // A row that is on or off has its light before the text.
+    private (int Width, int Height) Light => Theme.LightOn is { } light ? (light.Width, light.Height) : (0, 0);
+
+    private int TextIndent(object item) => item is ToggleItem && Light.Width > 0 ? Light.Width + 4 : 0;
 
     private Rect Inner => Bounds.Deflate(new Thickness(3, 3, _bar.Visibility == Visibility.Visible ? ScrollBar.Thickness + 1 : 3, 3));
 
     protected override Size MeasureOverride(Size available)
     {
         var font = Theme.Fonts(FontIndex);
-        var widest = Items.Count == 0 ? 40 : Items.Max(i => Theme.Measure(FontIndex, TextOf(i)));
+        var widest = Items.Count == 0 ? 40 : Items.Max(i => Theme.Measure(FontIndex, TextOf(i)) + TextIndent(i));
         return new Size(widest + 10 + ScrollBar.Thickness, Math.Max(3, Items.Count) * RowHeight + 6);
     }
 
@@ -68,7 +73,20 @@ public class ListBox : ItemsControl
                 dc.Fill(new Rect(inner.X, y, inner.Width, RowHeight), Theme.Selection);
             }
 
-            dc.Text(TextOf(Items[i]), inner.X + 4, y + 1, i == SelectedIndex ? Theme.Text : Theme.DimText, FontIndex);
+            var item = Items[i];
+            var color = i == SelectedIndex ? Theme.Text : Theme.DimText;
+            if (item is ToggleItem toggle)
+            {
+                if ((toggle.On ? Theme.LightOn : Theme.LightOff) is { } light)
+                {
+                    dc.Image(light, inner.X + 3, y + ((RowHeight - light.Height) / 2));
+                }
+
+                // On rows stand out in the accent green; the picked row stays white on its green bar.
+                color = i == SelectedIndex ? Theme.Text : toggle.On ? Theme.Accent : Theme.DimText;
+            }
+
+            dc.Text(TextOf(item), inner.X + 4 + TextIndent(item), y + ((RowHeight - Theme.LineHeight(FontIndex)) / 2), color, FontIndex);
         }
 
         dc.PopClip();

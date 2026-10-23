@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using OpenPax.Forms;
+using OpenPax.Forms.Controls;
 using OpenPax.Forms.Layout;
 using OpenPax.Net.Client;
 using OpenPax.Net.Lobby;
@@ -191,7 +192,7 @@ public sealed class LobbyRoomModel : Observable
     /// found, each on or off for the room; for a member, the host's in order,
     /// each found here or still to fetch.
     /// </summary>
-    public ObservableCollection<string> Mods { get; } = [];
+    public ObservableCollection<object> Mods { get; } = [];
 
     public int ModIndex
     {
@@ -265,7 +266,7 @@ public sealed class LobbyRoomModel : Observable
             _modOrder = [.. on, .. _app.AvailableMods.Where(m => !_app.EnabledMods.Contains(m.Id)).OrderBy(m => m.Name, StringComparer.OrdinalIgnoreCase)];
             foreach (var m in _modOrder)
             {
-                Mods.Add((_app.EnabledMods.Contains(m.Id) ? UiText.ModOn : UiText.ModOff) + m.Name + " " + m.Version);
+                Mods.Add(new ToggleItem(m.Name + " " + m.Version, _app.EnabledMods.Contains(m.Id)));
             }
 
             ModStatus = _modOrder.Count == 0 ? UiText.OptionsNoMods : UiText.RoomModsHost;

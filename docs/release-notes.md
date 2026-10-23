@@ -4,7 +4,7 @@ with none of the game: you need your own copy from GOG.
 ## Getting started
 
 1. Download the bundle for your system below and unpack it.
-   - **Windows (x64):** `OpenPax-…-win-x64.zip`, then run `openpax.exe`.
+   - **Windows (x64):** `OpenPax-…-win-x64-setup.exe` installs it (no admin needed, with a Start menu entry); or unzip `OpenPax-…-win-x64.zip` and run `openpax.exe`.
    - **Linux (x64):** `OpenPax-…-linux-x64.tar.gz`, then run `./openpax`.
    - **macOS (Apple Silicon):** `OpenPax-…-osx-arm64.tar.gz`. The app is
      not signed by a known developer: run `prepare_mac.sh` once from the

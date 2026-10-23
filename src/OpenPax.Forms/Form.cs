@@ -40,6 +40,12 @@ public class Form : Element
     /// <summary>Draws the panel background under the content; off for forms laid over a picture.</summary>
     public bool Background { get; set; } = true;
 
+    /// <summary>
+    /// Takes every click while it is open, even where it draws nothing, so
+    /// the screen under it waits (a dialog laid over a picture).
+    /// </summary>
+    public bool Modal { get; set; }
+
     /// <summary>The form's code-behind, whose methods markup names as event handlers.</summary>
     public object? CodeBehind { get; set; }
 
@@ -196,7 +202,7 @@ public class Form : Element
 
         if (target is null || !target.IsEnabled)
         {
-            return target is not null || Background;
+            return target is not null || Background || Modal;
         }
 
         Focus(FocusTarget(target));
@@ -220,7 +226,7 @@ public class Form : Element
     {
         if (_captured is not { } captured)
         {
-            return ElementAt(x, y) is not null || Background;
+            return ElementAt(x, y) is not null || Background || Modal;
         }
 
         _captured = null;

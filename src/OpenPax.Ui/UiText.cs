@@ -70,8 +70,6 @@ internal static class UiText
 
     // The developer console's words (the port's own; not in the game's data).
     public const string ConsoleWelcome = "OpenPax console. Type help.";
-    public const string ModOn = "[on]  ";
-    public const string ModOff = "[off] ";
     public const string OptionsNoMods = "No mods: put them in the mods folder beside the config file.";
     public const string PauseAsked = "Asking the other players to pause the game...";
     public const string PauseVote = "{0} asks to pause the game. Do you agree?";

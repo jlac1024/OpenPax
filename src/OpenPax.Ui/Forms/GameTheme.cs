@@ -57,6 +57,8 @@ public static class GameTheme
             CheckOn = art.Get("Main:32133"),
             RadioOff = art.Get("Main:25004"),
             RadioOn = art.Get("Main:25104"),
+            LightOn = art.Get("Main:25104"),
+            LightOff = Red(art.Get("Main:25104")),
             ArrowLeft = art.Get("Main:44502"),
             ArrowLeftPressed = art.Get("Main:44602"),
             ArrowRight = art.Get("Main:44504"),
@@ -68,4 +70,9 @@ public static class GameTheme
             ScrollThumb = new Skin(art.Need("Main:44310"), 0, 2, 0, 2),
         };
     }
+
+    // The game has the green light lit (Player Design's indicator) but no red
+    // one: the same light with its red and green swapped.
+    private static RgbaImage? Red(RgbaImage? green) =>
+        green is null ? null : new RgbaImage(green.Width, green.Height, [.. green.Pixels.Select(p => (p & 0xFFFF0000u) | ((p & 0xFFu) << 8) | ((p >> 8) & 0xFFu))]);
 }
