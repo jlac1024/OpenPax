@@ -102,8 +102,13 @@ public static class MovieImporter
         {
             RedirectStandardError = true,
             RedirectStandardOutput = true,
+            UseShellExecute = false,
+            // ffmpeg is a console program: started from the game's window on
+            // Windows, it would open a console window of its own for each movie.
+            CreateNoWindow = true,
         };
-        foreach (var arg in (string[])["-v", "error", "-y", "-i", source, .. _videoArgs, .. _audioArgs, "-movflags", "+faststart", "-f", "mp4", partial])
+        // -nostdin: ffmpeg never waits on keys from a console it does not have.
+        foreach (var arg in (string[])["-nostdin", "-v", "error", "-y", "-i", source, .. _videoArgs, .. _audioArgs, "-movflags", "+faststart", "-f", "mp4", partial])
         {
             info.ArgumentList.Add(arg);
         }
@@ -114,7 +119,10 @@ public static class MovieImporter
             return Strings.FfmpegDidNotStart;
         }
 
+        // Both read, so neither pipe can fill and stall ffmpeg; only errors are kept.
+        var output = process.StandardOutput.ReadToEndAsync();
         var errors = process.StandardError.ReadToEnd();
+        output.Wait();
         process.WaitForExit();
         if (process.ExitCode != 0)
         {
