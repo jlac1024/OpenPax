@@ -40,7 +40,7 @@ flatpak build-init "$APP" "$APP_ID" "$RUNTIME" "$RUNTIME" "$RUNTIME_VERSION"
 
 FILES="$APP/files"
 mkdir -p "$FILES/lib" "$FILES/bin" "$FILES/share/applications" "$FILES/share/metainfo" \
-  "$FILES/share/icons/hicolor/256x256/apps" "$FILES/share/icons/hicolor/scalable/apps"
+  "$FILES/share/icons/hicolor/256x256/apps"
 cp -a "$BUNDLE" "$FILES/lib/openpax"
 # The app is read-only, so the game points to the new .flatpak instead of updating itself.
 echo Flatpak > "$FILES/lib/openpax/.openpax-packaged"
@@ -50,8 +50,9 @@ chmod 755 "$FILES/bin/openpax" "$FILES/bin/openpax-lobby"
 cp "$ROOT/tools/linux/$APP_ID.desktop" "$FILES/share/applications/"
 sed -e "s/@VERSION@/$VERSION/" -e "s/@DATE@/$(date -u +%F)/" \
   "$ROOT/tools/linux/$APP_ID.metainfo.xml" > "$FILES/share/metainfo/$APP_ID.metainfo.xml"
+# The PNG only: flatpak's icon check reads the icon with gdk-pixbuf, which
+# may have no SVG loader (Ubuntu's runners have none).
 cp "$ICON/openpax-256.png" "$FILES/share/icons/hicolor/256x256/apps/$APP_ID.png"
-cp "$ICON/openpax.svg" "$FILES/share/icons/hicolor/scalable/apps/$APP_ID.svg"
 
 chmod -R u+rwX,go+rX,go-w "$FILES"
 
