@@ -119,6 +119,10 @@ internal static class FirstRun
     /// <summary>The import, on the setup's own thread: from a game folder, or from GOG's installer unpacked first.</summary>
     private static bool Import(string source, string dataFolder, string fonts, IProgress<ImportProgress> progress, TextWriter log)
     {
+        // What the import says also goes to the console, and so to openpax.log
+        // (CrashReport): the setup screen shows only its last line.
+        log = new TeeWriter(log, Console.Out);
+        log.WriteLine(string.Format(Strings.ImportFrom, source, dataFolder));
         var ffmpeg = Path.Combine(AppContext.BaseDirectory, ToolsFolder, OperatingSystem.IsWindows() ? "ffmpeg.exe" : "ffmpeg");
         var modern = Directory.Exists(fonts) ? fonts : null;
         var tool = File.Exists(ffmpeg) ? ffmpeg : null;

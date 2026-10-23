@@ -36,4 +36,9 @@ internal static class Strings
     public const string SoakEliminated = "tick {0}: a player is eliminated";
     public const string SoakOver = "Game over at tick {0}";
     public const string SoakNotOver = "Not over after {0} ticks";
+    public const string CrashTitle = "OpenPax stopped";
+    public const string CrashMessage = "OpenPax ran into a problem and has to close:\n\n{0}\n\nThe details are in {1}. Please include that file if you report this.";
+    public const string CrashUnknown = "an unknown error";
+    public const string CrashNoLog = "the console (no log file could be written)";
+    public const string ImportFrom = "Importing from {0} into {1}";
 }

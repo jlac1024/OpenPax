@@ -22,9 +22,10 @@ deps() { python3 -I "$ROOT/tools/deps.py" "$@"; }
 rm -rf "$WORK" "$OUT"
 mkdir -p "$WORK" "$RELEASE"
 
-# The program and the lobby server, self-contained for the platform.
-dotnet publish "$ROOT/src/OpenPax.Host/OpenPax.Host.csproj" -c Release -r "$RID" --self-contained --nologo -o "$WORK/game"
-dotnet publish "$ROOT/src/OpenPax.LobbyServer/OpenPax.LobbyServer.csproj" -c Release -r "$RID" --self-contained --nologo -o "$WORK/lobby-server"
+# The program and the lobby server, self-contained for the platform, with
+# the release's version (shown in crash logs).
+dotnet publish "$ROOT/src/OpenPax.Host/OpenPax.Host.csproj" -c Release -r "$RID" --self-contained --nologo -p:Version="$VERSION" -o "$WORK/game"
+dotnet publish "$ROOT/src/OpenPax.LobbyServer/OpenPax.LobbyServer.csproj" -c Release -r "$RID" --self-contained --nologo -p:Version="$VERSION" -o "$WORK/lobby-server"
 # The sample mods (C#, any platform) and the docs site.
 for sample in SimpleCombat Bounty; do
   dotnet build "$ROOT/samples/$sample/$sample.csproj" -c Release --nologo -v q

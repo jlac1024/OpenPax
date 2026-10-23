@@ -16,7 +16,10 @@ if (options is null)
 
 if (options is { ImportFrom: { } from, ImportTo: { } to })
 {
-    return OpenPax.Data.Import.Importer.Run(from, to, options.Ffmpeg, Console.Out) ? 0 : 1;
+    // From GOG's offline installer, as the first run does, or from a game folder.
+    return File.Exists(from) && from.EndsWith(".exe", StringComparison.OrdinalIgnoreCase)
+        ? InstallerImport.Run(from, to, options.Ffmpeg, Console.Out) ? 0 : 1
+        : Importer.Run(from, to, options.Ffmpeg, Console.Out) ? 0 : 1;
 }
 
 if (options.UpscaleData is { } upscaleData)
@@ -28,6 +31,8 @@ if (options.UpscaleData is { } upscaleData)
 // Before anything that may reach SDL (the user folder is SDL's preference path).
 NativeLibraries.Register();
 
+// A crash says what went wrong and leaves a log, even with no console (Windows).
+CrashReport.Install(UserFolder.Resolve());
 var dataFolder = DataFolder(UserFolder.Resolve());
 
 // With no game data the window's first run imports it (docs/first-run.md); the modes with no window cannot.
