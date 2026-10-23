@@ -59,6 +59,18 @@
           <CheckBox x:Name="FixStrangersIndifferent" Text="Strangers ignore your attacks" IsChecked="{Binding FixStrangersIndifferent}" />
         </StackPanel>
         </TabItem>
+        <TabItem Header="UPDATES">
+        <StackPanel Spacing="6">
+          <CheckBox x:Name="CheckUpdates" Text="Check for updates on start" IsChecked="{Binding CheckUpdates}" />
+          <CheckBox x:Name="UpdatePreReleases" Text="Include pre-releases" IsChecked="{Binding UpdatePreReleases}" />
+          <TextBlock Text="Updates come from OpenPax's releases on GitHub. Your saves, settings and imported game are kept." Look="Dim" TextWrapping="True" />
+          <TextBlock Text="{Binding UpdateStatus}" TextWrapping="True" />
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <Button x:Name="CheckNow" Text="CHECK NOW" Width="100" Click="OnCheckUpdates" IsEnabled="{Binding CanCheckUpdates}" />
+            <Button x:Name="UpdateNow" Text="UPDATE" Width="80" Click="OnUpdateNow" IsEnabled="{Binding CanUpdate}" />
+          </StackPanel>
+        </StackPanel>
+        </TabItem>
         <TabItem Header="MODS">
         <DockPanel>
           <StackPanel DockPanel.Dock="Bottom" Spacing="6" Margin="0,6,0,0">

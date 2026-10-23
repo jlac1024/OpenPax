@@ -63,6 +63,12 @@ public sealed class Preferences
     /// <summary>The port's own: the stock species (index in the Species Selection list) a lobby room starts on.</summary>
     public const string PreferredSpecies = "PreferredSpecies";
 
+    /// <summary>The port's own: ask GitHub for a newer release on start (docs/updates.md). On.</summary>
+    public const string CheckUpdates = "CheckUpdates";
+
+    /// <summary>The port's own: pre-releases count as updates. On while OpenPax is 0.x, as all its releases are pre-releases.</summary>
+    public const string UpdatePreReleases = "UpdatePreReleases";
+
     /// <summary>
     /// The defaults the original's code writes when a name is missing; the
     /// volumes take the sliders' layout value 8, stored as 8 x 12.
@@ -87,6 +93,8 @@ public sealed class Preferences
         [MadeSkies] = 1,
         [VSync] = 1,
         [ZeroPauses] = 1,
+        [CheckUpdates] = 1,
+        [UpdatePreReleases] = 1,
     };
 
     private readonly Dictionary<string, int> _values = [];

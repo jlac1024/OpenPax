@@ -685,7 +685,7 @@ public sealed class UiApp
         {
             if (popup.Key(key))
             {
-                ClosePopup();
+                ClosePopup(popup);
             }
 
             return;
@@ -744,6 +744,16 @@ public sealed class UiApp
     private void ClosePopup()
     {
         Popup = null;
+    }
+
+    // A popup's answer can open the next one (YES to an update opens its
+    // download): only the one that answered closes.
+    private void ClosePopup(IPopup answered)
+    {
+        if (Popup == answered)
+        {
+            Popup = null;
+        }
     }
 
     /// <summary>
@@ -994,7 +1004,7 @@ public sealed class UiApp
             {
                 if (popup.Handle(message))
                 {
-                    ClosePopup();
+                    ClosePopup(popup);
                     break;
                 }
             }
@@ -1016,12 +1026,55 @@ public sealed class UiApp
         // Orders given in this frame can tell the player something too.
         TakeNotices(now);
         Current.Tick(now);
+        FollowUpdates();
 
         // In a room, the host's mods are loaded in place: after the screen's own tick, as that may make the screen again.
         ModSync.Tick(this);
         while (_requests.TryDequeue(out var request))
         {
             yield return request;
+        }
+    }
+
+    /// <summary>Where checking for and installing updates stands; the host keeps it current (docs/updates.md).</summary>
+    public UpdateState Updates { get; } = new();
+
+    /// <summary>The player chose to update: the host downloads and installs it, the popup shows how far it has got.</summary>
+    public void StartUpdate()
+    {
+        if (Updates.Available is null || Updates.Busy)
+        {
+            return;
+        }
+
+        // Busy until the host says otherwise, so the popup does not take the
+        // frame before the host has the request for "stopped".
+        Updates.Busy = true;
+        Updates.Status = string.Format(System.Globalization.CultureInfo.InvariantCulture, UiText.UpdateStarting, Updates.Available);
+        Request(new HostRequest(HostRequestKind.Update));
+        Open(new UpdatePopup(Assets, PaletteIndex, () => Request(new HostRequest(HostRequestKind.CancelUpdate)), ClassicWidth, ClassicHeight));
+    }
+
+    // An update found is offered once, on the main menu with nothing open over
+    // it; a download's popup follows it, and says why when it stops short.
+    private void FollowUpdates()
+    {
+        if (Popup is UpdatePopup downloading)
+        {
+            downloading.Show(Updates);
+            if (!Updates.Busy)
+            {
+                ClosePopup();
+                Tell(Updates.Status);
+            }
+
+            return;
+        }
+
+        if (Updates is { Available: { } version, Offered: false, Busy: false } && Current is Screens.GameStartScreen && Popup is null && Forms.Top is null)
+        {
+            Updates.Offered = true;
+            Confirm(string.Format(System.Globalization.CultureInfo.InvariantCulture, UiText.UpdateOffer, version, Updates.Running), StartUpdate);
         }
     }
 

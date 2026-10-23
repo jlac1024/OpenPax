@@ -41,4 +41,18 @@ internal static class Strings
     public const string CrashUnknown = "an unknown error";
     public const string CrashNoLog = "the console (no log file could be written)";
     public const string ImportFrom = "Importing from {0} into {1}";
+    public const string UpdateChecking = "Checking for updates...";
+    public const string UpdateNewest = "It is the newest.";
+    public const string UpdateFound = "OpenPax {0} is out.";
+    public const string UpdatePreReleaseFound = "OpenPax {0} (a pre-release) is out.";
+    public const string UpdateCheckFailed = "Could not check for updates: {0}";
+    public const string UpdateDownloading = "Downloading OpenPax {0}... {1}%";
+    public const string UpdateInstalling = "Installing OpenPax {0}...";
+    public const string UpdateCancelled = "The update was cancelled; nothing changed.";
+    public const string UpdateFailed = "The update did not go in, and nothing changed: {0}";
+    public const string UpdateNotWritable = "OpenPax cannot change the folder it is installed in. Download the update from {0} instead.";
+    public const string UpdateBadDownload = "the download does not match the release (its size or SHA-256 differs)";
+    public const string UpdateBadBundle = "the download is not an OpenPax bundle";
+    public const string UpdateRestartFailed = "Could not start the updated game: {0}";
+    public const string UpdateRestartYourself = "The update is in place. Close OpenPax and start it again.";
 }

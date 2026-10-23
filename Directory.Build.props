@@ -9,6 +9,14 @@
     <AnalysisLevel>latest</AnalysisLevel>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Release bundles pass -p:Version (tools/package.sh); anything else is a
+         development build, which never updates itself (docs/updates.md). -->
+    <Version Condition="'$(Version)' == ''">0.0.0-dev</Version>
+    <!-- The assembly version stays put whatever the release: mods bind to
+         OpenPax.Modding by it, and a lower one than they were built against
+         would refuse to load them. The release shows in the informational
+         version, which the updater and crash logs read. -->
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <!-- Keep bin/obj out of the source tree. -->
     <UseArtifactsOutput>true</UseArtifactsOutput>
     <ArtifactsPath>$(MSBuildThisFileDirectory)build/artifacts</ArtifactsPath>

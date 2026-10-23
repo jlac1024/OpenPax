@@ -10,9 +10,14 @@ public sealed class OptionsScreen : FormScreen
     {
     }
 
+    private readonly OptionsModel _model;
+
     private OptionsScreen(UiApp app, OptionsModel model)
         : base(app, GameForms.Read("Options", model))
     {
+        _model = model;
         Form.Bind(model);
     }
+
+    public override void Tick(long now) => _model.Tick();
 }

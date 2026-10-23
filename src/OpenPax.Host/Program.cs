@@ -33,6 +33,10 @@ NativeLibraries.Register();
 
 // A crash says what went wrong and leaves a log, even with no console (Windows).
 CrashReport.Install(UserFolder.Resolve());
+
+// What a past update left behind (docs/updates.md): the old files, now that the old game has closed.
+var installFolder = OpenPax.Host.Update.InstallFolder.Of(AppContext.BaseDirectory);
+OpenPax.Host.Update.UpdateInstaller.CleanUp(installFolder);
 var dataFolder = DataFolder(UserFolder.Resolve());
 
 // With no game data the window's first run imports it (docs/first-run.md); the modes with no window cannot.
@@ -132,6 +136,17 @@ try
     if (configPath is not null)
     {
         ConfigFile.Load(configPath, dataFolder, app, Console.Error);
+    }
+
+    // Updates from GitHub (docs/updates.md): asked on start when the player
+    // allows it, never for a development build, which has no release to follow.
+    using var updater = new OpenPax.Host.Update.Updater(installFolder)
+    {
+        Running = OpenPax.Host.Update.AppVersion.ForTesting() ?? OpenPax.Host.Update.AppVersion.Current,
+    };
+    if (app.Preferences.Flag(Preferences.CheckUpdates) && !updater.Running.IsDevelopment && options.Script.Count == 0 && options.Screenshot is null)
+    {
+        updater.Check(app.Preferences.Flag(Preferences.UpdatePreReleases), say: false);
     }
 
     app.EnabledMods.AddRange(enabledMods);
@@ -267,6 +282,15 @@ try
                 case HostRequestKind.StartNetworkGame when request.Network is { } network:
                     app.HostedGameReady(runtime.Launcher.StartNetwork(network), (long)Sdl.GetTicks());
                     break;
+                case HostRequestKind.CheckForUpdates:
+                    updater.Check(app.Preferences.Flag(Preferences.UpdatePreReleases), say: true);
+                    break;
+                case HostRequestKind.Update:
+                    updater.Install();
+                    break;
+                case HostRequestKind.CancelUpdate:
+                    updater.Cancel();
+                    break;
             }
         }
 
@@ -395,6 +419,19 @@ try
         if (focused)
         {
             running = running && Carry(app.Tick(now));
+        }
+
+        // The new version is in place: start it, and this one closes.
+        if (updater.Follow(app.Updates))
+        {
+            if (updater.Restart())
+            {
+                running = false;
+            }
+            else
+            {
+                app.Tell(OpenPax.Host.Strings.UpdateRestartYourself);
+            }
         }
 
         // Alt+Enter and Options both just change the setting; the window follows it here.

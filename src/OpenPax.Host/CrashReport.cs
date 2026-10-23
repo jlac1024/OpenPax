@@ -53,7 +53,7 @@ internal static class CrashReport
         }
 
         var text = string.Join(Environment.NewLine,
-            $"OpenPax {typeof(CrashReport).Assembly.GetName().Version}",
+            $"OpenPax {Update.AppVersion.Current}",
             $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}",
             $"{System.Runtime.InteropServices.RuntimeInformation.OSDescription} ({System.Runtime.InteropServices.RuntimeInformation.OSArchitecture})",
             "",

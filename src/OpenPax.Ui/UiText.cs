@@ -81,6 +81,10 @@ internal static class UiText
     public const string ConsoleHelp = "help, players, hash, fps, cheats on, cheats off, devwindow, gallery, art hd|classic, font original|upscaled|modern, outline off|colors|white";
     public const string ConsoleCheatHelp = "cheats: money buildall kill research spies ships colonize explore planetcombat fleetcombat synctest [player number]";
     public const string NoticeOk = "OK";
+    public const string UpdateOffer = "OpenPax {0} is out (you have {1}). Update now? The game restarts when it is done.";
+    public const string UpdateCancel = "CANCEL";
+    public const string UpdateStarting = "Getting OpenPax {0}...";
+    public const string UpdateRunning = "You have OpenPax {0}.";
 
     // The room's mods (docs/modding/multiplayer.md).
     public const string ModsWaiting = "Asking the host for the room's mods...";

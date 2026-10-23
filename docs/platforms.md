@@ -59,6 +59,8 @@ the modern font, the sample mods that need no game data, the modding docs,
 tests every push to `main`. The bundles are the same ones `build.sh --dist`
 made before, without the machine-specific `deploy/` setup.
 
+The game updates itself from these releases ([updates.md](updates.md)).
+
 ## On Windows
 
 1. Copy `OpenPax-win-x64.zip` to the PC and unpack it anywhere.

@@ -296,6 +296,61 @@ public sealed class OptionsModel(UiApp app) : Observable
         Changed(nameof(ModDetails));
     }
 
+    public bool CheckUpdates
+    {
+        get => _prefs.Flag(Preferences.CheckUpdates);
+        set => Keep(Preferences.CheckUpdates, value ? 1 : 0);
+    }
+
+    public bool UpdatePreReleases
+    {
+        get => _prefs.Flag(Preferences.UpdatePreReleases);
+        set => Keep(Preferences.UpdatePreReleases, value ? 1 : 0);
+    }
+
+    /// <summary>The running version and where the last check left it.</summary>
+    public string UpdateStatus => string.Format(CultureInfo.InvariantCulture, UiText.UpdateRunning, app.Updates.Running)
+        + (app.Updates.Status.Length > 0 ? " " + app.Updates.Status : "");
+
+    public bool CanCheckUpdates => !app.Updates.Busy;
+
+    public bool CanUpdate => app.Updates is { Available: not null, Busy: false };
+
+    /// <summary>Asks GitHub now, with the pre-release choice as it stands.</summary>
+    public void OnCheckUpdates()
+    {
+        if (CanCheckUpdates)
+        {
+            app.Request(new HostRequest(HostRequestKind.CheckForUpdates));
+        }
+    }
+
+    /// <summary>Updates from the main menu, where the download's popup shows.</summary>
+    public void OnUpdateNow()
+    {
+        if (CanUpdate)
+        {
+            app.Updates.Offered = true;
+            app.Switch(ScreenMode.GameStart);
+            app.StartUpdate();
+        }
+    }
+
+    /// <summary>Each frame: the update line follows the host's work.</summary>
+    public void Tick()
+    {
+        var shown = (UpdateStatus, CanCheckUpdates, CanUpdate);
+        if (shown != _updateShown)
+        {
+            _updateShown = shown;
+            Changed(nameof(UpdateStatus));
+            Changed(nameof(CanCheckUpdates));
+            Changed(nameof(CanUpdate));
+        }
+    }
+
+    private (string, bool, bool) _updateShown;
+
     public void OnDone() => app.Switch(ScreenMode.GameStart);
 
     private string Ship(int hull) => "Combat:" + (((Fleet - 1) * 1000) + hull).ToString(CultureInfo.InvariantCulture);
