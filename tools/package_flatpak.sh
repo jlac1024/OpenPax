@@ -21,6 +21,8 @@ RUNTIME=org.freedesktop.Platform
 RUNTIME_VERSION=25.08
 ICON="$ROOT/src/OpenPax.Host/Icon"
 export FLATPAK_USER_DIR="${FLATPAK_USER_DIR:-$ROOT/deps/flatpak}"
+# flatpak's own messages go to stderr: stdout is only the .flatpak's path.
+exec 3>&1 1>&2
 
 if [[ ! -x "$BUNDLE/openpax" ]]; then
   echo "package_flatpak.sh: no bundle at $BUNDLE (run tools/package.sh linux-x64 $VERSION first)" >&2
@@ -63,9 +65,9 @@ flatpak build-finish "$APP" --command=openpax \
   --socket=pulseaudio --share=network \
   --filesystem=xdg-download:ro "--filesystem=~/GOG Games:ro"
 
-flatpak build-export --quiet "$WORK/repo" "$APP" stable
+flatpak build-export "$WORK/repo" "$APP" stable
 rm -f "$OUT"
 flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \
   "$WORK/repo" "$OUT" "$APP_ID" stable
 rm -rf "$WORK"
-echo "$OUT"
+echo "$OUT" >&3
