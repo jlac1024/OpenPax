@@ -21,23 +21,44 @@ env:
   JOBS: 4
 
 jobs:
+  # The release is made here, first, as a draft, and its files are added at
+  # the end. GitHub lets this workflow's token tag a commit only while that
+  # commit's workflow files match main's, so tagging right away keeps a push
+  # to .github/ during the build from failing the release.
   # Publishing a draft on GitHub creates its tag, which starts this workflow
-  # again: when the release is already there, nothing is built.
+  # again: a release that is already published is not built again.
   check:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: write
     outputs:
       build: ${{ steps.release.outputs.build }}
     steps:
+      - uses: actions/checkout@v4
       - id: release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view "v${VERSION#v}" --repo "${{ github.repository }}" > /dev/null 2>&1; then
-            echo "Release v${VERSION#v} already exists: nothing to build."
-            echo "build=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "build=true" >> "$GITHUB_OUTPUT"
-          fi
+          tag="v${VERSION#v}"
+          # A version's own notes if written (docs/releases/), else the general ones.
+          notes="docs/releases/${VERSION#v}.md"
+          [[ -f "$notes" ]] || notes=docs/release-notes.md
+          draft="$(gh release view "$tag" --json isDraft -q .isDraft 2> /dev/null || echo none)"
+          case "$draft" in
+            false)
+              echo "Release $tag is already published: nothing to build."
+              echo "build=false" >> "$GITHUB_OUTPUT"
+              ;;
+            true)
+              echo "Draft $tag exists: building its files again."
+              gh release edit "$tag" --notes-file "$notes"
+              echo "build=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              gh release create "$tag" --draft --title "OpenPax ${VERSION#v}" --notes-file "$notes" --target "${{ github.sha }}"
+              echo "build=true" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
 
   linux:
     needs: check
@@ -163,14 +184,14 @@ jobs:
             cp "$archive" "bundles/source-$(basename "$archive")"
           done
           ls -l bundles
+      # Into the draft the check job made. Run by hand it stays a draft for
+      # review; for a pushed version tag it is published once whole.
       - name: Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="v${VERSION#v}"
-          draft=()
-          if [[ "${{ github.event_name }}" == workflow_dispatch ]]; then draft=(--draft); fi
-          # A version's own notes if written (docs/releases/), else the general ones.
-          notes="docs/releases/${VERSION#v}.md"
-          [[ -f "$notes" ]] || notes=docs/release-notes.md
-          gh release create "$tag" bundles/* "${draft[@]}" --title "OpenPax ${VERSION#v}" --notes-file "$notes" --target "${{ github.sha }}"
+          gh release upload "$tag" bundles/* --clobber
+          if [[ "${{ github.event_name }}" == push ]]; then
+            gh release edit "$tag" --draft=false
+          fi
