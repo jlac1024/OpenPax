@@ -586,6 +586,44 @@ public sealed class Design
         return amount;
     }
 
+    /// <summary>
+    /// The port's own, for battles resolved by mods (Game.DamageComponents):
+    /// damage spread over the components a hit can land on (HitComponent's
+    /// sensors, ECM, shield, weapons and specials) in proportion to the space
+    /// each takes, as many hits would leave it on average, each up to what it
+    /// has left. Returns what none could take.
+    /// </summary>
+    internal int SpreadOverComponents(int amount)
+    {
+        var nodes = new List<Component>();
+        foreach (var slot in (int[])[SensorSlot, EcmSlot, ShieldSlot])
+        {
+            if (_single[slot] is { } c)
+            {
+                nodes.Add(c);
+            }
+        }
+
+        nodes.AddRange(_lists[0]);
+        nodes.AddRange(_lists[2]);
+        var space = nodes.Sum(c => TechLevels.Size(c.Tech, null) * c.Count);
+        if (amount <= 0 || space <= 0)
+        {
+            return amount;
+        }
+
+        var left = amount;
+        foreach (var c in nodes)
+        {
+            var share = (int)((long)amount * TechLevels.Size(c.Tech, null) * c.Count / space);
+            var taken = Math.Min(Math.Max(0, (c.Count * c.Tech.HitPoints) - c.Damage), Math.Min(share, left));
+            c.Damage += taken;
+            left -= taken;
+        }
+
+        return left;
+    }
+
     /// <summary>A strength rating used by diplomacy and computer players.</summary>
     public int Strength(Func<int, TechInfo> techById)
     {

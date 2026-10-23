@@ -135,6 +135,23 @@ public sealed partial class Game
     [ModApi]
     public static int ShipDefense(Design ship) => ship.CombatDefense();
 
+    /// <summary>
+    /// The chance, 0 to 1, that a hit on the ship lands on one of its
+    /// components instead of its hull, as in the original's battles: higher
+    /// the more damaged the ship and the poorer its build and armor.
+    /// </summary>
+    [ModApi]
+    public static double ComponentHitChance(Design ship) => Math.Clamp(ship.ComponentHitThreshold() / 1000.0, 0, 1);
+
+    /// <summary>
+    /// Damage to a ship's components (sensors, ECM, shield, weapons, specials),
+    /// spread by the space each takes, as many hits would leave it: damaged
+    /// weapons fire weaker and a damaged shield stops less. Returns what the
+    /// components could not take, for the hull.
+    /// </summary>
+    [ModApi]
+    public static int DamageComponents(Design ship, int amount) => ship.SpreadOverComponents(amount);
+
     /// <summary>Damage to a ship's structure; at none the ship is lost from its fleet, which a credited player is told of. True when it is lost.</summary>
     [ModApi]
     public bool DamageShip(Design ship, int amount, Player? by = null)

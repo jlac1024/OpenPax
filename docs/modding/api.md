@@ -173,6 +173,8 @@ Advisors over time, and orders about them (docs/sim/advisors.md).
 - `static bool AtWar(Player a, Player b)`: Whether one player is at war with another.
 - `void Bombard(Colony colony, double amount)`: Bombardment of a colony's people: its population falls by the amount, to no less than none.
 - `void CaptureColony(Colony colony, Player taker)`: A colony taken by another player, as a planet traded is handed over; the two are at war after.
+- `static double ComponentHitChance(Design ship)`: The chance, 0 to 1, that a hit on the ship lands on one of its components instead of its hull, as in the original's battles: higher the more damaged the ship and the poorer its build and armor.
+- `static int DamageComponents(Design ship, int amount)`: Damage to a ship's components (sensors, ECM, shield, weapons, specials), spread by the space each takes, as many hits would leave it: damaged weapons fire weaker and a damaged shield stops less. Returns what the components could not take, for the hull.
 - `void DamageDefenses(Colony colony, double amount)`: Damage to a colony's defense structures, the first stack first; a stack loses a unit for each unit's worth of hit points gone.
 - `bool DamageShip(Design ship, int amount, Player? by = null)`: Damage to a ship's structure; at none the ship is lost from its fleet, which a credited player is told of. True when it is lost.
 - `double DamageStructure(Structure stack, double amount)`: Damage to one structure stack: it loses a unit for each unit's worth of hit points gone, and is gone with the last. What it could not take is given back.

@@ -62,9 +62,21 @@ the game's random numbers.
   less) and half of a side's own drones, stops incoming missiles and
   drones, shared between them, at most 80 percent. Drones dodge by their
   defense.
-- Fire lands on the weakest ship first. A shield cuts beams and drones by
-  its percent and soaks up to its capacity, but never stops missiles.
-  What is left after a ship dies passes to the next.
+- Fire is shared over the ships it falls on, the bigger drawing more of
+  it, so a fleet wears down together. Each ship's share meets its own
+  shield, which cuts beams and drones by its percent and soaks up to its
+  capacity, but never stops missiles. What a destroyed ship could not
+  take goes on to the rest, the weakest first.
+- Some of what lands goes into a ship's parts instead of its hull, as the
+  original's hits do: the share is the original's chance of a hit landing
+  on a component, which grows as the ship is battered. It is spread over
+  the sensors, ECM, shield, weapons and specials by the room each takes.
+  Damaged weapons fire weaker and a damaged shield stops less, so a
+  battered fleet fights worse.
+- A fleet joining a siege first flies in under the defenses' guns when
+  they outrange its weapons: the reach they have past its own, over its
+  slowest ship's battle speed, in rounds of fire it takes without
+  answering (`approach_steps_per_round`, `most_approach_rounds`).
 - At a besieged planet the fire falls on the defending fleets, then the
   orbitals (missile bases, battle stations, fighter bases), then the mine
   fields the besiegers can see. Only then does it fall on the people,

@@ -44,29 +44,73 @@ public static class Fight
     /// </summary>
     public static Volley OnShips(Game game, IEnumerable<Design> ships, Volley v, Player by) => OnShips(game, ships, v, by, out _);
 
-    /// <summary>As <see cref="OnShips(Game, IEnumerable{Design}, Volley, Player)"/>, with the kill credit: a tenth of each ship destroyed, as the original's.</summary>
+    /// <summary>
+    /// As <see cref="OnShips(Game, IEnumerable{Design}, Volley, Player)"/>, with
+    /// the kill credit: a tenth of each ship destroyed, as the original's.
+    /// The fire is shared over the ships, the bigger drawing more of it, so a
+    /// fleet wears down together; what a ship destroyed could not take goes
+    /// on to the rest, the weakest first. Each ship's share meets its own
+    /// shield, and some of it lands on its components (Wear).
+    /// </summary>
     public static Volley OnShips(Game game, IEnumerable<Design> ships, Volley v, Player by, out int credit)
     {
         credit = 0;
-        foreach (var ship in ships.OrderBy(s => s.Structure).ThenBy(s => s.ShipId).ToList())
+        var hit = ships.OrderBy(s => s.ShipId).ToList();
+        var size = hit.Sum(s => (double)Math.Max(1, s.MaxStructure));
+        if (hit.Count == 0)
         {
-            if (v.Total < 1)
-            {
-                return v with { Beam = 0, Missile = 0, Drones = 0 };
-            }
-
-            var (percent, capacity) = ship.Shield is { } shield
-                ? (shield.Tech.ShieldPercent * shield.Condition / 100.0, shield.Tech.ShieldCapacity * shield.Condition / 100.0)
-                : (0.0, 0.0);
-            var structure = ship.Structure;
-            v = Strike(v, percent, capacity, structure, out var dealt);
-            if (game.DamageShip(ship, (int)Math.Ceiling(dealt), by))
-            {
-                credit += ship.MaxStructure / 10;
-            }
+            // No ships: all of it goes on (to the orbitals, at a siege).
+            return v;
         }
 
-        return v;
+        if (v.Total < 1)
+        {
+            return v with { Beam = 0, Missile = 0, Drones = 0 };
+        }
+
+        var over = new Volley(0, 0, 0, 0);
+        foreach (var ship in hit)
+        {
+            over += Land(game, ship, v.Times(Math.Max(1, ship.MaxStructure) / size) with { Bombs = 0 }, by, ref credit);
+        }
+
+        foreach (var ship in hit.Where(s => s.Structure > 0 && s.Fleet is not null).OrderBy(s => s.Structure).ThenBy(s => s.ShipId))
+        {
+            if (over.Total < 1)
+            {
+                break;
+            }
+
+            over = Land(game, ship, over, by, ref credit);
+        }
+
+        return over.Total < 1 ? v with { Beam = 0, Missile = 0, Drones = 0 } : over with { Bombs = v.Bombs };
+    }
+
+    private const string RandomId = "simple-combat";
+
+    // Fire on one ship: through its shield, then shared between its components
+    // and its hull as the original's hits would be (ComponentHitChance); what
+    // was more than the ship could take comes back.
+    private static Volley Land(Game game, Design ship, Volley v, Player by, ref int credit)
+    {
+        var (percent, capacity) = ship.Shield is { } shield
+            ? (shield.Tech.ShieldPercent * shield.Condition / 100.0, shield.Tech.ShieldCapacity * shield.Condition / 100.0)
+            : (0.0, 0.0);
+        var rest = Strike(v, percent, capacity, ship.Structure, out var dealt);
+
+        // The parts' share is often a fraction of a point a round: the
+        // fraction lands now and then, by the mod's own random draws (kept
+        // with the game, so a replay draws the same), averaging out right.
+        var share = dealt * Game.ComponentHitChance(ship);
+        var onParts = (int)share + (new OpenPax.Modding.ModRandom(game, RandomId).NextDouble() < share - Math.Floor(share) ? 1 : 0);
+        var onHull = (int)Math.Ceiling(dealt) - onParts + Game.DamageComponents(ship, onParts);
+        if (game.DamageShip(ship, onHull, by))
+        {
+            credit += ship.MaxStructure / 10;
+        }
+
+        return rest;
     }
 
     /// <summary>Fire onto structures in turn, through each one's shield as onto ships; what is left is given back.</summary>

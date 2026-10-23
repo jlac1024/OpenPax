@@ -116,11 +116,38 @@ public sealed class SimpleCombatRulesTests
         Fight.OnShips(game, [b], hit, game.Players[1]);
         Assert.True(a.MaxStructure - a.Structure < b.MaxStructure - b.Structure);
 
-        var shieldedBefore = a.Structure;
-        var plainBefore = b.Structure;
+        // Missiles land in full on both, the hull and the parts together.
+        var shieldedBefore = Taken(a);
+        var plainBefore = Taken(b);
         Fight.OnShips(game, [a], new Volley(0, 30, 0, 0), game.Players[1]);
         Fight.OnShips(game, [b], new Volley(0, 30, 0, 0), game.Players[1]);
-        Assert.Equal(plainBefore - b.Structure, shieldedBefore - a.Structure);
+        Assert.Equal(Taken(b) - plainBefore, Taken(a) - shieldedBefore);
+    }
+
+    // All the damage a ship has taken: to its hull and to its components.
+    private static int Taken(Design ship) =>
+        ship.MaxStructure - ship.Structure
+        + ship.Weapons.Concat(ship.Specials).Concat(new[] { ship.Shield, ship.Ecm, ship.Targeting }.OfType<Component>()).Sum(c => c.Damage);
+
+    [Fact]
+    public void FireIsSharedAndWearsTheShipsParts()
+    {
+        var game = NewGame();
+        var fleet = Fleet(game, 3, _missile);
+        var structure = fleet.Ships[0].MaxStructure;
+        Fight.OnShips(game, fleet.Ships, new Volley(structure * 0.9, 0, 0, 0), game.Players[1]);
+
+        // Shared: every ship is hurt and none is lost, where weakest first would have nearly killed one.
+        Assert.Equal(3, fleet.Ships.Count);
+        Assert.All(fleet.Ships, s => Assert.InRange(s.Structure, structure * 0.6, structure - 1));
+
+        // Battered ships lose parts as the original's hits do: the worse off, the more.
+        for (var i = 0; i < 6; i++)
+        {
+            Fight.OnShips(game, fleet.Ships, new Volley(structure * 0.3, 0, 0, 0), game.Players[1]);
+        }
+
+        Assert.Contains(fleet.Ships.SelectMany(s => s.Weapons), w => w.Damage > 0);
     }
 
     [Fact]
@@ -129,10 +156,10 @@ public sealed class SimpleCombatRulesTests
         var game = NewGame();
         var fleet = Fleet(game, 3);
         var structure = fleet.Ships[0].MaxStructure;
-        var left = Fight.OnShips(game, fleet.Ships, new Volley(structure * 1.5, 0, 0, 7), game.Players[1]);
-        Assert.Equal(2, fleet.Ships.Count);
-        Assert.Contains(fleet.Ships, s => s.Structure < structure);
-        Assert.Equal(0, left.Total);
+        // More than all three can take: each is destroyed, and what is left goes on.
+        var left = Fight.OnShips(game, fleet.Ships, new Volley(structure * 4, 0, 0, 7), game.Players[1]);
+        Assert.Empty(fleet.Ships);
+        Assert.InRange(left.Total, (structure * 0.9) - 1, structure * 1.1);
         Assert.Equal(7, left.Bombs); // bombs pass over ships
     }
 }
