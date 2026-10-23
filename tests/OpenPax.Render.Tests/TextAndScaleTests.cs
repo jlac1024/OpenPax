@@ -64,4 +64,16 @@ public class TextAndScaleTests
         Assert.Equal(255, ring[2 * 5 + 0]);
         Assert.Equal(0, ring[0]);
     }
+
+    [Theory]
+    [InlineData(1920, 1080, 320, 60, 1280, 960, 2)] // 2x and up: a whole multiple, sharp
+    [InlineData(3840, 2160, 640, 120, 2560, 1920, 4)]
+    [InlineData(1366, 768, 171, 0, 1024, 768, 1)] // below 2x: as large as fits, its shape kept
+    [InlineData(1024, 768, 0, 0, 1024, 768, 1)]
+    [InlineData(800, 480, 80, 0, 640, 480, 1)]
+    [InlineData(400, 300, 0, 0, 400, 300, 1)] // smaller than the original: shrunk
+    public void TheOriginalPictureFitsTheWindow(int windowWidth, int windowHeight, int x, int y, int width, int height, int scale)
+    {
+        Assert.Equal(new ClassicPlacement(x, y, width, height, scale), ClassicPlacement.For(windowWidth, windowHeight, 640, 480));
+    }
 }

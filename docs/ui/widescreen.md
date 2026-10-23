@@ -9,10 +9,16 @@ window's own pixels: sharp, never smoothed (Jeff, 2026-10-21).
 The scale (`UiApp.FrameScale`) is the largest whole number at which
 640x480 fits the window, kept even while the upscaled art is on (it is
 drawn at 2x and its multiples): 2 at 1920x1080 and at 2560x1440, 4 at
-3840x2160, 1 below 1280x960. A window smaller than 640x480 gets the
-picture shrunk to fit.
+3840x2160, 1 below 1280x960.
 
-A screen that grows (`Screen.WideAt`) is then drawn as large as the
+Below 2x (a window under 1280x960, such as a laptop's 1366x768) no screen
+grows: wider would only make it wide and small. Every screen stays
+640x480 and is scaled to fill the window as far as it goes with its shape
+kept, smoothed as it is not a whole multiple: 1024x768 at 1366x768, with
+starfield beside it (Jeff, 2026-10-23). A window smaller than 640x480 gets
+the picture shrunk the same way.
+
+From 2x up, a screen that grows (`Screen.WideAt`) is drawn as large as the
 window at that scale: as wide as the window (up to 21:9), and as tall when
 it has row spans; 960x540 at 1920x1080. Any other screen stays 640x480,
 and its picture sits centered at the whole-number scale with the rest of

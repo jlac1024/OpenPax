@@ -49,18 +49,23 @@ public sealed class UiApp
     /// Fits the original screens to the window (docs/ui/widescreen.md). The
     /// scale is the largest whole number at which 640x480 fits, kept even
     /// when the upscaled art is on (which is drawn at 2x and its multiples).
-    /// A screen that grows is then as large as the window at that scale,
-    /// across up to 21:9 and down only when it has row spans; any other
-    /// stays 640x480 between bars. Called each frame; the work is done only
+    /// From 2x up, a screen that grows is as large as the window at that
+    /// scale, across up to 21:9 and down only when it has row spans; any
+    /// other stays 640x480 between bars. Below 2x every screen stays
+    /// 640x480, scaled to fill the window. Called each frame; the work is done only
     /// when something changes.
     /// </summary>
     public void FitWindow(int outputWidth, int outputHeight)
     {
         var fit = Math.Min(outputWidth / 640, outputHeight / 480);
         var scale = fit < 1 ? 1 : Preferences.Flag(Preferences.UpscaledArt) && fit >= 2 ? fit / 2 * 2 : fit;
-        var wide = Current.WideAt;
-        var height = wide is null || wide.Rows.Count == 0 || fit < 1 ? 480 : Math.Max(480, outputHeight / scale);
-        var room = wide is null || fit < 1 ? 640 : Math.Clamp(outputWidth / scale, 640, Math.Max(640, height * 21 / 9));
+
+        // A screen grows only in a window that shows it at 2x or more. Below
+        // that the original 640x480 is scaled to fill the window instead,
+        // its shape kept (ClassicPlacement): wider would only shrink it.
+        var wide = fit >= 2 ? Current.WideAt : null;
+        var height = wide is null || wide.Rows.Count == 0 ? 480 : Math.Max(480, outputHeight / scale);
+        var room = wide is null ? 640 : Math.Clamp(outputWidth / scale, 640, Math.Max(640, height * 21 / 9));
         var step = Math.Max(1, wide?.WidthStep ?? 2);
         var width = 640 + ((room - 640) / step * step);
         if (scale != FrameScale || width != ClassicWidth || height != ClassicHeight || Current.Window.Extra != width - 640 || Current.Window.ExtraHeight != height - 480)

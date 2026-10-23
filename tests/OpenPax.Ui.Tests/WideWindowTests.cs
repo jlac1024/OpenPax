@@ -61,6 +61,23 @@ public sealed class WideWindowTests
     }
 
     [Fact]
+    public void BelowTwiceTheOriginalAScreenKeepsItsShapeAndFillsTheWindow()
+    {
+        // A laptop's 1366x768: 1x is the largest whole scale, and widening there
+        // would only make the screen wide and small. It stays 640x480, scaled up.
+        var app = InGame();
+        app.Command(UiCommand.SectorDisplay);
+        app.FitWindow(1366, 768);
+        Assert.Equal((640, 480, 1), (app.ClassicWidth, app.ClassicHeight, app.FrameScale));
+        Assert.Equal(0, app.Current.Window.Extra);
+        Assert.Equal(new OpenPax.Render.ClassicPlacement(171, 0, 1024, 768, 1), OpenPax.Render.ClassicPlacement.For(1366, 768, 640, 480));
+
+        // And it grows again once the window shows it at 2x.
+        app.FitWindow(1920, 1080);
+        Assert.Equal(960, app.ClassicWidth);
+    }
+
+    [Fact]
     public void AScreenThatDoesNotWidenStaysFourByThree()
     {
         var app = InGame();
