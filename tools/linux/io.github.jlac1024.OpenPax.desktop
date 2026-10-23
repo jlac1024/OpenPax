@@ -8,4 +8,4 @@ Icon=io.github.jlac1024.OpenPax
 Terminal=false
 Categories=Game;StrategyGame;
 Keywords=Pax Imperia;4X;space;strategy;
-StartupWMClass=openpax
+StartupWMClass=io.github.jlac1024.OpenPax

@@ -25,7 +25,7 @@ fi
 
 rm -rf "$TREE"
 mkdir -p "$TREE/opt" "$TREE/usr/bin" "$TREE/usr/share/applications" "$TREE/usr/share/metainfo" \
-  "$TREE/usr/share/icons/hicolor/256x256/apps" "$TREE/usr/share/icons/hicolor/scalable/apps" \
+  "$TREE/usr/share/icons/hicolor/scalable/apps" \
   "$TREE/usr/share/doc/openpax" "$TREE/DEBIAN"
 cp -a "$BUNDLE" "$TREE/opt/openpax"
 echo deb > "$TREE/opt/openpax/.openpax-packaged"
@@ -41,7 +41,11 @@ done
 cp "$ROOT/tools/linux/$APP_ID.desktop" "$TREE/usr/share/applications/"
 sed -e "s/@VERSION@/$VERSION/" -e "s/@DATE@/$(date -u +%F)/" \
   "$ROOT/tools/linux/$APP_ID.metainfo.xml" > "$TREE/usr/share/metainfo/$APP_ID.metainfo.xml"
-cp "$ICON/openpax-256.png" "$TREE/usr/share/icons/hicolor/256x256/apps/$APP_ID.png"
+for png in "$ICON"/hicolor/*.png; do
+  size="$(basename "$png" .png)"
+  mkdir -p "$TREE/usr/share/icons/hicolor/${size}x${size}/apps"
+  cp "$png" "$TREE/usr/share/icons/hicolor/${size}x${size}/apps/$APP_ID.png"
+done
 cp "$ICON/openpax.svg" "$TREE/usr/share/icons/hicolor/scalable/apps/$APP_ID.svg"
 cp "$ROOT/LICENSE" "$TREE/usr/share/doc/openpax/copyright"
 

@@ -3,7 +3,7 @@
 # platform takes, beside it: openpax.ico (Windows: the program, the
 # installer, shortcuts), openpax.icns (the Mac app), openpax-128.rgba (the
 # window's icon, raw pixels the program carries), openpax-256.png (the
-# README), social-preview.png (GitHub's link preview). The results are committed, so building needs none of this; run it
+# README), hicolor/SIZE.png (Linux menus), social-preview.png (GitHub's link preview). The results are committed, so building needs none of this; run it
 # after changing the SVG. Needs rsvg-convert (librsvg2-bin) and ImageMagick.
 set -euo pipefail
 
@@ -19,6 +19,13 @@ done
 convert "$WORK"/{16,24,32,48,64,128,256}.png "$ICON/openpax.ico"
 convert "$WORK/128.png" -depth 8 "rgba:$ICON/openpax-128.rgba"
 cp "$WORK/256.png" "$ICON/openpax-256.png"
+
+# The Linux menus' sizes (hicolor/SIZE.png, for the .deb and the Flatpak):
+# a menu takes the size it draws at, and not every one scales another.
+mkdir -p "$ICON/hicolor"
+for size in 16 24 32 48 64 128 256 512; do
+  cp "$WORK/$size.png" "$ICON/hicolor/$size.png"
+done
 
 # An .icns is a header and one entry per size, each a PNG.
 python3 -I - "$WORK" "$ICON/openpax.icns" <<'PY'

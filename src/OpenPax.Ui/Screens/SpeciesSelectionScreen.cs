@@ -33,6 +33,12 @@ public sealed class SpeciesSelectionScreen : Screen
     private int _slot = -1;
     private bool _custom;
     private int _customIndex;
+    private Step _step = Step.Idle;
+
+    // The large figure open or opening (the stock one, or the designed
+    // species' figure), and the small lineup figure stepped out or stepping.
+    private AnimationPane? _large;
+    private AnimationPane? _small;
 
     public SpeciesSelectionScreen(UiApp app)
         : base(app, new ViewWindow(app.Assets, ViewId, PaletteIndex, ViewId))
@@ -46,15 +52,24 @@ public sealed class SpeciesSelectionScreen : Screen
         Select(0);
     }
 
-    public override void Closed()
+    /// <summary>
+    /// Where the figures are (+0x1E4). A pick or a switch made while one
+    /// plays turns it around where it is, so the old figures always go back
+    /// the way they came before a new one comes out.
+    /// </summary>
+    private enum Step
     {
-        App.Sound.Stop(Audio.SoundIds.SpeciesAmbience);
+        Idle,
+        SmallOut,
+        LargeOpening,
+        Open,
+        LargeClosing,
+        SmallBack,
+        CustomOpening,
+        CustomOpen,
+        CustomClosing,
     }
 
-    /// <summary>A slot's place in the lineup for its sounds: far left, left, middle, right, far right.</summary>
-    private static int Place(int slot) => slot - (slot > 0 ? 1 : 0) - (slot > 3 ? 1 : 0) - (slot > 6 ? 1 : 0);
-
-    /// <summary>The stock slot picked, 0 to 7.</summary>
     public int Slot => _slot;
 
     /// <summary>Showing the designed species, and which.</summary>
@@ -72,21 +87,8 @@ public sealed class SpeciesSelectionScreen : Screen
             case >= FirstHotSpot and < FirstHotSpot + Slots:
                 Select(id - FirstHotSpot);
                 break;
-            case >= FirstLineup and < FirstLineup + Slots when id - FirstLineup == _slot && !_custom:
-                // The small figure has stepped forward: the large one opens.
-                var large = Window.Get<AnimationPane>(FirstLarge + _slot);
-                large.Visible = true;
-                large.Play(0, false);
-                break;
-            case >= FirstLarge and < FirstLarge + Slots when id - FirstLarge == _slot && !_custom:
-                // the figure locks in front.
-                App.Sound.Play(20100);
-                ShowText();
-                break;
-            case CustomFigure when _custom:
-                // the designed species' figure is up.
-                App.Sound.Play(20100);
-                ShowCustom();
+            case (>= FirstLineup and < FirstLineup + Slots) or (>= FirstLarge and <= CustomFigure):
+                Finished(id);
                 break;
             case Previous or Next when _custom:
                 // step through the designed species, wrapping, with no figure.
@@ -123,10 +125,15 @@ public sealed class SpeciesSelectionScreen : Screen
         }
     }
 
+    public override void Closed()
+    {
+        App.Sound.Stop(Audio.SoundIds.SpeciesAmbience);
+    }
+
     /// <summary>
-    /// Picks a lineup slot: the old figure goes back, the new
-    /// one's hot spot is disabled while its small figure plays, then the
-    /// large figure opens and the name and description follow.
+    /// Picks a lineup slot. With nothing out, its small figure
+    /// steps out; otherwise whatever is out turns back first, and the new
+    /// one follows when it is in (Finished).
     /// </summary>
     private void Select(int slot)
     {
@@ -137,24 +144,102 @@ public sealed class SpeciesSelectionScreen : Screen
 
         if (_slot >= 0)
         {
-            // The figure open in front turns back to the lineup.
-            App.Sound.Play(20200 + Place(_slot));
             Window.Get(FirstHotSpot + _slot).Enabled = true;
-            Window.Get(FirstLarge + _slot).Visible = false;
-            Window.Get<AnimationPane>(FirstLineup + _slot).Show(0);
         }
 
+        var old = _slot;
         _slot = slot;
-        Window.Get(FirstHotSpot + slot).Enabled = false;
-        Window.Get<TextLinePane>(NameLine).Text = "";
-        Window.Get<WrappedTextPane>(Description).Text = "";
-        Window.Get<AnimationPane>(FirstLineup + slot).Play(0, false);
-        App.Sound.Play(20000 + Place(slot));
+        switch (_step)
+        {
+            case Step.SmallBack when _small?.Id == FirstLineup + slot:
+                // Picked again while going back: it comes out again from where it is.
+                _step = Step.SmallOut;
+                _small.Play(_small.Frame, false);
+                break;
+            case Step.Open:
+                App.Sound.Play(20200 + Place(old));
+                _step = Step.LargeClosing;
+                Large.PlayBackward(0, false);
+                ClearText();
+                break;
+            case Step.SmallOut:
+                _step = Step.SmallBack;
+                Small.PlayBackward(Small.Frame, false);
+                break;
+            case Step.LargeOpening:
+                _step = Step.LargeClosing;
+                Large.PlayBackward(Large.Frame, false);
+                break;
+            case Step.Idle:
+                _step = Step.SmallOut;
+                _small = Window.Get<AnimationPane>(FirstLineup + slot);
+                _small.Play(0, false);
+                // The original sounds the slot that was picked before (the first, at the start).
+                App.Sound.Play(20000 + Place(Math.Max(old, 0)));
+                break;
+        }
+    }
+
+    /// <summary>A figure has played to its end: the next step.</summary>
+    private void Finished(int id)
+    {
+        switch (_step)
+        {
+            case Step.LargeOpening:
+                App.Sound.Play(20100);
+                _step = Step.Open;
+                ShowText();
+                return;
+            case Step.LargeClosing:
+                _step = Step.SmallBack;
+                Small.PlayBackward(0, false);
+                return;
+            case Step.SmallBack:
+                App.Sound.Play(20300 + Place(id - FirstLineup));
+                if (_custom)
+                {
+                    _step = Step.Idle;
+                    ShowCustomFigure(true);
+                    return;
+                }
+
+                _step = Step.SmallOut;
+                _small = Window.Get<AnimationPane>(FirstLineup + _slot);
+                _small.Play(0, false);
+                App.Sound.Play(20000 + Place(_slot));
+                return;
+            case Step.SmallOut:
+                HideLarge();
+                Window.Get(FirstHotSpot + _slot).Enabled = false;
+                OpenLarge(FirstLarge + _slot, Step.LargeOpening);
+                return;
+        }
+
+        if (_step == Step.CustomOpening && _custom)
+        {
+            App.Sound.Play(20100);
+            _step = Step.CustomOpen;
+            ShowCustom();
+        }
+
+        if (_step == Step.CustomClosing)
+        {
+            if (!_custom)
+            {
+                ShowCustomFigure(false);
+                return;
+            }
+
+            // A designed species was deleted: the figure comes back up for the next.
+            HideLarge();
+            OpenLarge(CustomFigure, Step.CustomOpening);
+        }
     }
 
     /// <summary>
-    /// The designed species or the lineup: the
-    /// lineup gives way to one figure for every designed species, and back.
+    /// The designed species or the lineup: the figures out go
+    /// back first, then the designed species' figure comes up, or the
+    /// lineup returns.
     /// </summary>
     private void ShowCustomSpecies(bool on)
     {
@@ -166,33 +251,114 @@ public sealed class SpeciesSelectionScreen : Screen
         _custom = on;
         Window.Get<ButtonPane>(Stock).Pressed = !on;
         Window.Get<ButtonPane>(Custom).Pressed = on;
-        Window.Get(Delete).Enabled = on;
-        Window.Get<TextLinePane>(NameLine).Text = "";
-        Window.Get<WrappedTextPane>(Description).Text = "";
+        // Back in the lineup every hot spot is on, the picked one's too, as in the original.
         for (var i = 0; i < Slots; i++)
         {
-            Window.Get(FirstHotSpot + i).Enabled = !on && i != _slot;
-            Window.Get(FirstLineup + i).Visible = !on;
-            Window.Get(FirstLarge + i).Visible = false;
+            Window.Get(FirstHotSpot + i).Enabled = !on;
         }
 
-        var figure = Window.Get<AnimationPane>(CustomFigure);
-        figure.Visible = on;
+        Window.Get(Delete).Enabled = on;
         if (on)
         {
-            _customIndex = Math.Min(_customIndex, App.CustomSpecies.Count - 1);
-            App.Sound.Play(20300 + Place(_slot));
-            figure.Play(0, false);
+            switch (_step)
+            {
+                case Step.Open:
+                    _step = Step.LargeClosing;
+                    Large.PlayBackward(0, false);
+                    break;
+                case Step.LargeOpening:
+                    _step = Step.LargeClosing;
+                    Large.PlayBackward(Large.Frame, false);
+                    break;
+                case Step.SmallOut:
+                    _step = Step.SmallBack;
+                    Small.PlayBackward(Small.Frame, false);
+                    break;
+                case Step.Idle:
+                    ShowCustomFigure(true);
+                    break;
+            }
+
+            return;
+        }
+
+        if (_step == Step.CustomOpen)
+        {
+            Large.PlayBackward(0, false);
+        }
+        else if (_step == Step.CustomOpening)
+        {
+            Large.PlayBackward(Large.Frame, false);
+        }
+
+        _step = Step.CustomClosing;
+    }
+
+    /// <summary>
+    /// The designed species' figure comes up in place of the lineup, or
+    /// the lineup comes back with the picked figure stepping out.
+    /// </summary>
+    private void ShowCustomFigure(bool on)
+    {
+        if (on)
+        {
+            for (var i = 0; i < Slots; i++)
+            {
+                var lineup = Window.Get(FirstLineup + i);
+                (lineup.Enabled, lineup.Visible) = (false, false);
+            }
+
+            HideLarge();
+            OpenLarge(CustomFigure, Step.CustomOpening);
+            return;
+        }
+
+        _custom = false;
+        for (var i = 0; i < Slots; i++)
+        {
+            var lineup = Window.Get(FirstLineup + i);
+            (lineup.Enabled, lineup.Visible) = (true, true);
+        }
+
+        ClearText();
+        if (_small is null)
+        {
+            _step = Step.Idle;
         }
         else
         {
-            // The lineup comes back with the picked slot stepping out again.
-            var slot = _slot;
-            _slot = -1;
-            Select(slot);
+            _small.Play(0, false);
+            _step = Step.SmallOut;
+        }
+
+        HideLarge();
+    }
+
+    private void OpenLarge(int id, Step step)
+    {
+        _large = Window.Get<AnimationPane>(id);
+        (_large.Enabled, _large.Visible) = (true, true);
+        _step = step;
+        _large.Play(0, false);
+    }
+
+    private void HideLarge()
+    {
+        if (_large is not null)
+        {
+            (_large.Visible, _large.Enabled) = (false, false);
         }
     }
 
+    // Each step that uses these comes after the step that set them.
+    private AnimationPane Large => _large ?? throw new InvalidOperationException("no large figure out");
+
+    private AnimationPane Small => _small ?? throw new InvalidOperationException("no lineup figure out");
+
+    /// <summary>A slot's place in the lineup for its sounds: far left, left, middle, right, far right.</summary>
+    private static int Place(int slot) => slot - (slot > 0 ? 1 : 0) - (slot > 3 ? 1 : 0) - (slot > 6 ? 1 : 0);
+
+    /// <summary>The stock slot picked, 0 to 7.</summary>
     private void ShowCustom()
     {
         var species = App.CustomSpecies[_customIndex];
@@ -200,7 +366,11 @@ public sealed class SpeciesSelectionScreen : Screen
         Window.Get<WrappedTextPane>(Description).Text = species.Description;
     }
 
-    /// <summary>DELETE: the designed species shown goes for good; with none left, back to the lineup.</summary>
+    /// <summary>
+    /// DELETE: the designed species shown goes for good, and
+    /// its figure goes down and comes up again for the next; with none
+    /// left, back to the lineup.
+    /// </summary>
     private void DeleteCustom()
     {
         App.CustomSpecies.RemoveAt(_customIndex);
@@ -218,7 +388,22 @@ public sealed class SpeciesSelectionScreen : Screen
             _customIndex--;
         }
 
-        ShowCustom();
+        if (_step == Step.CustomOpen)
+        {
+            _step = Step.CustomClosing;
+            Large.PlayBackward(0, false);
+        }
+        else if (_step == Step.CustomOpening)
+        {
+            _step = Step.CustomClosing;
+            Large.PlayBackward(Large.Frame, false);
+        }
+    }
+
+    private void ClearText()
+    {
+        Window.Get<TextLinePane>(NameLine).Text = "";
+        Window.Get<WrappedTextPane>(Description).Text = "";
     }
 
     private void ShowText()

@@ -90,6 +90,8 @@ if (options.HeadlessTicks is { } ticks)
     return HeadlessRunner.Record(dataFolder, settings, ticks, options.ReplayOut, Console.Out);
 }
 
+// The same ID as the Linux menu entry (tools/linux/), so the running window gets its icon there.
+Sdl.SetAppMetadata("OpenPax", OpenPax.Host.Update.AppVersion.Current.ToString(), "io.github.jlac1024.OpenPax");
 if (!Sdl.Init(InitFlags.Video | InitFlags.Events))
 {
     Console.Error.WriteLine(string.Format(Strings.SdlInitFailed, Sdl.GetError()));
