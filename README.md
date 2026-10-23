@@ -1,13 +1,16 @@
+<p align="center"><img src="src/OpenPax.Host/Icon/openpax-256.png" width="128" height="128" alt="OpenPax"></p>
+
 # OpenPax
 
 An open-source engine for *Pax Imperia: Eminent Domain* (1997), the
 real-time 4X space strategy game. Play your own GOG copy natively on
 Windows, macOS and Linux, with widescreen, online multiplayer and mods.
 
-> **Status: in development, not yet released.** It plays today when built
-> from source on Linux with the game's files in place (below). Release
-> builds for all three systems, which import from your GOG copy on first
-> launch, are on the way.
+> **Status: early releases.** Pre-release builds for Windows (installer or
+> zip), macOS (Apple Silicon) and Linux are on the
+> [releases page](https://github.com/jlac1024/OpenPax/releases). On first
+> start they import the game from your own GOG copy, and they keep
+> themselves up to date. Expect rough edges, and please report what you find.
 
 ## What it is
 

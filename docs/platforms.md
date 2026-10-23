@@ -56,6 +56,11 @@ for a version tag such as `v0.1.0`, or by hand as a draft:
   a desktop shortcut if wanted, and an uninstaller. Per user because the
   game updates itself in place (updates.md), which a Program Files install
   would not let it do. An upgrade keeps the player's `config.json`.
+
+The icon is OpenPax's own (`src/OpenPax.Host/Icon/openpax.svg`, drawn for
+the project). `tools/make_icon.sh` renders it to the Windows `.ico` (the
+program's, so shortcuts and the installer use it), the Mac `.icns` and the
+raw pixels of the window's icon; the results are committed.
 - **macOS, Apple Silicon** on a GitHub Mac: `tools/build_native_macos.sh`,
   then `tools/package.sh osx-arm64 VERSION`, signed ad hoc.
 

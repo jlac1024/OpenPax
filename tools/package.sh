@@ -112,6 +112,7 @@ if [[ "$RID" == osx-* ]]; then
   <key>CFBundleIdentifier</key><string>io.github.jlac1024.openpax</string>
   <key>CFBundleExecutable</key><string>openpax</string>
   <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleIconFile</key><string>openpax.icns</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
   <key>CFBundleVersion</key><string>$VERSION</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>
@@ -119,6 +120,7 @@ if [[ "$RID" == osx-* ]]; then
 </dict>
 </plist>
 PLIST
+  cp "$ROOT/src/OpenPax.Host/Icon/openpax.icns" "$APP/Contents/Resources/openpax.icns"
   rsync -a "$WORK/lobby-server/" "$OUT/lobby-server/"
   cp "$ROOT/tools/prepare_mac.sh" "$OUT/prepare_mac.sh"
   cp "$ROOT/LICENSE" "$ROOT/THIRD-PARTY-NOTICES.md" "$ROOT/README.md" "$OUT/"

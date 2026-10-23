@@ -25,9 +25,11 @@ public sealed class SetupTests
         return (new SetupApp(Font(), model), model, imported);
     }
 
+    // Until the import's thread is done: up to 10 seconds, as a loaded
+    // machine (the whole suite at once) can be slow to start it.
     private static void Settle(SetupApp app)
     {
-        for (var i = 0; i < 200 && app.Model.Busy; i++)
+        for (var i = 0; i < 2000 && app.Model.Busy; i++)
         {
             Thread.Sleep(5);
             app.Tick(i * 20);

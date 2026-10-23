@@ -7,7 +7,13 @@
     <!-- Mods may ship assemblies, so nothing can be trimmed or compiled ahead of time. -->
     <PublishTrimmed>false</PublishTrimmed>
     <PublishAot>false</PublishAot>
+    <!-- OpenPax's own icon (Icon/openpax.svg, tools/make_icon.sh): the program's on Windows, so its shortcuts and the Apps list show it. -->
+    <ApplicationIcon>Icon/openpax.ico</ApplicationIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <!-- The window's icon, as raw pixels the program carries. -->
+    <EmbeddedResource Include="Icon/openpax-128.rgba" LogicalName="openpax-128.rgba" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../OpenPax.Sdl/OpenPax.Sdl.csproj" />
     <ProjectReference Include="../OpenPax.Data/OpenPax.Data.csproj" />

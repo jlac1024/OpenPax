@@ -31,6 +31,8 @@ PrivilegesRequired=lowest
 DefaultDirName={autopf}\OpenPax
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\openpax.exe
+; OpenPax's own icon (src/OpenPax.Host/Icon, tools/make_icon.sh).
+SetupIconFile=..\..\src\OpenPax.Host\Icon\openpax.ico
 UninstallDisplayName=OpenPax
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible

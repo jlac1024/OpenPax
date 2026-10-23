@@ -114,6 +114,8 @@ try
         return 1;
     }
 
+    WindowIcon.Apply(window);
+
     using var screen = Screen.Create(window, ScreenWidth, ScreenHeight);
     if (screen is null)
     {
@@ -128,7 +130,6 @@ try
         return 0;
     }
 
-    WindowIcon.Apply(window, dataFolder);
 
     // Mods load first (docs/modding.md): their data packs lie over the game's data for everything read after.
     var userFolder = UserFolder.Resolve();
