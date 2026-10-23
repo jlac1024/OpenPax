@@ -23,6 +23,9 @@ public sealed class SimpleCombatMod : IMod
     private const string EngagedKey = "simple-combat.engaged";
     private const string SiegeKey = "simple-combat.sieges";
 
+    // Each besieging fleet's rounds still to fly in (Approach), 0 once it has closed.
+    private const string ApproachKey = "simple-combat.approach";
+
     // How near a planet an idle fleet that is not circling anything counts as at it, in map units.
     private const int NearPlanet = 30;
 
@@ -220,6 +223,8 @@ public sealed class SimpleCombatMod : IMod
     {
         var planets = game.Universe.Stars.SelectMany(s => s.Planets).ToDictionary(p => p.ObjectId);
         var kept = new List<(int, int)>();
+        var closing = Pairs(game, ApproachKey).ToDictionary(p => p.Attacker, p => p.Target);
+        var approach = new List<(int, int)>();
         foreach (var id in Pairs(game, SiegeKey).Select(p => p.Target).Distinct().Order())
         {
             if (!planets.TryGetValue(id, out var planet) || planet.Colony is not { } colony)
@@ -236,7 +241,20 @@ public sealed class SimpleCombatMod : IMod
                 continue;
             }
 
-            Siege(game, colony, besiegers, defenders);
+            // A fleet new to the siege (none noted for it yet) first flies in
+            // (Approach); a round of it is spent each round, 0 having closed.
+            var firing = new List<Fleet>();
+            foreach (var f in besiegers)
+            {
+                var rounds = closing.TryGetValue(f.ObjectId, out var roundsLeft) ? roundsLeft : Approach.Rounds(Orbitals(colony), f, _settings);
+                approach.Add((f.ObjectId, Math.Max(0, rounds - 1)));
+                if (rounds <= 0)
+                {
+                    firing.Add(f);
+                }
+            }
+
+            Siege(game, colony, besiegers, firing, defenders);
             var (left, defending) = Sides(game, planet, colony);
             if (left.Count == 0)
             {
@@ -253,6 +271,8 @@ public sealed class SimpleCombatMod : IMod
         }
 
         Save(game, SiegeKey, kept);
+        var still = kept.Select(k => k.Item1).ToHashSet();
+        Save(game, ApproachKey, [.. approach.Where(a => still.Contains(a.Item1))]);
     }
 
     /// <summary>
@@ -263,13 +283,16 @@ public sealed class SimpleCombatMod : IMod
     /// cannot see (no minesweeper of their level) strike in full and cannot
     /// be fired on, as in the original, where they are only shot at once seen.
     /// </summary>
-    private void Siege(Game game, Colony colony, List<Fleet> besiegers, List<Fleet> defenders)
+    private void Siege(Game game, Colony colony, List<Fleet> besiegers, List<Fleet> firing, List<Fleet> defenders)
     {
+        // All of the besiegers defend themselves (point defense, sweepers);
+        // only those that have closed fire (Approach).
         var attackers = Firepower.Of(game, besiegers);
+        var shooters = Firepower.Of(game, firing);
         var fleets = Firepower.Of(game, defenders);
         var orbitals = Firepower.Of(game, Orbitals(colony), _settings);
         var guard = defenders.Count > 0 ? fleets : orbitals;
-        var outgoing = Fight.Fire(attackers, guard, fleets.SmallCraftDefense(_settings) + orbitals.SmallCraftDefense(_settings), _settings);
+        var outgoing = Fight.Fire(shooters, guard, fleets.SmallCraftDefense(_settings) + orbitals.SmallCraftDefense(_settings), _settings);
         var returned = Fight.Fire(fleets, attackers, attackers.SmallCraftDefense(_settings), _settings)
             + Fight.Fire(orbitals, attackers, attackers.SmallCraftDefense(_settings), _settings);
         var seen = Fields(colony).Where(f => attackers.HighestSweeper >= game.MineFieldLevel(f.Tech)).ToList();
@@ -282,7 +305,7 @@ public sealed class SimpleCombatMod : IMod
         // as the original's planet blocks, every round lands: no hit chance.
         if (!defenders.Any(f => f.Ships.Count > 0) && !Orbitals(colony).Any())
         {
-            var raw = attackers.Bombs + ((attackers.Beam + attackers.Missile + attackers.Drones) * _settings.OtherWeaponsOnPeople);
+            var raw = shooters.Bombs + ((shooters.Beam + shooters.Missile + shooters.Drones) * _settings.OtherWeaponsOnPeople);
             game.Bombard(colony, raw * _settings.AttackShare * _settings.PopulationPerAttack);
         }
 
@@ -348,9 +371,12 @@ public sealed class SimpleCombatMod : IMod
         var dealt = Fight.Fire(ours, guard, theirs.SmallCraftDefense(_settings) + guns.SmallCraftDefense(_settings), _settings).Total;
         var taken = Fight.Fire(theirs, ours, ours.SmallCraftDefense(_settings), _settings).Total + Fight.Fire(guns, ours, ours.SmallCraftDefense(_settings), _settings).Total
             + (colony is null ? 0 : Mines(game, colony, ours, spend: false));
-        var ourLife = attackers.SelectMany(f => f.Ships).Sum(s => s.Structure);
+        // Flying in, the fleet takes the orbitals' fire before it can answer (Approach).
+        var closing = colony is null ? 0 : Approach.Rounds(orbitals, fleet, _settings);
+        var underFire = closing * Fight.Fire(guns, ours, ours.SmallCraftDefense(_settings), _settings).Total;
+        var ourLife = Math.Max(0, attackers.SelectMany(f => f.Ships).Sum(s => s.Structure) - underFire);
         var theirLife = defenders.SelectMany(f => f.Ships).Sum(s => s.Structure) + orbitals.Sum(o => o.HitPoints);
-        var ourRounds = taken > 0 ? ourLife / taken : double.PositiveInfinity;
+        var ourRounds = ourLife <= 0 ? 0 : taken > 0 ? ourLife / taken : double.PositiveInfinity;
         var theirRounds = dealt > 0 ? theirLife / dealt : double.PositiveInfinity;
         if (colony is not null)
         {

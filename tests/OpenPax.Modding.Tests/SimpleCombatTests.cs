@@ -385,6 +385,56 @@ public sealed class SimpleCombatTests : IDisposable
     }
 
     [Fact]
+    public void AFleetOutrangedByTheDefensesFliesInUnderFire()
+    {
+        var (game, human, computer) = NewGame();
+        var colony = human.Colonies[0];
+        var bases = colony.Structures.Where(s => s.Tech.Kind == TechInfo.MissileBaseKind).ToList();
+        Assert.NotEmpty(bases); // a missile base from the start, reaching 750
+        var settings = new SimpleCombat.Settings();
+
+        // A fleet with weapons as long as the base's closes at once; one with
+        // none spends the most rounds flying in, its 2-speed ships covering
+        // the base's 750 in 375 steps, more than ten rounds of 30.
+        var scout = human.Fleets.SelectMany(f => f.Ships).First(s => s.Weapons.Count > 0);
+        var armed = game.CreateFleet(human, game.Universe.Stars[colony.Star], colony.Planet);
+        human.Fleets.First(f => f.Ships.Contains(scout)).RemoveShip(scout, game.Tables.Tech);
+        armed.AddShip(scout, game.Tables.Tech);
+        Assert.Equal(0, SimpleCombat.Approach.Rounds(bases, armed, settings));
+        var unarmed = Gather(game, computer, game.Universe.Stars[colony.Star], colony.Planet, 3);
+        Assert.Equal(settings.MostApproachRounds, SimpleCombat.Approach.Rounds(bases, unarmed, settings));
+
+        // In a siege it counts down a round at a time, then the fleet has closed.
+        SendAway(human, game.Universe.Stars[colony.Star]);
+        var events = StepEvents.None;
+        game.StartPlanetBattle(unarmed, colony.Planet, ref events);
+        var seen = new List<int>();
+        for (var i = 0; i < 80 && unarmed.Ships.Count > 0; i++)
+        {
+            game.Step();
+            var left = game.ModState.TryGetValue("simple-combat.approach", out var text) && text.Length > 0 ? int.Parse(text.Split(':')[1], System.Globalization.CultureInfo.InvariantCulture) : 0;
+            if (seen.Count == 0 || seen[^1] != left)
+            {
+                seen.Add(left);
+            }
+        }
+
+        // Rounds to go after each round: 9 after the first, down to 0, closed.
+        Assert.Equal([.. Enumerable.Range(0, settings.MostApproachRounds).Reverse()], seen.SkipWhile(r => r == 0));
+    }
+
+    [Theory]
+    [InlineData(new[] { 30, 30, 30, 0 }, 750)]
+    [InlineData(new[] { 45, 0, 0, 0 }, 300)]
+    [InlineData(new[] { 60, 45, 0, 0 }, 500)]
+    [InlineData(new[] { 10, 10, 10, 10 }, 1500)]
+    [InlineData(new[] { 0, 0, 0, 0 }, 0)]
+    public void AWeaponReachesItsLastBandWithDamage(int[] damage, int reach)
+    {
+        Assert.Equal(reach, SimpleCombat.Approach.Reach(new TechInfo(1, TechInfo.MissileKind, 0) { Damage = damage }));
+    }
+
+    [Fact]
     public void TheDefensesFallFirstAndHitBack()
     {
         var (game, human, computer) = NewGame();

@@ -39,6 +39,10 @@ public sealed record Settings
 
     public double OrbitalReloadShare { get; init; } = 0.5;
 
+    public double ApproachStepsPerRound { get; init; } = 30;
+
+    public int MostApproachRounds { get; init; } = 10;
+
     public static Settings Default { get; } = new();
 
     public static Settings Read(string path)
@@ -70,6 +74,8 @@ public sealed record Settings
             ExperiencePerRound = Math.Max(0, (int)N("experience_per_round", d.ExperiencePerRound)),
             OrbitalPower = Math.Max(0, N("orbital_power", d.OrbitalPower)),
             OrbitalReloadShare = Math.Clamp(N("orbital_reload_share", d.OrbitalReloadShare), 0.05, 1),
+            ApproachStepsPerRound = Math.Max(1, N("approach_steps_per_round", d.ApproachStepsPerRound)),
+            MostApproachRounds = Math.Max(0, (int)N("most_approach_rounds", d.MostApproachRounds)),
         };
     }
 }

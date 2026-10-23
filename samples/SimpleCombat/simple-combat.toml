@@ -62,3 +62,12 @@ experience_per_round = 1
 # in this share of the weapon's reload time, where a ship waits all of it.
 orbital_power = 1.5
 orbital_reload_share = 0.5
+
+# A fleet that joins a siege first flies in under the planet's guns, as in
+# the original's battles: defenses that reach farther than its own weapons
+# fire on it while it closes, and it cannot answer. That takes the reach
+# they have past its own over its slowest ship's battle speed, counted here
+# as rounds of this many battle steps (about a beam's reload), and no more
+# than most_approach_rounds. A fleet that reaches as far closes at once.
+approach_steps_per_round = 30
+most_approach_rounds = 10
