@@ -17,7 +17,11 @@ public sealed class SetupModel : Observable
     private readonly Func<string, IProgress<ImportProgress>, TextWriter, bool> _import;
     private readonly IReadOnlyList<string> _installs;
     private Task<bool>? _running;
-    private ImportProgress _latest;
+    // The newest progress the import reported, written by its thread and read
+    // each frame: under a lock, as the struct is two fields that must agree.
+    // Empty until the import first reports.
+    private readonly object _progressGate = new();
+    private ImportProgress _latest = new(0, "");
     private StringWriter _log = new();
 
     /// <param name="galaxyStubFound">GOG's Galaxy stub was seen in the player's downloads: said when nothing else was found.</param>
@@ -152,6 +156,12 @@ public sealed class SetupModel : Observable
         Progress = 0;
         Status = SetupText.Starting;
         _log = new StringWriter();
+        lock (_progressGate)
+        {
+            // A new try starts from nothing, not from where the last one stopped.
+            _latest = new ImportProgress(0, "");
+        }
+
         var progress = new Latest(this);
         var log = TextWriter.Synchronized(_log);
         _running = Task.Run(() => _import(source, progress, log));
@@ -184,9 +194,14 @@ public sealed class SetupModel : Observable
             return;
         }
 
-        var latest = _latest;
+        ImportProgress latest;
+        lock (_progressGate)
+        {
+            latest = _latest;
+        }
+
         Progress = (int)(latest.Fraction * 1000);
-        if (latest.Step.Length > 0)
+        if (latest.Step is { Length: > 0 })
         {
             Status = latest.Step + "...";
         }
@@ -215,6 +230,12 @@ public sealed class SetupModel : Observable
     // Progress from the import's thread: only the newest is kept, for the next frame to show.
     private sealed class Latest(SetupModel model) : IProgress<ImportProgress>
     {
-        public void Report(ImportProgress value) => model._latest = value;
+        public void Report(ImportProgress value)
+        {
+            lock (model._progressGate)
+            {
+                model._latest = value;
+            }
+        }
     }
 }

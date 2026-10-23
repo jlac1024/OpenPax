@@ -127,4 +127,32 @@ public sealed class SetupTests
         var model = new SetupModel([], (_, _, _) => true, galaxyStubFound: true);
         Assert.Contains("Galaxy installer", model.Status, StringComparison.Ordinal);
     }
+
+    [Fact]
+    public void TheScreenTicksBeforeTheImportFirstReports()
+    {
+        // The crash on Windows (0.1.0): the frame after IMPORT came before the
+        // import's first progress report, whose text was still unset.
+        var game = GameData.RequireFolder();
+        using var go = new ManualResetEventSlim();
+        var model = new SetupModel([game], (_, progress, _) =>
+        {
+            go.Wait(TestContext.Current.CancellationToken);
+            progress.Report(new ImportProgress(0.5, "Halfway"));
+            return true;
+        });
+        model.OnImport();
+        model.Tick();
+        Assert.True(model.Busy);
+        Assert.Equal(0, model.Progress);
+
+        go.Set();
+        for (var i = 0; i < 400 && !model.Done; i++)
+        {
+            Thread.Sleep(5);
+            model.Tick();
+        }
+
+        Assert.True(model.Done);
+    }
 }
