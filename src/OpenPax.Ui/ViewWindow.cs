@@ -13,6 +13,7 @@ namespace OpenPax.Ui;
 public sealed class ViewWindow
 {
     private readonly Dictionary<int, Pane> _byId = [];
+    private long _paints;
     private readonly Queue<UiMessage> _messages = [];
     private Pane? _hover;
     private Pane? _held;
@@ -184,11 +185,14 @@ public sealed class ViewWindow
             }
         }
 
-        foreach (var child in Root.Children)
+        foreach (var child in Pane.InPaintOrder(Root.Children))
         {
             child.DrawTree(target);
         }
     }
+
+    /// <summary>A stamp for a picture just changed, later than every one before (see Pane.InPaintOrder).</summary>
+    internal long NextPaint() => ++_paints;
 
     /// <summary>
     /// A press goes to the deepest widget under the pointer, which keeps the

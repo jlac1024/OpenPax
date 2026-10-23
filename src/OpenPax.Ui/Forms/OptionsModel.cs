@@ -164,6 +164,12 @@ public sealed class OptionsModel(UiApp app) : Observable
         set => Keep(Preferences.ZeroPauses, value ? 1 : 0);
     }
 
+    public bool PauseInBackground
+    {
+        get => _prefs.Flag(Preferences.PauseInBackground);
+        set => Keep(Preferences.PauseInBackground, value ? 1 : 0);
+    }
+
     public bool VSync
     {
         get => _prefs.Flag(Preferences.VSync);
@@ -188,6 +194,58 @@ public sealed class OptionsModel(UiApp app) : Observable
     }
 
     public string StarSpeedText => string.Format(CultureInfo.InvariantCulture, UiText.OptionsStarSpeed, StarSpeed);
+
+    /// <summary>The volume as a percent of the setting's 0 to 127.</summary>
+    public int MasterVolume
+    {
+        get => (int)Math.Round(Math.Clamp(_prefs.Get(Preferences.MasterVolume), 0, 127) * 100 / 127.0);
+        set
+        {
+            Keep(Preferences.MasterVolume, (int)Math.Round(Math.Clamp(value, 0, 100) * 127 / 100.0));
+            Changed(nameof(MasterVolumeText));
+        }
+    }
+
+    public string MasterVolumeText => string.Format(CultureInfo.InvariantCulture, UiText.OptionsMasterVolume, MasterVolume);
+
+    /// <summary>The volume as a percent of the setting's 0 to 127.</summary>
+    public int MusicVolume
+    {
+        get => (int)Math.Round(Math.Clamp(_prefs.Get(Preferences.RedbookVolume), 0, 127) * 100 / 127.0);
+        set
+        {
+            Keep(Preferences.RedbookVolume, (int)Math.Round(Math.Clamp(value, 0, 100) * 127 / 100.0));
+            Changed(nameof(MusicVolumeText));
+        }
+    }
+
+    public string MusicVolumeText => string.Format(CultureInfo.InvariantCulture, UiText.OptionsMusicVolume, MusicVolume);
+
+    /// <summary>The volume as a percent of the setting's 0 to 127.</summary>
+    public int EffectsVolume
+    {
+        get => (int)Math.Round(Math.Clamp(_prefs.Get(Preferences.SoundFxVolume), 0, 127) * 100 / 127.0);
+        set
+        {
+            Keep(Preferences.SoundFxVolume, (int)Math.Round(Math.Clamp(value, 0, 100) * 127 / 100.0));
+            Changed(nameof(EffectsVolumeText));
+        }
+    }
+
+    public string EffectsVolumeText => string.Format(CultureInfo.InvariantCulture, UiText.OptionsEffectsVolume, EffectsVolume);
+
+    /// <summary>The volume as a percent of the setting's 0 to 127.</summary>
+    public int VoicesVolume
+    {
+        get => (int)Math.Round(Math.Clamp(_prefs.Get(Preferences.VoiceVolume), 0, 127) * 100 / 127.0);
+        set
+        {
+            Keep(Preferences.VoiceVolume, (int)Math.Round(Math.Clamp(value, 0, 100) * 127 / 100.0));
+            Changed(nameof(VoicesVolumeText));
+        }
+    }
+
+    public string VoicesVolumeText => string.Format(CultureInfo.InvariantCulture, UiText.OptionsVoicesVolume, VoicesVolume);
 
     public bool PlayMovies
     {

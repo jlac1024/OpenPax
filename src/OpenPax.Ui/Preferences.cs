@@ -21,6 +21,9 @@ public sealed class Preferences
     public const string RedbookVolume = "RedbookVolume";
     public const string VoiceVolume = "VoiceVolume";
 
+    /// <summary>0 to 127 over the three volumes above; the original has none (127 is as it plays).</summary>
+    public const string MasterVolume = "MasterVolume";
+
     /// <summary>The port's own: the original screens drawn at 2x with the upscaled art (1), or at their own size (0).</summary>
     public const string UpscaledArt = "UpscaledArt";
 
@@ -47,6 +50,12 @@ public sealed class Preferences
 
     /// <summary>The port's own gameplay toggle: speed 0 pauses the game (1) instead of the original's slowest speed (0). On at Jeff's call (decisions.md).</summary>
     public const string ZeroPauses = "SpeedZeroPauses";
+
+    /// <summary>
+    /// 1: everything stops while the window is not the active one, as in the
+    /// original. Off by default: the game keeps running.
+    /// </summary>
+    public const string PauseInBackground = "PauseInBackground";
 
     /// <summary>The port's own fix settings (docs/sim/fix-candidates.md), each 0 (as the original, the default) or 1; a new game takes them.</summary>
     public static IReadOnlyDictionary<Fixes, string> FixNames { get; } = Enum.GetValues<Fixes>().Where(f => f != Fixes.None).ToDictionary(f => f, f => "Fix" + f);
@@ -101,6 +110,7 @@ public sealed class Preferences
         [SoundFxVolume] = 96,
         [RedbookVolume] = 96,
         [VoiceVolume] = 96,
+        [MasterVolume] = 127,
         [UpscaledArt] = 1,
         [TextFont] = 2,
         [TextOutline] = 1,
@@ -110,6 +120,7 @@ public sealed class Preferences
         [MadeSkies] = 1,
         [VSync] = 1,
         [ZeroPauses] = 1,
+        [PauseInBackground] = 0,
         [CheckUpdates] = 1,
         [UpdatePreReleases] = 1,
         [WindowX] = 0,

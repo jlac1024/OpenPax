@@ -323,7 +323,7 @@ try
     }
 
     // The original stops everything, the game clock included, while the
-    // window is not the active one.
+    // window is not the active one; here only with PauseInBackground.
     var focused = true;
 
     // Frames at the display's refresh rate (60 when it cannot be told); vsync by the VSync setting.
@@ -428,7 +428,9 @@ try
             }
         }
 
-        if (focused)
+        // Away from the window the game keeps going, unless the player asked
+        // for the original's pause; a network game never stops for one player.
+        if (focused || !app.Preferences.Flag(Preferences.PauseInBackground) || app.Session?.Link is not null)
         {
             running = running && Carry(app.Tick(now));
         }

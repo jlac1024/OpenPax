@@ -127,7 +127,9 @@ public sealed class UiApp
     /// </summary>
     public void ApplyVolumes()
     {
-        Sound.SetVolumes(Preferences.Get(Preferences.SoundFxVolume), Preferences.Get(Preferences.VoiceVolume), Preferences.Get(Preferences.RedbookVolume));
+        var master = Math.Clamp(Preferences.Get(Preferences.MasterVolume), 0, 127);
+        int Scaled(string name) => Math.Clamp(Preferences.Get(name), 0, 127) * master / 127;
+        Sound.SetVolumes(Scaled(Preferences.SoundFxVolume), Scaled(Preferences.VoiceVolume), Scaled(Preferences.RedbookVolume));
     }
 
     /// <summary>Each screen asks for its music as it opens: the title, the setup screens', or the game's; the battle window asks for none.</summary>
@@ -882,7 +884,7 @@ public sealed class UiApp
     /// <summary>The app's preference listener: a new game speed reaches the clock with its notice.</summary>
     private void PreferenceChanged(string name)
     {
-        if (name is Preferences.SoundFxVolume or Preferences.VoiceVolume or Preferences.RedbookVolume)
+        if (name is Preferences.SoundFxVolume or Preferences.VoiceVolume or Preferences.RedbookVolume or Preferences.MasterVolume)
         {
             ApplyVolumes();
         }

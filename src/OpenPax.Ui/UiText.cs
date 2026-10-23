@@ -13,6 +13,10 @@ internal static class UiText
     public const string ColonyRating = "+{0} ATK  +{1} DEF";
 
     public const string OptionsStarSpeed = "Star speed: {0}%";
+    public const string OptionsMasterVolume = "Master volume: {0}%";
+    public const string OptionsMusicVolume = "Music: {0}%";
+    public const string OptionsEffectsVolume = "Sound effects: {0}%";
+    public const string OptionsVoicesVolume = "Voices: {0}%";
     public const string OptionsFontOriginal = "The game's own";
     public const string OptionsFontUpscaled = "The game's own, upscaled";
     public const string OptionsFontModern = "Modern";

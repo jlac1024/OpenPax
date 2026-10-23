@@ -41,9 +41,22 @@
           <ComboBox x:Name="TextOutline" ItemsSource="{Binding TextOutlines}" SelectedIndex="{Binding TextOutline}" />
         </StackPanel>
         </TabItem>
-        <TabItem Header="GAMEPLAY">
+        <TabItem Header="SOUND">
+        <StackPanel Spacing="6">
+          <TextBlock Text="{Binding MasterVolumeText}" Look="Dim" />
+          <Slider x:Name="MasterVolume" Minimum="0" Maximum="100" Step="5" Value="{Binding MasterVolume}" />
+          <TextBlock Text="{Binding MusicVolumeText}" Look="Dim" />
+          <Slider x:Name="MusicVolume" Minimum="0" Maximum="100" Step="5" Value="{Binding MusicVolume}" />
+          <TextBlock Text="{Binding EffectsVolumeText}" Look="Dim" />
+          <Slider x:Name="EffectsVolume" Minimum="0" Maximum="100" Step="5" Value="{Binding EffectsVolume}" />
+          <TextBlock Text="{Binding VoicesVolumeText}" Look="Dim" />
+          <Slider x:Name="VoicesVolume" Minimum="0" Maximum="100" Step="5" Value="{Binding VoicesVolume}" />
+        </StackPanel>
+        </TabItem>
+        <TabItem Header="GAME">
         <StackPanel Spacing="4">
           <CheckBox x:Name="ZeroPauses" Text="Speed 0 pauses the game" IsChecked="{Binding ZeroPauses}" />
+          <CheckBox x:Name="PauseInBackground" Text="Pause while in the background" IsChecked="{Binding PauseInBackground}" />
           <TextBlock Text="Fixes to the original's bugs, for new games" Look="Dim" />
           <CheckBox x:Name="FixComputerKeepsShips" Text="Ships given to the computer reach it" IsChecked="{Binding FixComputerKeepsShips}" />
           <CheckBox x:Name="FixTradeKeepsAllShips" Text="Trading over 21 ships loses none" IsChecked="{Binding FixTradeKeepsAllShips}" />

@@ -23,6 +23,9 @@ public sealed class AnimationPane(ViewNode node, int left, int top, AnimationDet
 
     public bool Reverse { get; private set; }
 
+    /// <summary>When the shown picture last changed, as the window counts (Pane.InPaintOrder); 0 for never.</summary>
+    public long Painted { get; private set; }
+
     /// <summary>Added to every frame's picture (+0x84), set by some screens.</summary>
     public int PictureOffset { get; set; }
 
@@ -42,6 +45,7 @@ public sealed class AnimationPane(ViewNode node, int left, int top, AnimationDet
         Frame = start;
         (Looping, Reverse, Playing) = (loop, false, true);
         _startPending = true;
+        Repainted();
     }
 
     /// <summary>Plays backward; a start of 0 means the last frame.</summary>
@@ -50,6 +54,7 @@ public sealed class AnimationPane(ViewNode node, int left, int top, AnimationDet
         Frame = start == 0 ? Details.Frames - 1 : start;
         (Looping, Reverse, Playing) = (loop, true, true);
         _startPending = true;
+        Repainted();
     }
 
     public void Stop()
@@ -62,6 +67,7 @@ public sealed class AnimationPane(ViewNode node, int left, int top, AnimationDet
     {
         Frame = frame;
         Playing = false;
+        Repainted();
     }
 
     protected internal override void Tick(long now)
@@ -85,10 +91,12 @@ public sealed class AnimationPane(ViewNode node, int left, int top, AnimationDet
             if (next >= 0 && next < Details.Frames)
             {
                 Frame = next;
+                Repainted();
             }
             else if (Looping)
             {
                 Frame = Reverse ? Details.Frames - 1 : 0;
+                Repainted();
             }
             else
             {
@@ -97,6 +105,8 @@ public sealed class AnimationPane(ViewNode node, int left, int top, AnimationDet
             }
         }
     }
+
+    private void Repainted() => Painted = Window?.NextPaint() ?? 0;
 
     // frames are full rect art, drawn without erasing.
     protected override void Draw(Framebuffer target)

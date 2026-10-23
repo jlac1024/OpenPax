@@ -28,14 +28,17 @@ public sealed class OptionsLayoutTests
         var tabs = Assert.Single(form.Descendants().OfType<TabControl>());
         Assert.True(tabs.HeadersWidth <= tabs.Bounds.Width, $"tabs {tabs.HeadersWidth} wide in a panel {tabs.Bounds.Width} wide");
 
-        // OPENPAX_TEST_SHOT=folder: the UPDATES tab saved as a picture, to look at.
+        // OPENPAX_TEST_SHOT=folder: each tab saved as a picture, to look at.
         if (Environment.GetEnvironmentVariable("OPENPAX_TEST_SHOT") is { Length: > 0 } folder)
         {
-            tabs.SelectedIndex = tabs.Pages.ToList().FindIndex(p => p.Header == "UPDATES");
-            _ = app.Tick(0).ToList();
-            app.DrawCanvas(canvas, ClassicPlacement.For(1280, 960, 640, 480));
-            using var file = File.Create(Path.Combine(folder, $"options-updates-{textFont}.png"));
-            PngWriter.WriteRgba(file, canvas.Width, canvas.Height, System.Runtime.InteropServices.MemoryMarshal.AsBytes(canvas.Pixels.AsSpan()));
+            foreach (var (page, index) in tabs.Pages.Select((p, i) => (p, i)))
+            {
+                tabs.SelectedIndex = index;
+                _ = app.Tick(0).ToList();
+                app.DrawCanvas(canvas, ClassicPlacement.For(1280, 960, 640, 480));
+                using var file = File.Create(Path.Combine(folder, $"options-{page.Header.ToLowerInvariant()}-{textFont}.png"));
+                PngWriter.WriteRgba(file, canvas.Width, canvas.Height, System.Runtime.InteropServices.MemoryMarshal.AsBytes(canvas.Pixels.AsSpan()));
+            }
         }
     }
 }

@@ -101,12 +101,46 @@ public class Pane
 
         target.SetClip(Left, Top, Width, Height);
         Draw(target);
-        foreach (var child in _children)
+        foreach (var child in InPaintOrder(_children))
         {
             child.DrawTree(target);
         }
 
         target.ResetClip();
+    }
+
+    /// <summary>
+    /// Children in drawing order. The original draws a direct-refresh
+    /// animation to the screen only when its picture changes,
+    /// and it stays until something draws over it; this port draws every
+    /// pane each frame. So those animations go in the order their pictures
+    /// last changed, in the places they hold among their siblings: where
+    /// they overlap, the newest picture is on top, as on the original's
+    /// screen (the species lineup's frames each hold part of the next tube).
+    /// </summary>
+    internal static IEnumerable<Pane> InPaintOrder(IReadOnlyList<Pane> children)
+    {
+        var direct = children.OfType<AnimationPane>().Where(a => a.Details.DirectRefresh != 0).ToList();
+        if (direct.Count < 2)
+        {
+            return children;
+        }
+
+        using var newest = direct.OrderBy(a => a.Painted).GetEnumerator();
+        var ordered = new List<Pane>(children.Count);
+        foreach (var child in children)
+        {
+            if (child is AnimationPane { Details.DirectRefresh: not 0 } && newest.MoveNext())
+            {
+                ordered.Add(newest.Current);
+            }
+            else
+            {
+                ordered.Add(child);
+            }
+        }
+
+        return ordered;
     }
 
     /// <summary>The pane's own drawing (slot 0x84). The base draws the layout's background picture, if any.</summary>
