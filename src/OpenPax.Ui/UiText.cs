@@ -13,6 +13,8 @@ internal static class UiText
     public const string ColonyRating = "+{0} ATK  +{1} DEF";
 
     public const string OptionsStarSpeed = "Star speed: {0}%";
+    public const string FixesQuestion = "OpenPax can fix bugs to the original game, such as ships given to the computer never reaching it, trades of over 21 ships losing some, and fast shots missing planets. Turn on all the fixes?";
+    public const string FixesNote = "They apply to new games; a game already started keeps its rules. Each fix can be turned on or off in Options, GAME. Network games use the host's.";
     public const string OptionsMasterVolume = "Master volume: {0}%";
     public const string OptionsMusicVolume = "Music: {0}%";
     public const string OptionsEffectsVolume = "Sound effects: {0}%";

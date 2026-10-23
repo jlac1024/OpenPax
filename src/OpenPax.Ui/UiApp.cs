@@ -1067,10 +1067,24 @@ public sealed class UiApp
 
     private OpenPax.Ui.Forms.UpdateDialog? _updateDialog;
 
+    /// <summary>Whether to ask, once, about turning on every fix (the host's choice: not in scripted runs or tests).</summary>
+    public bool OfferFixes { get; set; }
+
+    // Asked on the main menu with nothing else open, before any update offer.
+    private void FollowFixesQuestion()
+    {
+        if (OfferFixes && !Preferences.Flag(Preferences.AskedFixes) && Current is Screens.GameStartScreen && Popup is null && Forms.Top is null)
+        {
+            OfferFixes = false;
+            OpenPax.Ui.Forms.FixesDialog.Show(this);
+        }
+    }
+
     // An update found is offered once, on the main menu with nothing open
     // over it; the dialog then follows the download and says how it ended.
     private void FollowUpdates()
     {
+        FollowFixesQuestion();
         if (_updateDialog is { IsOpen: true } dialog)
         {
             dialog.Follow();

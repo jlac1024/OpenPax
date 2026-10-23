@@ -1,0 +1,16 @@
+<!-- Asked once, on the main menu (Forms/FixesDialog.cs): turn on every fix to the original's bugs? -->
+<Form xmlns="https://openpax.local/forms" xmlns:x="https://openpax.local/forms/x" Background="False" Modal="True">
+  <Grid>
+    <Border Look="Panel" Padding="10" Width="380" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <StackPanel Spacing="8">
+        <TextBlock Text="BUG FIXES" Look="Heading" Bold="True" HorizontalAlignment="Center" />
+        <TextBlock Text="{Binding Message}" TextWrapping="True" />
+        <TextBlock Text="{Binding Note}" Look="Dim" TextWrapping="True" />
+        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+          <Button x:Name="TurnOn" Text="TURN ON" Width="110" Click="OnTurnOn" />
+          <Button x:Name="Original" Text="KEEP ORIGINAL" Width="130" Click="OnKeep" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+  </Grid>
+</Form>

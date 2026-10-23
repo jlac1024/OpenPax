@@ -60,6 +60,9 @@ public sealed class Preferences
     /// <summary>The port's own fix settings (docs/sim/fix-candidates.md), each 0 (as the original, the default) or 1; a new game takes them.</summary>
     public static IReadOnlyDictionary<Fixes, string> FixNames { get; } = Enum.GetValues<Fixes>().Where(f => f != Fixes.None).ToDictionary(f => f, f => "Fix" + f);
 
+    /// <summary>The port's own: 1 once the player has answered whether to turn on every fix (Forms/FixesDialog.cs).</summary>
+    public const string AskedFixes = "AskedFixes";
+
     /// <summary>The fixes a new game plays with.</summary>
     public Fixes ChosenFixes() => FixNames.Where(kv => Flag(kv.Value)).Aggregate(Fixes.None, (all, kv) => all | kv.Key);
 
@@ -121,6 +124,7 @@ public sealed class Preferences
         [VSync] = 1,
         [ZeroPauses] = 1,
         [PauseInBackground] = 0,
+        [AskedFixes] = 0,
         [CheckUpdates] = 1,
         [UpdatePreReleases] = 1,
         [WindowX] = 0,

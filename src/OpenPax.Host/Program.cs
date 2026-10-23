@@ -178,6 +178,8 @@ try
     // Scripted runs stay a window, so their pictures do not depend on the display.
     var scripted = options.Screenshot is not null || options.Script.Count > 0 || options.ExitAfterMilliseconds is not null;
     var fullscreen = !scripted && app.Preferences.Flag(Preferences.Fullscreen);
+    // Asked once on the main menu: every fix to the original's bugs, or none (Forms/FixesDialog.cs).
+    app.OfferFixes = !scripted;
     Sdl.SetWindowFullscreen(window, fullscreen);
 
     // What the app takes from a mod set; again when another set is loaded in place.
