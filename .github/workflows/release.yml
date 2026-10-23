@@ -54,6 +54,18 @@ jobs:
           python-version: '3.12'
       - name: Packages
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends $(cat .github/linux-packages.txt)
+      # The same cache as CI's (ci.yml): SDL3, FFmpeg and x264 built for
+      # Linux, kept while their pins and build scripts stay the same.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps/archives
+            deps/SDL3-*
+            deps/ffmpeg-*
+            deps/x264-*
+            deps/fonts
+            build/native
+          key: native-linux-${{ hashFiles('tools/deps.toml', 'tools/build_ffmpeg.sh', 'build.sh') }}
       - name: Build and test
         run: ./build.sh
       - name: Package
@@ -78,6 +90,14 @@ jobs:
           python-version: '3.12'
       - name: Packages
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends gcc-mingw-w64-x86-64 g++-mingw-w64-x86-64 cmake nasm pkg-config zip rsync
+      # The Windows libraries and converter: the script rebuilds only what
+      # its stamps say is out of date, so a restored folder is used as it is.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            deps/archives
+            build/native-win-x64
+          key: native-win-${{ hashFiles('tools/deps.toml', 'tools/build_native_windows.sh') }}
       - name: Native libraries and the movie converter, cross-compiled
         run: tools/build_native_windows.sh
       - name: Package
@@ -102,6 +122,11 @@ jobs:
           python-version: '3.12'
       - name: Packages
         run: brew install cmake pkg-config
+      # The same for the Mac (tools/build_native_macos.sh keeps a stamp too).
+      - uses: actions/cache@v4
+        with:
+          path: build/native-osx-arm64
+          key: native-mac-${{ hashFiles('tools/deps.toml', 'tools/build_native_macos.sh') }}
       - name: Native libraries and the movie converter
         run: tools/build_native_macos.sh
       - name: Package
