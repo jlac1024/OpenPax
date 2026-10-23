@@ -27,7 +27,7 @@ public sealed class SimpleCombatTests : IDisposable
     }
 
     /// <summary>The sample as build.sh installs it: its built files in a folder of the mods folder.</summary>
-    private ModHost Install()
+    private ModHost Install(string? settings = null)
     {
         // The sample builds next to these tests under build/artifacts/bin, in a folder of its own name.
         var built = AppContext.BaseDirectory.Replace("OpenPax.Modding.Tests", "SimpleCombat", StringComparison.Ordinal);
@@ -38,14 +38,19 @@ public sealed class SimpleCombatTests : IDisposable
             File.Copy(Path.Combine(built, name), Path.Combine(folder, name), true);
         }
 
+        if (settings is not null)
+        {
+            File.WriteAllText(Path.Combine(folder, "simple-combat.toml"), settings);
+        }
+
         var host = ModHost.Load(_mods.Path, ["simple-combat"]);
         Assert.Empty(host.Errors);
         return host;
     }
 
-    private (Game Game, Player Human, Player Computer) NewGame(bool war = true)
+    private (Game Game, Player Human, Player Computer) NewGame(bool war = true, string? settings = null)
     {
-        var host = Install();
+        var host = Install(settings);
         var tables = Tables();
         var game = OpenPax.Sim.Setup.NewGame.Create(new GameSetup(1234, 30, 2, 3, [new HumanPlayerSetup("Commander", 0, 0, tables.Species[0])]), tables);
         host.NewGame(game);
@@ -339,6 +344,44 @@ public sealed class SimpleCombatTests : IDisposable
         Assert.True(Game.AtWar(computer, human));
         Assert.Contains(new ModFight(fleet, colony.Planet), game.Fights(star));
         Assert.Empty(game.Fights(game.Universe.Stars.First(s => s != star)));
+    }
+
+    /// <summary>What a computer fleet loses in 10 steps to the human's missile bases, under the given settings.</summary>
+    private double MissileBaseDamage(string? settings)
+    {
+        var (game, human, computer) = NewGame(settings: settings);
+        var colony = human.Colonies[0];
+        foreach (var t in game.Tables.Techs.Where(t => t.Kind is TechInfo.MissileBaseKind or TechInfo.MissileKind).Take(4))
+        {
+            game.TeachTech(human, t);
+        }
+
+        game.AddStructure(colony, game.Tables.Techs.First(t => t.Kind == TechInfo.MissileBaseKind));
+        var bases = colony.Structures.First(s => s.Tech.Kind == TechInfo.MissileBaseKind);
+        (bases.UnderWork, bases.HitPoints) = (false, bases.MaxHitPoints);
+        SendAway(human, game.Universe.Stars[colony.Star]);
+        var fleet = Gather(game, computer, game.Universe.Stars[colony.Star], colony.Planet, 10);
+        var before = fleet.Ships.Sum(s => s.Structure);
+        var events = StepEvents.None;
+        game.StartPlanetBattle(fleet, colony.Planet, ref events);
+        for (var i = 0; i < 10; i++)
+        {
+            game.Step();
+        }
+
+        return before - fleet.Ships.Sum(s => s.Structure);
+    }
+
+    [Fact]
+    public void MissileBasesFireAsHardAndFastAsTheOriginals()
+    {
+        // The original's orbitals: shots at half again a ship's power, and a
+        // volley then half the reload, where a ship waits all of it. Counted
+        // like ships' weapons, a lone missile base barely scratched a fleet.
+        var flat = MissileBaseDamage("orbital_power = 1.0\norbital_reload_share = 1.0\n");
+        var original = MissileBaseDamage(null);
+        Assert.True(flat > 0);
+        Assert.True(original >= flat * 2.5, $"{original} against {flat} counted like ships");
     }
 
     [Fact]

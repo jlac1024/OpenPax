@@ -90,8 +90,15 @@ public sealed class Firepower
         return f;
     }
 
-    /// <summary>A colony's defense structures, but for its mine fields: orbitals fire with an attack of 100 when a battle is resolved at once.</summary>
-    public static Firepower Of(Game game, IEnumerable<Structure> orbitals)
+    /// <summary>
+    /// A colony's defense structures, but for its mine fields: orbitals fire
+    /// with an attack of 100 when a battle is resolved at once. As in the
+    /// original's battles, their shots carry half again a ship's power
+    /// (orbital_power) and they fire faster: a stack fires one shot per unit,
+    /// then reloads in a share of the weapon's time (orbital_reload_share),
+    /// where a ship's weapon waits the whole of it.
+    /// </summary>
+    public static Firepower Of(Game game, IEnumerable<Structure> orbitals, Settings settings)
     {
         var f = new Firepower();
         var flights = 0.0;
@@ -101,12 +108,12 @@ public sealed class Firepower
             var aim = 100 + (s.SensorTech?.SensorAccuracy ?? 0);
             foreach (var w in s.WeaponTechs.OfType<TechInfo>())
             {
-                f.AddWeapon(w, share, false, aim);
+                f.AddWeapon(w, share * OrbitalPace(w, s.Count, 1, settings), false, aim);
             }
 
             if (s.SecondEnergyTech is { } pd)
             {
-                f.AddWeapon(pd, share, true, aim);
+                f.AddWeapon(pd, share * OrbitalPace(pd, s.Count, 3, settings), true, aim);
             }
 
             foreach (var fighter in s.FighterTechs.OfType<TechInfo>())
@@ -118,6 +125,20 @@ public sealed class Firepower
 
         f.FinishScreens(flights);
         return f;
+    }
+
+    // How much more each unit of an orbital stack does over time than a
+    // ship's mount of the same tech: its shot power, times its shots per
+    // reload cycle against a ship's one shot per reload. A stack fires its
+    // volley, a shot a step (one per unit, three per unit for point
+    // defense), then reloads in a share of the weapon's time
+    // (orig: Structure.TakeVolley, OrbitalPower).
+    private static double OrbitalPace(TechInfo tech, int units, int shotsPerUnit, Settings settings)
+    {
+        var reload = Math.Max(1, tech.Reload);
+        var volley = Math.Max(1, units) * shotsPerUnit;
+        var cycle = (reload * settings.OrbitalReloadShare) + volley;
+        return settings.OrbitalPower * shotsPerUnit * reload / cycle;
     }
 
     private void AddWeapon(TechInfo tech, double count, bool pointDefense, double aim)

@@ -66,6 +66,23 @@ public sealed class Preferences
     /// <summary>The port's own: ask GitHub for a newer release on start (docs/updates.md). On.</summary>
     public const string CheckUpdates = "CheckUpdates";
 
+    /// <summary>
+    /// The port's own: where the window was last, as a plain window (not
+    /// fullscreen or maximized): its top-left corner in desktop coordinates,
+    /// which also says which display it was on, and its size. A width of 0
+    /// is none yet, and the window opens centered on the main display.
+    /// </summary>
+    public const string WindowX = "WindowX";
+
+    public const string WindowY = "WindowY";
+
+    public const string WindowWidth = "WindowWidth";
+
+    public const string WindowHeight = "WindowHeight";
+
+    /// <summary>The port's own: the window was maximized when last closed.</summary>
+    public const string WindowMaximized = "WindowMaximized";
+
     /// <summary>The port's own: pre-releases count as updates. On while OpenPax is 0.x, as all its releases are pre-releases.</summary>
     public const string UpdatePreReleases = "UpdatePreReleases";
 
@@ -95,6 +112,11 @@ public sealed class Preferences
         [ZeroPauses] = 1,
         [CheckUpdates] = 1,
         [UpdatePreReleases] = 1,
+        [WindowX] = 0,
+        [WindowY] = 0,
+        [WindowWidth] = 0,
+        [WindowHeight] = 0,
+        [WindowMaximized] = 0,
     };
 
     private readonly Dictionary<string, int> _values = [];

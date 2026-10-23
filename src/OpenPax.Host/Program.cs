@@ -102,7 +102,12 @@ try
     // original's 640x480 that leaves room on the display (at least 1x).
     var desktop = Sdl.DesktopSize() ?? (ScreenWidth * 2, ScreenHeight * 2);
     var multiple = Math.Max(1, Math.Min(desktop.Width * 9 / 10 / ScreenWidth, desktop.Height * 9 / 10 / ScreenHeight));
-    var window = Sdl.CreateWindow(Strings.WindowTitle, ScreenWidth * multiple, ScreenHeight * multiple, WindowFlags.Resizable);
+    // Where the player left it, on the same display (WindowPlacement); scripted
+    // runs always open the same way, so their pictures do not depend on the displays.
+    var earlyUserFolder = UserFolder.Resolve();
+    var earlySettings = ConfigFile.EarlyPreferences(earlyUserFolder is null ? null : Path.Combine(earlyUserFolder, ConfigFile.FileName));
+    var placed = options.Screenshot is null && options.Script.Count == 0 && options.ExitAfterMilliseconds is null;
+    var window = WindowPlacement.Open(Strings.WindowTitle, (ScreenWidth * multiple, ScreenHeight * multiple), earlySettings, placed);
     if (window == 0)
     {
         Console.Error.WriteLine(string.Format(Strings.WindowFailed, Sdl.GetError()));
@@ -391,6 +396,10 @@ try
                     break;
                 case EventType.WindowFocusGained or EventType.WindowFocusLost:
                     focused = ev.Type == EventType.WindowFocusGained;
+                    break;
+                case EventType.WindowMoved or EventType.WindowResized or EventType.WindowMaximized or EventType.WindowRestored
+                    or EventType.WindowEnterFullscreen or EventType.WindowLeaveFullscreen when !scripted:
+                    WindowPlacement.Follow(window, ev.Type, app.Preferences);
                     break;
                 case EventType.KeyDown when ev.Key == Sdl.KeyReturn && (ev.KeyMod & Sdl.ModAlt) != 0:
                     {

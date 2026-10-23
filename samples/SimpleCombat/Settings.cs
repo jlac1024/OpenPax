@@ -35,6 +35,10 @@ public sealed record Settings
 
     public int ExperiencePerRound { get; init; } = 1;
 
+    public double OrbitalPower { get; init; } = 1.5;
+
+    public double OrbitalReloadShare { get; init; } = 0.5;
+
     public static Settings Default { get; } = new();
 
     public static Settings Read(string path)
@@ -64,6 +68,8 @@ public sealed record Settings
             SweepRate = N("sweep_rate", d.SweepRate),
             MineDamageShare = N("mine_damage_share", d.MineDamageShare),
             ExperiencePerRound = Math.Max(0, (int)N("experience_per_round", d.ExperiencePerRound)),
+            OrbitalPower = Math.Max(0, N("orbital_power", d.OrbitalPower)),
+            OrbitalReloadShare = Math.Clamp(N("orbital_reload_share", d.OrbitalReloadShare), 0.05, 1),
         };
     }
 }

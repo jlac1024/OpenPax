@@ -38,6 +38,25 @@ internal static class ConfigFile
         }
     }
 
+    /// <summary>
+    /// The whole-number settings under [preferences], read before the rest
+    /// of the game is up (the window's place is needed to open it); none
+    /// when the file is missing or unreadable.
+    /// </summary>
+    public static Dictionary<string, int> EarlyPreferences(string? path)
+    {
+        try
+        {
+            return path is not null && File.Exists(path) && TomlReader.Parse(File.ReadAllText(path)).GetValueOrDefault(Table) is Dictionary<string, object> table
+                ? table.Where(kv => kv.Value is long l && l is >= int.MinValue and <= int.MaxValue).ToDictionary(kv => kv.Key, kv => (int)(long)kv.Value)
+                : [];
+        }
+        catch (Exception e) when (e is FormatException or IOException)
+        {
+            return [];
+        }
+    }
+
     /// <summary>Reads the file into the preferences; a missing or broken file leaves the defaults and says so for a broken one.</summary>
     public static void Load(string path, string dataFolder, UiApp app, TextWriter errors)
     {

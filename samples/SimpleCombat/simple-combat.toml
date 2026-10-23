@@ -55,3 +55,10 @@ mine_damage_share = 0.25
 # a ship's aim and hull defense; training bases still train ships up to
 # level 2 outside battle.
 experience_per_round = 1
+
+# Missile bases, battle stations and fighter bases, as in the original's
+# battles: their shots carry this much of a ship's power (150 against a
+# ship's 100 at best), and after a volley (one shot per unit) they reload
+# in this share of the weapon's reload time, where a ship waits all of it.
+orbital_power = 1.5
+orbital_reload_share = 0.5

@@ -267,7 +267,7 @@ public sealed class SimpleCombatMod : IMod
     {
         var attackers = Firepower.Of(game, besiegers);
         var fleets = Firepower.Of(game, defenders);
-        var orbitals = Firepower.Of(game, Orbitals(colony));
+        var orbitals = Firepower.Of(game, Orbitals(colony), _settings);
         var guard = defenders.Count > 0 ? fleets : orbitals;
         var outgoing = Fight.Fire(attackers, guard, fleets.SmallCraftDefense(_settings) + orbitals.SmallCraftDefense(_settings), _settings);
         var returned = Fight.Fire(fleets, attackers, attackers.SmallCraftDefense(_settings), _settings)
@@ -343,7 +343,7 @@ public sealed class SimpleCombatMod : IMod
 
         var ours = Firepower.Of(game, attackers);
         var theirs = Firepower.Of(game, defenders);
-        var guns = Firepower.Of(game, orbitals);
+        var guns = Firepower.Of(game, orbitals, _settings);
         var guard = defenders.Count > 0 ? theirs : guns;
         var dealt = Fight.Fire(ours, guard, theirs.SmallCraftDefense(_settings) + guns.SmallCraftDefense(_settings), _settings).Total;
         var taken = Fight.Fire(theirs, ours, ours.SmallCraftDefense(_settings), _settings).Total + Fight.Fire(guns, ours, ours.SmallCraftDefense(_settings), _settings).Total
@@ -384,7 +384,7 @@ public sealed class SimpleCombatMod : IMod
     /// <summary>The planet lists' rating: what the orbitals deal a round before defenses, and the hit points of every defense structure.</summary>
     private ColonyRating Rate(Game game, Colony colony)
     {
-        var orbitals = Firepower.Of(game, Orbitals(colony));
+        var orbitals = Firepower.Of(game, Orbitals(colony), _settings);
         var attack = (orbitals.Beam + orbitals.Missile + orbitals.Drones + orbitals.PointDefense) * _settings.AttackShare;
         var defense = Orbitals(colony).Concat(Fields(colony)).Sum(s => s.HitPoints);
         return new ColonyRating((int)Math.Round(attack), (int)Math.Round(defense));
