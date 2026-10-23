@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.jlac1024.OpenPax</id>
+  <name>OpenPax</name>
+  <summary>Pax Imperia: Eminent Domain, rebuilt to run natively</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <description>
+    <p>
+      OpenPax is a new engine for Pax Imperia: Eminent Domain, the 1997 space
+      strategy game. It plays the game from your own copy (the GOG release) and
+      ships none of its data: on first start it asks for your game folder or
+      GOG's offline installer and imports what it needs.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.jlac1024.OpenPax.desktop</launchable>
+  <url type="homepage">https://github.com/jlac1024/OpenPax</url>
+  <url type="bugtracker">https://github.com/jlac1024/OpenPax/issues</url>
+  <developer id="io.github.jlac1024">
+    <name>jlac1024</name>
+  </developer>
+  <content_rating type="oars-1.1">
+    <content_attribute id="violence-fantasy">mild</content_attribute>
+  </content_rating>
+  <releases>
+    <release version="@VERSION@" date="@DATE@"/>
+  </releases>
+</component>

@@ -62,6 +62,13 @@ internal sealed class Updater : IDisposable
             return;
         }
 
+        if (InstallFolder.Packaged(_folder) is { } kind)
+        {
+            SetStatus(string.Format(Strings.UpdatePackaged, kind, release.Page));
+            _installing = Task.CompletedTask;
+            return;
+        }
+
         if (!InstallFolder.Writable(_folder))
         {
             // Done at once, with nothing done: the popup closes and says why.

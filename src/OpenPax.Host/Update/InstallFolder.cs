@@ -35,6 +35,27 @@ internal static class InstallFolder
         return File.Exists(mac) ? mac : Path.Combine(install, "openpax");
     }
 
+    /// <summary>The file a system package leaves in the install folder, naming the package kind (deb, Flatpak).</summary>
+    public const string PackagedMark = ".openpax-packaged";
+
+    /// <summary>
+    /// The package kind when the game was installed by a package manager, else
+    /// null. Such an install is the package manager's to change, so the game
+    /// points to the new package instead of swapping its own files.
+    /// </summary>
+    public static string? Packaged(string install)
+    {
+        try
+        {
+            var kind = File.ReadAllText(Path.Combine(install, PackagedMark)).Trim();
+            return kind.Length > 0 ? kind : null;
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
     /// <summary>Whether this user may change the install folder (an install in Program Files, say, needs more).</summary>
     public static bool Writable(string install)
     {

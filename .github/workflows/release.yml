@@ -1,5 +1,6 @@
 # Builds the release bundles (docs/platforms.md) and puts them on a GitHub
-# release: Linux x64 and Windows x64 on Ubuntu, Apple Silicon on macOS.
+# release: Linux x64 (also as a .deb and a Flatpak) and Windows x64 on
+# Ubuntu, Apple Silicon on macOS.
 # None of the game is in them; the first run imports the player's own copy
 # (docs/first-run.md). Runs for a version tag (v0.1.0) or by hand.
 name: Release
@@ -171,6 +172,48 @@ jobs:
           name: win-x64-setup
           path: installer/*.exe
 
+  # The Linux bundle as a .deb and a Flatpak (docs/platforms.md), each
+  # installed and started once here: with no game imported, the game says so
+  # and stops, which shows it runs from the package.
+  linux-packages:
+    needs: [check, linux]
+    if: needs.check.outputs.build == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: linux-x64
+          path: build/release
+      - name: Unpack the bundle
+        run: tar -xzf "build/release/OpenPax-${VERSION#v}-linux-x64.tar.gz" -C build/release
+      - name: Packages
+        timeout-minutes: 10
+        run: sudo apt-get -o Acquire::Retries=3 update && sudo apt-get -o Acquire::Retries=3 install -y --no-install-recommends flatpak
+      - name: .deb
+        run: |
+          deb="$(tools/package_deb.sh "${VERSION#v}")"
+          sudo apt-get install -y --no-install-recommends "$deb"
+          (openpax --headless 1 || true) 2>&1 | tee started.txt
+          grep -q "No imported game data" started.txt
+          mkdir -p packages && mv "$deb" packages/
+      - name: Flatpak
+        timeout-minutes: 20
+        run: |
+          flatpak="$(tools/package_flatpak.sh "${VERSION#v}")"
+          # Ubuntu keeps unprivileged programs from the user namespaces the Flatpak sandbox is made of.
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          export FLATPAK_USER_DIR="$PWD/deps/flatpak"
+          flatpak install --user --noninteractive "$flatpak"
+          (flatpak run io.github.jlac1024.OpenPax --headless 1 || true) 2>&1 | tee started.txt
+          grep -q "No imported game data" started.txt
+          mv "$flatpak" packages/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64-packages
+          path: packages/*
+
   macos:
     needs: check
     if: needs.check.outputs.build == 'true'
@@ -203,7 +246,7 @@ jobs:
           path: build/release/*.tar.gz
 
   publish:
-    needs: [linux, windows, windows-installer, macos]
+    needs: [linux, linux-packages, windows, windows-installer, macos]
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     permissions:

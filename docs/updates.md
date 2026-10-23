@@ -52,6 +52,11 @@ An install in a folder the player cannot change (Program Files without
 admin rights, say) is not updated in place: the popup says so and points
 to the release page.
 
+A .deb or Flatpak install (platforms.md) is the package manager's: its
+folder holds `.openpax-packaged`, naming the package, and the popup asks
+for the new package from the release page instead of downloading the
+bundle.
+
 On macOS the install folder is the one holding `OpenPax.app`. A bundle the
 game downloads itself carries no download quarantine, so `prepare_mac.sh`
 is needed only for the first install.

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=OpenPax
+GenericName=Space strategy game
+Comment=Play Pax Imperia: Eminent Domain natively, with your own copy of the game
+Exec=openpax
+Icon=io.github.jlac1024.OpenPax
+Terminal=false
+Categories=Game;StrategyGame;
+Keywords=Pax Imperia;4X;space;strategy;
+StartupWMClass=openpax

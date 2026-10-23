@@ -7,10 +7,10 @@ real-time 4X space strategy game. Play your own GOG copy natively on
 Windows, macOS and Linux, with widescreen, online multiplayer and mods.
 
 > **Status: early releases.** Pre-release builds for Windows (installer or
-> zip), macOS (Apple Silicon) and Linux are on the
+> zip), macOS (Apple Silicon) and Linux (tarball, .deb or Flatpak) are on the
 > [releases page](https://github.com/jlac1024/OpenPax/releases). On first
-> start they import the game from your own GOG copy, and they keep
-> themselves up to date. Expect rough edges, and please report what you find.
+> start they import the game from your own GOG copy. All but the Linux
+> packages keep themselves up to date. Expect rough edges, and please report what you find.
 
 ## What it is
 

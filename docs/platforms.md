@@ -56,6 +56,20 @@ for a version tag such as `v0.1.0`, or by hand as a draft:
   a desktop shortcut if wanted, and an uninstaller. Per user because the
   game updates itself in place (updates.md), which a Program Files install
   would not let it do. An upgrade keeps the player's `config.json`.
+- **Linux packages** on Ubuntu 24.04, from the Linux bundle:
+  `tools/package_deb.sh VERSION` makes `openpax_VERSION_amd64.deb` (the
+  bundle in `/opt/openpax`, the `openpax` and `openpax-lobby` commands, a
+  menu entry and the icon), and `tools/package_flatpak.sh VERSION` makes
+  `OpenPax-VERSION-linux-x64.flatpak` (app ID `io.github.jlac1024.OpenPax`,
+  on the freedesktop runtime from Flathub). The Flatpak copies the finished
+  bundle in rather than building it in `flatpak-builder`, so it needs the
+  runtime but not the SDK. It may use the window, GPU, sound and network,
+  and read the Downloads folder and `~/GOG Games`; any other game folder or
+  installer comes through the file picker (the desktop portal). The menu
+  entry and app data are in `tools/linux/`. The job installs each package
+  and starts the game once. Both packages leave `.openpax-packaged` in the
+  install folder: the package manager owns those files, so the game points
+  to the new package instead of updating itself (updates.md).
 
 The icon is OpenPax's own (`src/OpenPax.Host/Icon/openpax.svg`, drawn for
 the project). `tools/make_icon.sh` renders it to the Windows `.ico` (the

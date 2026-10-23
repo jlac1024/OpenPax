@@ -90,6 +90,14 @@ public sealed class UpdateTests : IDisposable
         Assert.True(InstallFolder.Writable(_root));
     }
 
+    [Fact]
+    public void APackagedInstallNamesItsPackage()
+    {
+        Assert.Null(InstallFolder.Packaged(_root));
+        File.WriteAllText(Path.Combine(_root, InstallFolder.PackagedMark), "Flatpak\n");
+        Assert.Equal("Flatpak", InstallFolder.Packaged(_root));
+    }
+
     // A bundle as tools/package.sh makes it: one folder, the program and its files.
     private static byte[] Bundle(string version, Dictionary<string, string> files, bool zip)
     {
