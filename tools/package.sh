@@ -24,8 +24,14 @@ mkdir -p "$WORK" "$RELEASE"
 
 # The program and the lobby server, self-contained for the platform, with
 # the release's version (shown in crash logs).
-dotnet publish "$ROOT/src/OpenPax.Host/OpenPax.Host.csproj" -c Release -r "$RID" --self-contained --nologo -p:Version="$VERSION" -o "$WORK/game"
-dotnet publish "$ROOT/src/OpenPax.LobbyServer/OpenPax.LobbyServer.csproj" -c Release -r "$RID" --self-contained --nologo -p:Version="$VERSION" -o "$WORK/lobby-server"
+# One file each (docs/platforms.md): the program and all its .NET libraries in
+# a single executable, debug symbols inside it (so crash logs keep their line
+# numbers), no doc files. The native libraries stay beside it as files: the
+# FFmpeg ones are LGPL, and a player must be able to put their own in.
+# Untrimmed, as mods may use any of .NET.
+SINGLE=(-p:PublishSingleFile=true -p:DebugType=embedded -p:GenerateDocumentationFile=false -p:IncludeNativeLibrariesForSelfExtract=false)
+dotnet publish "$ROOT/src/OpenPax.Host/OpenPax.Host.csproj" -c Release -r "$RID" --self-contained --nologo -p:Version="$VERSION" "${SINGLE[@]}" -o "$WORK/game"
+dotnet publish "$ROOT/src/OpenPax.LobbyServer/OpenPax.LobbyServer.csproj" -c Release -r "$RID" --self-contained --nologo -p:Version="$VERSION" "${SINGLE[@]}" -o "$WORK/lobby-server"
 # The sample mods (C#, any platform) and the docs site.
 for sample in SimpleCombat Bounty; do
   dotnet build "$ROOT/samples/$sample/$sample.csproj" -c Release --nologo -v q

@@ -52,7 +52,7 @@ for a version tag such as `v0.1.0`, or by hand as a draft:
 - **macOS, Apple Silicon** on a GitHub Mac: `tools/build_native_macos.sh`,
   then `tools/package.sh osx-arm64 VERSION`, signed ad hoc.
 
-`tools/package.sh` makes `build/release/OpenPax-VERSION-RID` and its archive:
+`tools/package.sh` makes `build/release/OpenPax-VERSION-RID` and its archive. The program and the lobby server are each one file holding all their .NET libraries (single-file publishing, debug symbols inside, not trimmed, so mods can use any of .NET); the native libraries (SDL3 and the LGPL FFmpeg ones, which a player must be able to replace) stay beside them. The bundle holds:
 the program, the lobby server, the native libraries, the movie converter,
 the modern font, the sample mods that need no game data, the modding docs,
 `config.json`, the license and notices. No game data. `ci.yml` builds and

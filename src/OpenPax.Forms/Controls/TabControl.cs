@@ -26,6 +26,9 @@ public sealed class TabControl : Element
 
     public event EventHandler? SelectionChanged;
 
+    /// <summary>How wide the row of tabs is; a layout that gives the control less draws them past its edge.</summary>
+    public int HeadersWidth => TabsWidth();
+
     /// <summary>Every page is in the tree, so names and bindings reach them; only the picked one draws and takes the mouse.</summary>
     public override IEnumerable<Element> Children => _pages;
 

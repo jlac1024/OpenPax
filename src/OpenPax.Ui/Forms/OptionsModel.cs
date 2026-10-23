@@ -309,8 +309,8 @@ public sealed class OptionsModel(UiApp app) : Observable
     }
 
     /// <summary>The running version and where the last check left it.</summary>
-    public string UpdateStatus => string.Format(CultureInfo.InvariantCulture, UiText.UpdateRunning, app.Updates.Running)
-        + (app.Updates.Status.Length > 0 ? " " + app.Updates.Status : "");
+    public string UpdateStatus =>
+        string.Join(" ", new[] { app.Updates.Running.Length > 0 ? string.Format(CultureInfo.InvariantCulture, UiText.UpdateRunning, app.Updates.Running) : "", app.Updates.Status }.Where(t => t.Length > 0));
 
     public bool CanCheckUpdates => !app.Updates.Busy;
 
