@@ -21,7 +21,27 @@ env:
   JOBS: 4
 
 jobs:
+  # Publishing a draft on GitHub creates its tag, which starts this workflow
+  # again: when the release is already there, nothing is built.
+  check:
+    runs-on: ubuntu-24.04
+    outputs:
+      build: ${{ steps.release.outputs.build }}
+    steps:
+      - id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${VERSION#v}" --repo "${{ github.repository }}" > /dev/null 2>&1; then
+            echo "Release v${VERSION#v} already exists: nothing to build."
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
   linux:
+    needs: check
+    if: needs.check.outputs.build == 'true'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -44,6 +64,8 @@ jobs:
           path: build/release/*.tar.gz
 
   windows:
+    needs: check
+    if: needs.check.outputs.build == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -66,6 +88,8 @@ jobs:
           path: build/release/*.zip
 
   macos:
+    needs: check
+    if: needs.check.outputs.build == 'true'
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
