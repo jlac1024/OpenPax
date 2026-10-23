@@ -31,6 +31,28 @@ for kind, size in ((b"icp4", 16), (b"icp5", 32), (b"icp6", 64), (b"ic07", 128), 
 open(out, "wb").write(b"icns" + struct.pack(">I", len(entries) + 8) + entries)
 PY
 
+# The installer's own pictures (tools/installer/openpax.iss), as Inno Setup
+# takes them: 32-bit BMPs with alpha, in sizes for 100% to 250% display
+# scaling. The small one sits in the corner of the inner pages; the large one
+# fills the side of the Welcome and Finish pages, the icon above the name.
+INSTALLER="$ICON/installer"
+mkdir -p "$INSTALLER"
+for size in 55 69 83 110 138; do
+  rsvg-convert -w "$size" -h "$size" "$ICON/openpax.svg" -o "$WORK/small-$size.png"
+  convert "$WORK/small-$size.png" -define bmp:format=bmp4 "BMP:$INSTALLER/small-$size.bmp"
+done
+if [[ -f "$ROOT/deps/fonts/titillium-web/TitilliumWeb-Bold.ttf" ]]; then
+  for scale in 100 150 200; do
+    w=$((164 * scale / 100)); h=$((314 * scale / 100)); i=$((140 * scale / 100))
+    rsvg-convert -w "$i" -h "$i" "$ICON/openpax.svg" -o "$WORK/large-icon.png"
+    convert -size "${w}x${h}" radial-gradient:'#16244a'-'#03060f' \
+      "$WORK/large-icon.png" -gravity north -geometry "+0+$((60 * scale / 100))" -composite \
+      -font "$ROOT/deps/fonts/titillium-web/TitilliumWeb-Bold.ttf" -fill '#ffd25a' -pointsize "$((34 * scale / 100))" \
+      -gravity north -annotate "+0+$((215 * scale / 100))" 'OpenPax' \
+      -alpha on -depth 8 -define bmp:format=bmp4 "BMP:$INSTALLER/large-$scale.bmp"
+  done
+fi
+
 # GitHub's social preview (the repository's Settings, Social preview): 1280x640,
 # the icon beside the name, in the modern font the game ships.
 FONTS="$ROOT/deps/fonts/titillium-web"

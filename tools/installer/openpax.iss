@@ -33,6 +33,10 @@ DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\openpax.exe
 ; OpenPax's own icon (src/OpenPax.Host/Icon, tools/make_icon.sh).
 SetupIconFile=..\..\src\OpenPax.Host\Icon\openpax.ico
+; The wizard's pictures in OpenPax's look, in sizes for display scaling (tools/make_icon.sh).
+WizardImageFile=..\..\src\OpenPax.Host\Icon\installer\large-100.bmp,..\..\src\OpenPax.Host\Icon\installer\large-150.bmp,..\..\src\OpenPax.Host\Icon\installer\large-200.bmp
+WizardSmallImageFile=..\..\src\OpenPax.Host\Icon\installer\small-55.bmp,..\..\src\OpenPax.Host\Icon\installer\small-69.bmp,..\..\src\OpenPax.Host\Icon\installer\small-83.bmp,..\..\src\OpenPax.Host\Icon\installer\small-110.bmp,..\..\src\OpenPax.Host\Icon\installer\small-138.bmp
+WizardImageAlphaFormat=defined
 UninstallDisplayName=OpenPax
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
