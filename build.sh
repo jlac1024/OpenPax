@@ -9,6 +9,17 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT"
 
+# Where your copy of the game is, for the import step and the tests that
+# need its files: OPENPAX_GAME, a GOG game folder, a folder holding one, or
+# GOG's offline installer. Set it in the environment, or in build/local.env
+# (not in the repository): OPENPAX_GAME="/path/to/Pax Imperia - Eminent Domain".
+# Without it nothing is imported here, and the game imports on first start.
+if [[ -f "$ROOT/build/local.env" ]]; then
+  # shellcheck source=/dev/null
+  source "$ROOT/build/local.env"
+fi
+export OPENPAX_GAME="${OPENPAX_GAME:-}"
+
 RUN_TESTS=1
 FULL=0
 DIST=0
@@ -116,12 +127,16 @@ step "import"
 # The game files themselves are checked against the GOG hashes on every import.
 DATA_DLL="$ROOT/build/artifacts/bin/OpenPax.Data/release/OpenPax.Data.dll"
 STAMP="$ROOT/build/data/import.toml"
-if [[ ! -d "$ROOT/references/gog" ]]; then
-  echo "references/gog/ not found, skipping import"
+if [[ -z "$OPENPAX_GAME" ]]; then
+  echo "OPENPAX_GAME not set: nothing imported here (the game imports on first start)"
+elif [[ ! -e "$OPENPAX_GAME" ]]; then
+  echo "OPENPAX_GAME is $OPENPAX_GAME, which is not there" >&2
+  exit 1
 elif [[ -f "$STAMP" && "$STAMP" -nt "$DATA_DLL" ]]; then
   echo "build/data/ is up to date"
 else
-  dotnet "$ROOT/build/artifacts/bin/OpenPax.Host/release/openpax.dll" --import "$ROOT/references/gog" "$ROOT/build/data" \
+  # A game folder (or one holding it), or GOG's offline installer.
+  dotnet "$ROOT/build/artifacts/bin/OpenPax.Host/release/openpax.dll" --import "$OPENPAX_GAME" "$ROOT/build/data" \
     --ffmpeg "$ROOT/build/native/ffmpeg-tool/bin/ffmpeg"
 fi
 

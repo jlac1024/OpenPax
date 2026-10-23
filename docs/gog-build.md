@@ -92,7 +92,7 @@ replaced `PrefData` anyway and ships `SpecData` empty.
 
 ## Material outside the GOG build
 
-`references/` also holds the 1.072 update package and a 2002 split archive
+The study material beside the GOG build also holds the 1.072 update package and a 2002 split archive
 of disc files with loose voice WAVs. Jeff made the update package
 available for reference; it is used above to identify GOG's changes. The
 disc archive is not used.

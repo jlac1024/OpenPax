@@ -389,3 +389,15 @@ build releases for all three platforms, the Mac's included. This replaces
   cleaned tree; this repository keeps the full history.
 - **Author**: commits are made as Jeff <jlac1024@users.noreply.github.com>,
   GitHub's no-reply address, from now on and in the public repository.
+
+## Where builds and tests find the game (2026-10-23)
+
+Jeff: building from source should not depend on his machine's layout.
+`build.sh` and the tests no longer look in a fixed folder. They take
+`OPENPAX_GAME` (a GOG game folder, a folder holding one, or GOG's offline
+installer) from the environment or from `build/local.env`, which is not in
+the repository. Without it, `build.sh` imports nothing and the game
+imports on first start, as a release does; tests that need the game's
+files skip. This machine's `build/local.env` points where the game was
+before, so its builds are unchanged.
+

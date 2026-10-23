@@ -9,7 +9,7 @@ internal static class ImportedData
     public static string RequireFolder()
     {
         var folder = Find();
-        Assert.SkipWhen(folder is null, "Imported data not found: run build.sh with the GOG install in references/gog/");
+        Assert.SkipWhen(folder is null, "Imported data not found: run build.sh with OPENPAX_GAME (or build/local.env) set to your GOG copy of the game");
 
         // SkipWhen throws when folder is null, so it is set here.
         return folder!;

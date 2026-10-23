@@ -10,7 +10,7 @@ public class MovieImporterTests
     public void AMovieConvertsToMp4()
     {
         var game = GameData.RequireFolder();
-        var root = Path.GetFullPath(Path.Combine(game, "..", "..", ".."));
+        var root = GameData.RepositoryRoot();
         var ffmpeg = Path.Combine(root, "build", "native", "ffmpeg-tool", "bin", OperatingSystem.IsWindows() ? "ffmpeg.exe" : "ffmpeg");
         Assert.SkipWhen(!File.Exists(ffmpeg), "The ffmpeg tool is not built: run build.sh");
 

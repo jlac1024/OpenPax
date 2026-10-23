@@ -10,10 +10,8 @@ public class GogInstallerTests
 {
     private static string Installer()
     {
-        var game = GameData.RequireFolder();
-        var gog = Path.GetDirectoryName(game) ?? "";
-        var found = Directory.GetFiles(gog, "setup_pax_imperia_*.exe");
-        Assert.SkipWhen(found.Length == 0, "GOG's offline installer not found: put setup_pax_imperia_2.0.0.12.exe in references/gog/");
+        var found = GameData.Installers("setup_pax_imperia_*.exe");
+        Assert.SkipWhen(found.Length == 0, "GOG's offline installer not found: put setup_pax_imperia_2.0.0.12.exe beside your game folder, or point OPENPAX_GAME at it");
         return found[0];
     }
 
@@ -32,9 +30,8 @@ public class GogInstallerTests
     [Fact]
     public void TheStubIsRefusedWithAPlainMessage()
     {
-        var gog = Path.GetDirectoryName(GameData.RequireFolder()) ?? "";
-        var stub = Directory.GetFiles(gog, "GOG_Galaxy_*.exe");
-        Assert.SkipWhen(stub.Length == 0, "GOG's Galaxy stub not found in references/gog/");
+        var stub = GameData.Installers("GOG_Galaxy_*.exe");
+        Assert.SkipWhen(stub.Length == 0, "GOG's Galaxy stub not found beside your game folder");
         var ex = Assert.Throws<InvalidDataException>(() => GogInstaller.Open(stub[0]));
         Assert.Contains("Galaxy installer", ex.Message, StringComparison.Ordinal);
     }
@@ -42,10 +39,9 @@ public class GogInstallerTests
     [Fact]
     public void ImportingTheStubSaysWhyAndLeavesNothing()
     {
-        var gog = Path.GetDirectoryName(GameData.RequireFolder()) ?? "";
-        var stub = Directory.GetFiles(gog, "GOG_Galaxy_*.exe");
-        Assert.SkipWhen(stub.Length == 0, "GOG's Galaxy stub not found in references/gog/");
-        var root = Path.GetFullPath(Path.Combine(gog, "..", ".."));
+        var stub = GameData.Installers("GOG_Galaxy_*.exe");
+        Assert.SkipWhen(stub.Length == 0, "GOG's Galaxy stub not found beside your game folder");
+        var root = GameData.RepositoryRoot();
         var data = Path.Combine(root, "build", "test-stub-import", "data");
         var log = new StringWriter();
         Assert.False(OpenPax.Data.Import.InstallerImport.Run(stub[0], data, null, log));
@@ -60,7 +56,7 @@ public class GogInstallerTests
         var game = GameData.RequireFolder();
         var installer = GogInstaller.Open(Installer());
         // In build/, not the system temp folder, which may be held in memory.
-        var root = Path.GetFullPath(Path.Combine(game, "..", "..", ".."));
+        var root = GameData.RepositoryRoot();
         var output = Path.Combine(root, "build", "test-unpack");
         if (Directory.Exists(output))
         {

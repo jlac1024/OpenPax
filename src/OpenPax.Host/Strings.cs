@@ -12,7 +12,7 @@ internal static class Strings
     public const string WindowFailed = "Could not open the game window: {0}";
     public const string CarryOverFailed = "Could not copy the old settings and saves from {0}: {1}";
     public const string BadArgument = "Unknown or malformed argument: {0}";
-    public const string NoData = "No imported game data in {0}. Start the game once to import it from your GOG copy, or run build.sh with the GOG game in references/gog.";
+    public const string NoData = "No imported game data in {0}. Start the game once to import it from your GOG copy, or import it with --import (your GOG game folder or offline installer) and a folder.";
     public const string InstallerFilter = "GOG installer";
     public const string RendererFailed = "Could not start drawing: {0}";
     public const string MovieMissing = "Movie not found: {0}";

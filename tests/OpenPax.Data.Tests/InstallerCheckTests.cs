@@ -51,11 +51,10 @@ public class InstallerCheckTests
     [Fact]
     public void GogFilesAreTold()
     {
-        // The installers sit beside the game folder in references/gog/.
-        var gog = Path.GetDirectoryName(GameData.RequireFolder()) ?? "";
-        var offline = Directory.GetFiles(gog, "setup_pax_imperia_*.exe");
-        var stub = Directory.GetFiles(gog, "GOG_Galaxy_*.exe");
-        Assert.SkipWhen(offline.Length == 0 && stub.Length == 0, "No GOG installers in references/gog/.");
+        // GOG's installers where the game is set (OPENPAX_GAME), or beside the game folder.
+        var offline = GameData.Installers("setup_pax_imperia_*.exe");
+        var stub = GameData.Installers("GOG_Galaxy_*.exe");
+        Assert.SkipWhen(offline.Length == 0 && stub.Length == 0, "No GOG installers beside your game folder.");
 
         foreach (var f in offline)
         {

@@ -37,32 +37,35 @@ On top of the original game it adds:
 You need:
 
 - the [.NET 10 SDK](https://dotnet.microsoft.com/download);
-- a C compiler, `make`, CMake, NASM, Python 3, `rsync` and `zip`;
-- your installed GOG copy of *Pax Imperia: Eminent Domain*.
+- a C compiler, `make`, CMake, NASM, Python 3 and `rsync`;
+- your own copy of *Pax Imperia: Eminent Domain* from GOG, to play (not
+  to build).
 
 Then:
 
-1. Copy the installed game folder to
-   `references/gog/Pax Imperia - Eminent Domain/` in this repository. The
-   importer checks the files against the GOG release and refuses anything
-   else.
-2. Build. The first build downloads and builds SDL 3 and FFmpeg from
-   pinned sources and imports the game's data, which takes a while; later
-   builds only redo what changed.
+1. Build. The first build downloads and builds SDL 3 and FFmpeg from
+   pinned sources, which takes a while; later builds only redo what
+   changed.
 
    ```bash
    ./build.sh
    ```
 
-3. Play:
+2. Play:
 
    ```bash
    ./run.sh
    ```
 
-`./build.sh --dist` also makes Windows and macOS builds
-([platforms](docs/platforms.md)). Tests that need the game's files skip
-themselves when it is missing; the rest run without it.
+   On first start the game asks for your copy of the game, as a release
+   does: an installed GOG copy, or GOG's offline backup installer
+   (`setup_pax_imperia_2.0.0.12.exe`). It imports it once and starts.
+
+Only the C# code? `dotnet build OpenPax.slnx` and `dotnet test` need just
+the .NET SDK; the game itself needs the native libraries `build.sh` makes.
+Tests that need the game's files skip themselves without them. Release
+bundles for each system are made by `tools/package.sh`, and by GitHub
+Actions for every release ([platforms](docs/platforms.md)).
 
 ## Repository
 

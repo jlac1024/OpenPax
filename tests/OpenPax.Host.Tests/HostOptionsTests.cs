@@ -32,8 +32,8 @@ public class HostOptionsTests
     [Fact]
     public void ImportTakesSourceAndDestination()
     {
-        var options = HostOptions.Parse(["--import", "references/gog", "build/data"], TextWriter.Null);
-        Assert.Equal("references/gog", options?.ImportFrom);
+        var options = HostOptions.Parse(["--import", "/games/gog", "build/data"], TextWriter.Null);
+        Assert.Equal("/games/gog", options?.ImportFrom);
         Assert.Equal("build/data", options?.ImportTo);
         Assert.Null(options?.Ffmpeg);
     }

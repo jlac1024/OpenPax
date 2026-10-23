@@ -10,7 +10,7 @@ public static class GameInstall
 
     /// <summary>
     /// Accepts either the game folder itself or a folder that contains it
-    /// (such as references/gog/). Returns null when neither holds the game.
+    /// (such as the GOG Games folder). Returns null when neither holds the game.
     /// </summary>
     public static string? Resolve(string path)
     {

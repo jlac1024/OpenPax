@@ -39,7 +39,7 @@ jobs:
             deps/x264-*
             deps/fonts
             build/native
-          key: native-linux-${{ hashFiles('tools/deps.toml', 'tools/build_ffmpeg.sh', 'build.sh') }}
+          key: native-linux-${{ hashFiles('tools/deps.toml', 'tools/build_ffmpeg.sh') }}
 
       # Only when nothing native came from the cache: then SDL3 and FFmpeg
       # are compiled, which needs these. Ubuntu's mirror can be slow.
