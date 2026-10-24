@@ -14,9 +14,13 @@ public sealed class GridSky(uint seed, int firstLineX, int firstLineY, int perio
     // Dim enough that the panel's text stays the brightest thing in it.
     private const float Light = 0.55f;
 
-    private (int Width, int Height, Palette Palette, byte[] Pixels)? _painted;
+    private (int Width, int Height, int Scale, Palette Palette, byte[] Pixels)? _painted;
 
-    /// <summary>Draws it over the rectangle; the grid's first lines are at the given offsets inside it.</summary>
+    /// <summary>
+    /// Draws it over the rectangle (the original's coordinates); the grid's
+    /// first lines are at the given offsets inside it. Painted at the frame's
+    /// own pixels, so it fills a frame drawn at 2x or 3x too.
+    /// </summary>
     public void Draw(Framebuffer target, int left, int top, int width, int height)
     {
         if (target.Palette is not { } palette || width <= 0 || height <= 0)
@@ -24,15 +28,16 @@ public sealed class GridSky(uint seed, int firstLineX, int firstLineY, int perio
             return;
         }
 
-        if (_painted is not { } painted || painted.Width != width || painted.Height != height || !ReferenceEquals(painted.Palette, palette))
+        var scale = target.Scale;
+        if (_painted is not { } painted || painted.Width != width || painted.Height != height || painted.Scale != scale || !ReferenceEquals(painted.Palette, palette))
         {
-            _painted = painted = (width, height, palette, Paint(width, height, palette));
+            _painted = painted = (width, height, scale, palette, Paint(width * scale, height * scale, scale, palette));
         }
 
-        target.DrawNative(painted.Pixels, width, height, left, top);
+        target.DrawNative(painted.Pixels, width * scale, height * scale, left, top);
     }
 
-    private byte[] Paint(int width, int height, Palette palette)
+    private byte[] Paint(int width, int height, int scale, Palette palette)
     {
         var rgb = SystemSky.PaintLight(seed, width, height, nebulaShare: 1f, Light);
         var (r, g, b) = (lineColor.R / 255f, lineColor.G / 255f, lineColor.B / 255f);
@@ -40,7 +45,8 @@ public sealed class GridSky(uint seed, int firstLineX, int firstLineY, int perio
         {
             for (var x = 0; x < width; x++)
             {
-                if (Mod(x - firstLineX, period) == 0 || Mod(y - firstLineY, period) == 0)
+                // A line is one of the original's pixels thick: scale pixels of the frame.
+                if (Mod((x / scale) - firstLineX, period) == 0 || Mod((y / scale) - firstLineY, period) == 0)
                 {
                     // The grid lies over the sky, as in the art, but a star or the nebula still shows through a little.
                     var i = ((y * width) + x) * 3;

@@ -7,6 +7,24 @@ namespace OpenPax.Ui.Tests;
 /// <summary>The grown planet panel's background: the art's grid on its own lines, over stars that do not repeat.</summary>
 public sealed class GridSkyTests
 {
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void ItFillsAFrameDrawnLarger(int scale)
+    {
+        // At 2x the sky once filled only the top left quarter, the old art showing round it.
+        var palette = new UiAssets(ImportedData.RequireFolder()).Palette(5);
+        var frame = new Framebuffer(150, 600, scale) { Palette = palette };
+        frame.Clear(200);
+        new GridSky(7, 7, 8, 15, new Rgb(30, 13, 33)).Draw(frame, 0, 0, 150, 600);
+        Assert.DoesNotContain((byte)200, frame.Pixels);
+
+        // The grid's line is scale pixels thick, on the original's column 22.
+        var row = 300 * scale * frame.PixelWidth;
+        double Blue(int x) => palette.Colors[frame.Pixels[row + x]].B;
+        Assert.True(Blue(22 * scale) > Blue((22 * scale) - 1) && Blue((22 * scale) + scale - 1) > Blue((22 * scale) + scale));
+    }
+
     [Fact]
     public void TheGridKeepsItsLinesAndTheStarsDoNotRepeat()
     {

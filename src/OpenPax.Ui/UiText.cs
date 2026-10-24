@@ -43,6 +43,17 @@ internal static class UiText
     public const string TipWorkQueue = "Construction queue\nWhat the colony builds: its shipyard's ship or a repair first, then its improvements in plan order. EXTEND LIST shows the whole list.";
     public const string TipColonyArrows = "Colonies\nStep through your colonies.";
 
+    public const string LicensesLicense = "License: {0}";
+    public const string MenuLicenses = "Licenses";
+
+    public const string SaveModsHeading = "Mods not loaded";
+    public const string SaveModsChangedHeading = "Mods changed since this save";
+    public const string SaveModMissing = "{0} {1}: not turned on";
+    public const string SaveModMissingUnknown = "{0} {1}: not in the mods folder";
+    public const string SaveModVersion = "{0}: saved with {1}, {2} is turned on";
+    public const string SaveModsBlocked = "Turn them on in Options, MODS, to load this game.";
+    public const string SaveNeedsMods = "{0} cannot be loaded: it was played with mods that are not turned on ({1}).";
+
     public const string OptionsMasterVolume = "Master volume: {0}%";
     public const string OptionsMusicVolume = "Music: {0}%";
     public const string OptionsEffectsVolume = "Sound effects: {0}%";

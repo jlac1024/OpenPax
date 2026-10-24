@@ -72,7 +72,7 @@ deps fetch titillium-web
 mkdir -p "$GAME/fonts/modern"
 cp "$ROOT/deps/fonts/titillium-web/"* "$GAME/fonts/modern/"
 
-# Sample mods that need nothing of the game's: Simple Combat, Bounty, Arsenal.
+# Sample mods that need nothing of the game's: Simple Combat, Bounty (in C# and in Lua), Arsenal.
 # (Night Menu is made from the player's imported data, so it is not shipped.)
 mkdir -p "$GAME/mods/simple-combat" "$GAME/mods/bounty"
 SC="$ROOT/build/artifacts/bin/SimpleCombat/release"
@@ -80,6 +80,7 @@ cp "$SC/SimpleCombat.dll" "$SC/mod.toml" "$SC/simple-combat.toml" "$GAME/mods/si
 BOUNTY="$ROOT/build/artifacts/bin/Bounty/release"
 cp "$BOUNTY/Bounty.dll" "$BOUNTY/mod.toml" "$BOUNTY/settings.toml" "$GAME/mods/bounty/"
 cp -r "$ROOT/samples/Arsenal" "$GAME/mods/arsenal"
+cp -r "$ROOT/samples/BountyLua" "$GAME/mods/bounty-lua"
 dotnet "$ROOT/build/artifacts/bin/ApiDocs/release/ApiDocs.dll" "$ROOT/docs" "$GAME/docs/modding" > /dev/null
 cp "$ROOT/tools/config.json" "$GAME/config.json"
 cp "$ROOT/LICENSE" "$ROOT/THIRD-PARTY-NOTICES.md" "$ROOT/README.md" "$GAME/"

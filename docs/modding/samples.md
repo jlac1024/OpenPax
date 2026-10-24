@@ -1,6 +1,6 @@
 # The samples
 
-Four mods ship with the game in `mods/`, off until turned on. Their
+Five mods ship with the game in `mods/`, off until turned on. Their
 source is in the repository under `samples/`.
 
 ## Bounty
@@ -9,6 +9,13 @@ A small C# mod, built step by step in [getting started](getting-started.md):
 credits for every enemy ship destroyed, by its hull, sometimes double, and
 a message for the player who earned them. Its numbers are in
 `settings.toml`.
+
+## Bounty (Lua)
+
+Bounty again, as a Lua script (`main.lua`), with the same settings and
+the same rules: the [Lua scripting](lua.md) page walks through it. Its
+kills are counted under its own id, so the two can be on together (and
+pay twice).
 
 ## Arsenal
 

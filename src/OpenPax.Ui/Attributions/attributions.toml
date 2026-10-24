@@ -1,0 +1,58 @@
+# The open source and attributions window (main menu, LICENSES): each
+# component the game includes or follows, in the order shown, with the
+# license text that goes with it (a file beside this one, embedded in the
+# program). Keep it in step with THIRD-PARTY-NOTICES.md.
+
+[[component]]
+name = "OpenPax"
+use = "This game: a new engine for Pax Imperia: Eminent Domain, written for it from the ground up."
+license = "GNU General Public License, version 3"
+home = "https://github.com/jlac1024/OpenPax"
+text = "gpl-3.0.txt"
+
+[[component]]
+name = "Pax Imperia: Eminent Domain"
+use = "The game OpenPax plays. Developed by Heliotrope Studios; the game and the Pax Imperia name belong to THQ Nordic GmbH. None of it is included: its art, sound, music, movies, text and data are read from your own copy. OpenPax is a fan project, not affiliated with or endorsed by Heliotrope Studios, THQ Nordic or GOG."
+license = "Proprietary; your own copy, from GOG"
+home = "https://www.gog.com"
+
+[[component]]
+name = "SDL 3"
+use = "The window, input, sound output and timing."
+license = "zlib license"
+home = "https://libsdl.org"
+text = "zlib-sdl.txt"
+
+[[component]]
+name = "FFmpeg libraries"
+use = "Playing the movies: libavutil, libavcodec and libavformat, in a decode-only build (H.264, AAC, MP4). They sit beside the program as files of their own, so you can put in your own builds. The exact source they were built from is on each release's page."
+license = "GNU Lesser General Public License, version 2.1 or later"
+home = "https://ffmpeg.org"
+text = "lgpl-2.1.txt"
+
+[[component]]
+name = "FFmpeg program with x264"
+use = "Converting the game's movies once, on your machine, when the game is imported (tools/ffmpeg). The exact sources of FFmpeg and x264 it was built from are on each release's page."
+license = "GNU General Public License, version 2 or later"
+home = "https://www.videolan.org/developers/x264.html"
+text = "gpl-2.0.txt"
+
+[[component]]
+name = "Titillium Web"
+use = "The modern text font."
+license = "SIL Open Font License 1.1"
+home = "https://fonts.google.com/specimen/Titillium+Web"
+text = "ofl-1.1-titillium.txt"
+
+[[component]]
+name = ".NET"
+use = "The runtime the program is built on, published with it. Its own third-party notices are at https://github.com/dotnet/runtime/blob/main/THIRD-PARTY-NOTICES.TXT."
+license = "MIT license"
+home = "https://dotnet.microsoft.com"
+text = "mit-dotnet.txt"
+
+[[component]]
+name = "Lua"
+use = "The scripting language of Lua mods. OpenPax runs scripts with an interpreter of its own, written from the Lua 5.4 reference manual by Roberto Ierusalimschy, Luiz Henrique de Figueiredo and Waldemar Celes (PUC-Rio); no Lua code is included."
+license = "The language is free to implement; OpenPax's interpreter is under OpenPax's license"
+home = "https://www.lua.org"

@@ -1,0 +1,5 @@
+id = "bounty-lua"
+name = "Bounty (Lua)"
+version = "1.0"
+description = "Bounty written in Lua: credits for every enemy ship your fleets destroy, now and then a bonus. The Lua scripting guide's example mod."
+script = "main.lua"

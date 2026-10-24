@@ -22,6 +22,9 @@ public sealed class ScrollViewer : Element
 
     public int Offset => _bar.Value;
 
+    /// <summary>Back to the top, as for new content.</summary>
+    public void ScrollToTop() => _bar.Value = 0;
+
     public override IEnumerable<Element> Children => _content is null ? [_bar] : [_content, _bar];
 
     protected override Size MeasureOverride(Size available)

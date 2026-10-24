@@ -10,5 +10,6 @@
   <ItemGroup>
     <ProjectReference Include="../OpenPax.Sim/OpenPax.Sim.csproj" />
     <ProjectReference Include="../OpenPax.Data/OpenPax.Data.csproj" />
+    <ProjectReference Include="../OpenPax.Lua/OpenPax.Lua.csproj" />
   </ItemGroup>
 </Project>

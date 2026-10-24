@@ -158,6 +158,22 @@ public sealed class ListBoxPane(ViewNode node, int left, int top, ListBoxDetails
         }
     }
 
+    /// <summary>The rows in view and where they are drawn, in the screen's coordinates.</summary>
+    public IEnumerable<(ListRow Row, int X, int Y)> VisibleRows()
+    {
+        var start = (Horizontal ? Left : Top) - Scroll;
+        var low = Horizontal ? Left : Top;
+        foreach (var row in _rows)
+        {
+            if (start + Extent(row) > low && start < low + View)
+            {
+                yield return Horizontal ? (row, start, Top) : (row, Left, start);
+            }
+
+            start += Extent(row);
+        }
+    }
+
     protected override void Draw(Framebuffer target)
     {
         var start = (Horizontal ? Left : Top) - Scroll;

@@ -16,4 +16,7 @@ public interface ISaveGames
     SavedSession? Load(string name);
 
     void Delete(string name);
+
+    /// <summary>The mods ("id@version") the save was played with; empty for none, null when that is not known.</summary>
+    IReadOnlyList<string>? ModsOf(string name) => null;
 }

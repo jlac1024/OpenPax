@@ -49,6 +49,46 @@ internal sealed class SaveFolder(string folder, GameLauncher launcher, TextWrite
         return names;
     }
 
+    // A version 1 save's mods, read from the whole save once, by its path and time.
+    private readonly Dictionary<string, (DateTime Written, IReadOnlyList<string> Mods)> _oldSaveMods = [];
+
+    /// <summary>The mods a save was played with: from its header, or for an older save from the save itself; none for the original's saves.</summary>
+    public IReadOnlyList<string>? ModsOf(string name)
+    {
+        var path = PathOf(name);
+        if (!File.Exists(path))
+        {
+            return File.Exists(OriginalPathOf(name)) ? [] : null;
+        }
+
+        try
+        {
+            using (var header = File.OpenRead(path))
+            {
+                if (SaveFile.ReadMods(header) is { } mods)
+                {
+                    return mods;
+                }
+            }
+
+            var written = File.GetLastWriteTimeUtc(path);
+            if (_oldSaveMods.TryGetValue(path, out var known) && known.Written == written)
+            {
+                return known.Mods;
+            }
+
+            using var file = File.OpenRead(path);
+            var saved = SaveFile.Read(file, launcher.Tables, null, typeof(SavedSession).Assembly) as SavedSession;
+            IReadOnlyList<string> found = saved?.Game.Mods.ToList() ?? [];
+            _oldSaveMods[path] = (written, found);
+            return found;
+        }
+        catch (Exception e) when (e is IOException or InvalidDataException or UnauthorizedAccessException or EndOfStreamException or ArgumentOutOfRangeException or InvalidCastException)
+        {
+            return null;
+        }
+    }
+
     public bool Save(string name, SavedSession session)
     {
         try
@@ -60,7 +100,7 @@ internal sealed class SaveFolder(string folder, GameLauncher launcher, TextWrite
             var temporary = path + ".new";
             using (var file = File.Create(temporary))
             {
-                SaveFile.Write(file, session, launcher.Tables);
+                SaveFile.Write(file, session, launcher.Tables, session.Game.Mods);
             }
 
             File.Move(temporary, path, overwrite: true);
@@ -86,10 +126,10 @@ internal sealed class SaveFolder(string folder, GameLauncher launcher, TextWrite
             using var file = File.OpenRead(PathOf(name));
             var saved = SaveFile.Read(file, launcher.Tables, new OpenPax.Ai.ComputerPlayer(), typeof(SavedSession).Assembly) as SavedSession;
 
-            // The mods' step rules act on a loaded game too (docs/modding.md).
+            // The mods hear what changed since the save, then act on it as on any game (docs/modding/lua.md, Saves).
             if (saved is not null)
             {
-                launcher.Mods.Attach(saved.Game);
+                launcher.Mods.Resume(saved.Game);
             }
 
             return saved;
@@ -129,7 +169,7 @@ internal sealed class SaveFolder(string folder, GameLauncher launcher, TextWrite
             throw new InvalidDataException(e.Message, e);
         }
 
-        launcher.Mods.Attach(game);
+        launcher.Mods.Resume(game);
         object? selection = null;
         foreach (var star in game.Universe.Stars)
         {

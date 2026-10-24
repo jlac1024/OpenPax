@@ -6,6 +6,7 @@
     <Project Path="src/OpenPax.Forms/OpenPax.Forms.csproj" />
     <Project Path="src/OpenPax.Host/OpenPax.Host.csproj" />
     <Project Path="src/OpenPax.LobbyServer/OpenPax.LobbyServer.csproj" />
+    <Project Path="src/OpenPax.Lua/OpenPax.Lua.csproj" />
     <Project Path="src/OpenPax.Media/OpenPax.Media.csproj" />
     <Project Path="src/OpenPax.Modding/OpenPax.Modding.csproj" />
     <Project Path="src/OpenPax.Net/OpenPax.Net.csproj" />
@@ -29,6 +30,7 @@
     <Project Path="tests/OpenPax.Forms.Tests/OpenPax.Forms.Tests.csproj" />
     <Project Path="tests/OpenPax.Host.Tests/OpenPax.Host.Tests.csproj" />
     <Project Path="tests/OpenPax.LobbyServer.Tests/OpenPax.LobbyServer.Tests.csproj" />
+    <Project Path="tests/OpenPax.Lua.Tests/OpenPax.Lua.Tests.csproj" />
     <Project Path="tests/OpenPax.Media.Tests/OpenPax.Media.Tests.csproj" />
     <Project Path="tests/OpenPax.Modding.Tests/OpenPax.Modding.Tests.csproj" />
     <Project Path="tests/OpenPax.Net.Tests/OpenPax.Net.Tests.csproj" />

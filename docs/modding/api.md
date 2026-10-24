@@ -50,6 +50,7 @@ What a C# mod may change (docs/modding.md), given to `IMod.Load`. A mod's rules 
 - `void OnColonyRating(Func<Game, Colony, ColonyRating?> rating)`: Gives a colony's attack and defense for the planet lists to show (`Game.RateColony`); null leaves it to the next mod. The first mod in order to rate a colony has it.
 - `void OnEvent(Action<Game, ModEvent> handler)`: Hears every event of a game (`Game.Happened`) as it happens, for every player.
 - `void OnEvent(ModEventKind kind, Action<Game, ModEvent> handler)`: Hears the events of one kind.
+- `void OnLoadedGame(Action<Game, string?> action)`: Acts on a saved game as it is loaded, given the mod's version the game was saved with: null when the mod was not in it then (docs/modding/lua.md, Saves). A newer version brings its saved values up to date here.
 - `void OnNewGame(Action<Game> action)`: Acts on a new game once it is made, before its first step (not on a loaded one).
 - `void OnPlayerEliminated(Action<Game, Player> handler)`: A player was eliminated.
 - `void OnShipBuilt(Action<Game, Design, Planet> handler)`: A ship was built, at the planet given.
@@ -129,16 +130,17 @@ A mod found in the mods folder: its manifest and where it is.
 
 `record OpenPax.Modding.ModManifest`
 
-A mod's mod.toml (docs/modding.md): who it is, and what it brings: a data pack (its data folder, laid out as the game's), a C# assembly, or both.
+A mod's mod.toml (docs/modding.md): who it is, and what it brings: a data pack (its data folder, laid out as the game's), a C# assembly or a Lua script (docs/modding/lua.md), or a pack with either.
 
 #### Members
 
-- `new ModManifest(string Id, string Name, string Version, string Description, string? Assembly)`: A mod's mod.toml (docs/modding.md): who it is, and what it brings: a data pack (its data folder, laid out as the game's), a C# assembly, or both.
+- `new ModManifest(string Id, string Name, string Version, string Description, string? Assembly, string? Script = null)`: A mod's mod.toml (docs/modding.md): who it is, and what it brings: a data pack (its data folder, laid out as the game's), a C# assembly or a Lua script (docs/modding/lua.md), or a pack with either.
 - `string? Assembly { get; init; }`
 - `string Description { get; init; }`
 - `string Id { get; init; }`
 - `string Key { get; }`: How a game and the lobby name this mod: id and version.
 - `string Name { get; init; }`
+- `string? Script { get; init; }`
 - `string Version { get; init; }`
 - `static ModManifest Parse(string text)`: A mod's manifest; throws `FormatException` with what is wrong.
 - `const string DataFolder = "data"`: The folder of a mod's data pack, beside its manifest.
@@ -1213,6 +1215,7 @@ The mods turned on, loaded once when the game starts (docs/modding.md): their da
 - `static ModHost Load(IReadOnlyList<string> modsFolders, IReadOnlyList<string> enabled)`: As `ModHost.Load`, from several mods folders, the first one winning (ModCatalog.Find).
 - `static ModHost Load(IReadOnlyList<string> modsFolders, IReadOnlyList<ModKey> set, ref IReadOnlyList<ModKey> missing)`: Loads a mod set by its keys (a room's, docs/modding/multiplayer.md), each from wherever a mod with that id, version and hash is found in the folders. Those not found are given back in missing, and the rest load.
 - `void NewGame(Game game)`: A new game: it records the mods, then each mod acts on it.
+- `void Resume(Game game)`: A saved game loaded here (docs/modding/lua.md, Saves): each mod turned on hears the version it was saved with (null when it was not in the game) and may bring its saved values up to date; the players are told what changed. A mod the save had that is not turned on keeps its record and its saved values, for when it is turned on again. Then the mods attach as to any game.
 - `void Unload()`: Lets the mods' assemblies go, before another set is loaded in their place (docs/modding/multiplayer.md). Nothing of theirs may be in use: no game they were attached to may run on.
 
 

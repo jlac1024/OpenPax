@@ -161,7 +161,7 @@ if [[ $RUN_TESTS == 1 ]]; then
     key="$(fingerprint "$bin" -name '*.dll' ; fingerprint "$ROOT/build/data/import.toml")"
     # The mod tests load the sample mods from their own folders, not their bin.
     if [[ $name == OpenPax.Modding.Tests ]]; then
-      key="$key $(fingerprint "$ROOT/build/artifacts/bin/SimpleCombat/release" "$ROOT/build/artifacts/bin/Bounty/release" -name '*.dll')"
+      key="$key $(fingerprint "$ROOT/build/artifacts/bin/SimpleCombat/release" "$ROOT/build/artifacts/bin/Bounty/release" -name '*.dll') $(fingerprint "$ROOT/samples/BountyLua")"
     fi
     if fresh "test-$name" "$key"; then
       echo "$name: unchanged since it passed"
@@ -231,6 +231,8 @@ SC_BIN="$ROOT/build/artifacts/bin/SimpleCombat/release"
 cp -p "$SC_BIN/SimpleCombat.dll" "$SC_BIN/mod.toml" "$SC_BIN/simple-combat.toml" "$SAMPLES/simple-combat/"
 # Arsenal is content only: its folder as it is.
 cp -rp "$ROOT/samples/Arsenal" "$SAMPLES/arsenal"
+# Bounty in Lua is its script and files, as they are.
+cp -rp "$ROOT/samples/BountyLua" "$SAMPLES/bounty-lua"
 mkdir -p "$SAMPLES/bounty"
 BOUNTY_BIN="$ROOT/build/artifacts/bin/Bounty/release"
 cp -p "$BOUNTY_BIN/Bounty.dll" "$BOUNTY_BIN/mod.toml" "$BOUNTY_BIN/settings.toml" "$SAMPLES/bounty/"

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Our own Lua 5.4 interpreter for script mods (docs/modding/lua.md): no game types, no native code. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenPax.Lua.Tests" />
+  </ItemGroup>
+</Project>

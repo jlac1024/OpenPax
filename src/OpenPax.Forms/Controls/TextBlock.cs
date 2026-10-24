@@ -10,6 +10,10 @@ public sealed class TextBlock : Element
     private string _text = "";
     private IReadOnlyList<string> _lines = [];
 
+    // The last wrap, kept while the text, width and look are the same: a long text wraps once, not every frame.
+    // The probe's width stands for the font's look, which the player can change (Options, text font).
+    private (string Text, int Width, int Font, bool Bold, int Scale, int Probe, Size Size)? _wrapped;
+
     public string Text
     {
         get => _text;
@@ -38,11 +42,19 @@ public sealed class TextBlock : Element
 
     protected override Size MeasureOverride(Size available)
     {
-        var font = Theme.Fonts(FontIndex);
+        var wrapWidth = TextWrapping && available.Width < Size.Infinite ? available.Width : -1;
+        var probe = Theme.Measure(FontIndex, "Wg0", Bold);
+        if (_wrapped is { } w && ReferenceEquals(w.Text, _text) && w.Width == wrapWidth && w.Font == FontIndex && w.Bold == Bold && w.Scale == Theme.Scale && w.Probe == probe)
+        {
+            return w.Size;
+        }
+
         int Width(string line) => Theme.Measure(FontIndex, line, Bold);
-        _lines = TextWrapping && available.Width < Size.Infinite ? TextWrap.Lines(Width, _text, available.Width) : _text.Split('\n');
+        _lines = wrapWidth >= 0 ? TextWrap.Lines(Width, _text, wrapWidth) : _text.Split('\n');
         var width = _lines.Count == 0 ? 0 : _lines.Max(Width);
-        return new Size(width + 1, _lines.Count * Theme.LineHeight(FontIndex));
+        var size = new Size(width + 1, _lines.Count * Theme.LineHeight(FontIndex));
+        _wrapped = (_text, wrapWidth, FontIndex, Bold, Theme.Scale, probe, size);
+        return size;
     }
 
     protected override void OnRender(DrawContext dc)
@@ -56,9 +68,17 @@ public sealed class TextBlock : Element
             _ => Theme.PanelText,
         };
         var y = Bounds.Y;
+        var lineHeight = dc.LineHeight(FontIndex);
         dc.PushClip(Bounds);
         foreach (var line in _lines)
         {
+            // Lines scrolled out of view are not drawn (a long text in a ScrollViewer).
+            if (!dc.RowsVisible(y, lineHeight))
+            {
+                y += lineHeight;
+                continue;
+            }
+
             var w = dc.Measure(line, FontIndex, Bold);
             var x = TextAlignment switch
             {
@@ -67,7 +87,7 @@ public sealed class TextBlock : Element
                 _ => Bounds.X,
             };
             dc.Text(line, x, y, color, FontIndex, Bold);
-            y += dc.LineHeight(FontIndex);
+            y += lineHeight;
         }
 
         dc.PopClip();

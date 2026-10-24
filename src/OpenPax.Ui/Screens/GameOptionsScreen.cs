@@ -273,7 +273,7 @@ public sealed class GameOptionsScreen : Screen
             list.Clear();
             for (var i = names.Count - 1; i >= 0; i--)
             {
-                list.Add(new SaveRow(names[i]));
+                list.Add(new SaveRow(names[i]) { Warning = App.SaveWarning(names[i]), Blocked = App.SaveBlocked(names[i]) });
             }
         }
 
@@ -343,7 +343,7 @@ public sealed class GameOptionsScreen : Screen
         Window.Get(CreatePlan).Enabled = plans is not null && Array.IndexOf(plans, null) >= 0;
         Window.Get(PlanName).Enabled = _plan >= 6;
         var picked = Window.Get<ListBoxPane>(LoadList).Selected is not null;
-        Window.Get(LoadButton).Enabled = picked;
+        Window.Get(LoadButton).Enabled = Window.Get<ListBoxPane>(LoadList).Selected is SaveRow { Blocked: false };
         Window.Get(DeleteSave).Enabled = picked;
         Window.Get(SaveButton).Enabled = Window.Get<TextEditPane>(SaveName).Text.Length > 0 && _session is { Game.InCombat: false };
 

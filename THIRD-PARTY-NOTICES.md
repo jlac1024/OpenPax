@@ -13,6 +13,10 @@ from source by `build.sh`.
 | [Titillium Web](https://fonts.google.com/specimen/Titillium+Web) | the modern text font | SIL Open Font License 1.1 (`OFL.txt` ships beside the font) |
 | [.NET](https://dotnet.microsoft.com) runtime | the program itself, published self-contained | MIT |
 
+The game shows these, each with its license in full, from the main menu's
+Licenses button (`src/OpenPax.Ui/Attributions/`, kept in step with this
+file).
+
 Used only to develop OpenPax, never shipped:
 
 | Component | Used for | License |

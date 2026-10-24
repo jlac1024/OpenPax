@@ -17,6 +17,9 @@ public enum ScreenMode
 
     /// <summary>The port's own: Game Start's Options (player name, flag, fleet, species, display).</summary>
     Options = 5,
+
+    /// <summary>The port's own: the open source and attributions window, from Game Start.</summary>
+    Licenses = 6,
     SpeciesSelection = 8,
     PlayerDesign = 9,
     GameSetup = 10,

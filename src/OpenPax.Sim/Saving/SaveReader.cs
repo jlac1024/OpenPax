@@ -39,7 +39,29 @@ internal sealed class SaveReader
             throw new InvalidDataException(Strings.SaveNotOurs);
         }
 
-        return _in.ReadInt32();
+        var version = _in.ReadInt32();
+        Mods = version >= 2 ? ReadMods() : null;
+        return version;
+    }
+
+    /// <summary>The mods the header names (version 2 and on); null for a version 1 save, which has no such list.</summary>
+    public IReadOnlyList<string>? Mods { get; private set; }
+
+    private List<string> ReadMods()
+    {
+        var count = _in.ReadInt32();
+        if (count is < 0 or > 1000)
+        {
+            throw new InvalidDataException(Strings.SaveNotOurs);
+        }
+
+        var mods = new List<string>(count);
+        for (var i = 0; i < count; i++)
+        {
+            mods.Add(_in.ReadString());
+        }
+
+        return mods;
     }
 
     private string Name()

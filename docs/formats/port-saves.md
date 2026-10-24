@@ -21,7 +21,11 @@ field added later simply keeps its empty value in an older save.
 
 Little endian throughout.
 
-1. Magic "HGSV" (int32 0x56534748), then the version (int32, 1).
+1. Magic "HGSV" (int32 0x56534748), then the version (int32, 2). From
+   version 2 the header goes on with the game's mods, so a save list can
+   show them without reading the game: a count (int32), then each mod as
+   "id@version" (a length-prefixed UTF-8 string, as .NET's BinaryWriter
+   writes one). Version 1 saves have no list and still load.
 2. The root object: the game with the screens' memory around it
    (`SavedSession`: the star in view, the selection, sort columns and the
    other per-screen choices, the design being made). The clock is not saved;

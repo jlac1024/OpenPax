@@ -56,6 +56,7 @@ machine in a network game.
 | `ChangeTables` | when the mods load, on the game tables, before any game |
 | `OnNewGame` | once, on a new game, after it is set up (not on a loaded one) |
 | `OnStep` | after every strategic step, before the step's state hash |
+| `OnLoadedGame` | once, on a saved game as it loads, with the mod's version it was saved with (null when it was not in it) |
 | `OnEvent` and the typed event hooks | inside a step, at the moment the thing happens |
 | `OnBattle` | when a fleet attacks; true takes the battle over |
 | `OnColonyRating`, `OnAttackOdds` | when a screen asks; they must not change the game |

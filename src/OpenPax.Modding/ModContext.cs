@@ -27,6 +27,8 @@ public sealed class ModContext
 
     internal List<Action<Game>> StepActions { get; } = [];
 
+    internal List<Action<Game, string?>> LoadedGameActions { get; } = [];
+
     internal List<Func<Game, Fleet, ISpaceObject, bool>> BattleHandlers { get; } = [];
 
     internal List<Func<Game, Colony, ColonyRating?>> Ratings { get; } = [];
@@ -79,6 +81,13 @@ public sealed class ModContext
 
     /// <summary>Acts on a new game once it is made, before its first step (not on a loaded one).</summary>
     public void OnNewGame(Action<Game> action) => NewGameActions.Add(action);
+
+    /// <summary>
+    /// Acts on a saved game as it is loaded, given the mod's version the game
+    /// was saved with: null when the mod was not in it then (docs/modding/lua.md,
+    /// Saves). A newer version brings its saved values up to date here.
+    /// </summary>
+    public void OnLoadedGame(Action<Game, string?> action) => LoadedGameActions.Add(action);
 
     /// <summary>Acts after every step of a game, new or loaded, before the step's state hash.</summary>
     public void OnStep(Action<Game> action) => StepActions.Add(action);

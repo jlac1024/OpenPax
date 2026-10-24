@@ -139,7 +139,7 @@ public sealed class UiApp
         {
             ScreenMode.GameStart => 2,
             ScreenMode.SpeciesSelection or ScreenMode.PlayerDesign or ScreenMode.GameSetup or ScreenMode.LobbyConnect or ScreenMode.LobbyRooms or ScreenMode.LobbyRoom => 3,
-            ScreenMode.Options => 2,
+            ScreenMode.Options or ScreenMode.Licenses => 2,
             ScreenMode.Combat => null,
             _ => 14,
         };
@@ -303,6 +303,50 @@ public sealed class UiApp
     // The player's own mod ids as last loaded, to see whether Options changed them.
     private string? _ownModsLoaded;
 
+    /// <summary>
+    /// The port's own: a save's mods against those turned on now (docs/modding/lua.md,
+    /// Saves): the ones it needs that are not turned on or not in the mods
+    /// folder, which keep it from loading, and the ones at another version,
+    /// which load and bring their saved values up to date.
+    /// </summary>
+    public (IReadOnlyList<string> Missing, IReadOnlyList<string> Changed) SaveMods(string name)
+    {
+        var (missing, changed) = (new List<string>(), new List<string>());
+        foreach (var key in SaveGames?.ModsOf(name) ?? [])
+        {
+            var at = key.LastIndexOf('@');
+            var (id, version) = at < 0 ? (key, "") : (key[..at], key[(at + 1)..]);
+            var listing = AvailableMods.FirstOrDefault(m => m.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+            var on = EnabledMods.Any(e => e.Equals(id, StringComparison.OrdinalIgnoreCase));
+            if (listing is null)
+            {
+                missing.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, UiText.SaveModMissingUnknown, id, version));
+            }
+            else if (!on)
+            {
+                missing.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, UiText.SaveModMissing, listing.Name, version));
+            }
+            else if (version.Length > 0 && listing.Version != version)
+            {
+                changed.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, UiText.SaveModVersion, listing.Name, version, listing.Version));
+            }
+        }
+
+        return (missing, changed);
+    }
+
+    /// <summary>What a save's warning mark says: the mods keeping it from loading, else those at another version; null when all match.</summary>
+    public string? SaveWarning(string name)
+    {
+        var (missing, changed) = SaveMods(name);
+        return missing.Count > 0 ? string.Join('\n', [UiText.SaveModsHeading, .. missing, UiText.SaveModsBlocked])
+            : changed.Count > 0 ? string.Join('\n', [UiText.SaveModsChangedHeading, .. changed])
+            : null;
+    }
+
+    /// <summary>Whether a save cannot be loaded: it needs mods that are not turned on.</summary>
+    public bool SaveBlocked(string name) => SaveMods(name).Missing.Count > 0;
+
     /// <summary>The host loaded the player's own mods (EnabledMods as they are now).</summary>
     public void OwnModsLoaded() => _ownModsLoaded = string.Join(',', EnabledMods);
 
@@ -333,6 +377,7 @@ public sealed class UiApp
             ScreenMode.LobbyRooms => new LobbyRoomsScreen(this),
             ScreenMode.LobbyRoom => new LobbyRoomScreen(this),
             ScreenMode.Options => new OptionsScreen(this),
+            ScreenMode.Licenses => new LicensesScreen(this),
             _ => new SectorDisplayScreen(this),
         };
 
@@ -383,7 +428,7 @@ public sealed class UiApp
     {
         return mode is ScreenMode.Victory or ScreenMode.GameStart or ScreenMode.SpeciesSelection or ScreenMode.PlayerDesign or ScreenMode.GameSetup
             or ScreenMode.MainControl or ScreenMode.SectorDisplay or ScreenMode.Research or ScreenMode.PlanetarySurface or ScreenMode.ShipDesign or ScreenMode.DomesticPolicy or ScreenMode.FleetCommand or ScreenMode.ForeignAffairs or ScreenMode.GameOptions or ScreenMode.Combat or ScreenMode.Developer
-            or ScreenMode.LobbyConnect or ScreenMode.LobbyRooms or ScreenMode.LobbyRoom or ScreenMode.Options;
+            or ScreenMode.LobbyConnect or ScreenMode.LobbyRooms or ScreenMode.LobbyRoom or ScreenMode.Options or ScreenMode.Licenses;
     }
 
     /// <summary>
@@ -490,6 +535,13 @@ public sealed class UiApp
     /// </summary>
     public bool LoadGame(string name, long now)
     {
+        // A save played with mods that are not turned on does not load (docs/modding/lua.md, Saves).
+        if (SaveMods(name).Missing is { Count: > 0 } missing)
+        {
+            Tell(string.Format(System.Globalization.CultureInfo.InvariantCulture, UiText.SaveNeedsMods, name, string.Join(", ", missing)));
+            return false;
+        }
+
         if (SaveGames?.Load(name) is not { } saved)
         {
             return false;
@@ -562,11 +614,50 @@ public sealed class UiApp
     private void DrawTooltip(Canvas canvas)
     {
         if (Pointer is { } p && CanvasPointer is { } c && Popup is null && Forms.Top is null && _now - _restingSince >= TooltipDelay
-            && Current.TooltipAt(p.X, p.Y) is { Length: > 0 } tip)
+            && (Current.TooltipAt(p.X, p.Y) ?? SaveWarningAt(p.X, p.Y)) is { Length: > 0 } tip)
         {
             Forms.DrawTip(canvas, tip, c.X, c.Y);
         }
     }
+
+    // The warning mark sits at the end of a save's row, this big in the screen's pixels.
+    private const int WarningSize = 12;
+
+    /// <summary>Each save row in a list on the screen whose mods are not all loaded, with where its mark goes.</summary>
+    private IEnumerable<(SaveRow Row, int X, int Y)> SaveWarnings()
+    {
+        if (Current is FormScreen || Popup is not null)
+        {
+            yield break;
+        }
+
+        foreach (var list in Descendants(Current.Window.Root).OfType<ListBoxPane>().Where(l => l.Shown && !l.Horizontal))
+        {
+            foreach (var (row, x, y) in list.VisibleRows())
+            {
+                var markY = y + ((row.Height - WarningSize) / 2);
+                if (row is SaveRow { Warning: not null } save && markY >= list.Top && markY + WarningSize <= list.Top + list.Height)
+                {
+                    yield return (save, x + list.Width - WarningSize - 2, markY);
+                }
+            }
+        }
+    }
+
+    private static IEnumerable<Pane> Descendants(Pane pane) => pane.Children.SelectMany(c => Descendants(c).Prepend(c));
+
+    private void DrawSaveWarnings(Canvas canvas, ClassicPlacement classic)
+    {
+        foreach (var (_, x, y) in SaveWarnings())
+        {
+            var (cx, cy) = (classic.X + (x * classic.Width / ClassicWidth), classic.Y + (y * classic.Height / ClassicHeight));
+            WarningIcon.Draw(canvas, cx, cy, WarningSize * classic.Width / ClassicWidth);
+        }
+    }
+
+    /// <summary>A save mark's tooltip, with the pointer on the mark or a little round it.</summary>
+    internal string? SaveWarningAt(int x, int y) =>
+        SaveWarnings().FirstOrDefault(w => x >= w.X - 2 && x <= w.X + WarningSize + 2 && y >= w.Y - 2 && y <= w.Y + WarningSize + 2).Row?.Warning;
 
     /// <summary>The true-color pass: the forms over the window, then the pointer.</summary>
     public void DrawCanvas(Canvas canvas, ClassicPlacement classic)
@@ -578,6 +669,7 @@ public sealed class UiApp
             DrawSideBars(canvas, classic);
         }
 
+        DrawSaveWarnings(canvas, classic);
         Forms.Draw(canvas);
         DrawTooltip(canvas);
         if (CursorOnCanvas && CanvasPointer is { } p)

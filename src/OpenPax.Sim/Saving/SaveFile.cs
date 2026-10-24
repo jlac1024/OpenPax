@@ -15,7 +15,8 @@ public static class SaveFile
     /// <summary>"HGSV" read as a little endian number.</summary>
     public const uint Magic = 0x56534748;
 
-    public const int Version = 1;
+    /// <summary>2: the header names the game's mods, so a save list can show them without reading the game.</summary>
+    public const int Version = 2;
 
     /// <summary>Whether a file starts like a port save.</summary>
     public static bool IsSave(Stream stream)
@@ -24,12 +25,48 @@ public static class SaveFile
         return stream.ReadAtLeast(head, 4, throwOnEndOfStream: false) == 4 && BitConverter.ToUInt32(head) == Magic;
     }
 
-    public static void Write(Stream stream, object root, GameTables tables)
+    /// <summary>Writes a save: the header with the game's mods ("id@version"), then the root.</summary>
+    public static void Write(Stream stream, object root, GameTables tables, IReadOnlyList<string>? mods = null)
     {
         var writer = new SaveWriter(stream, tables);
-        writer.WriteHeader(Version);
+        writer.WriteHeader(Version, mods ?? []);
         writer.Value(root);
         writer.Flush();
+    }
+
+    /// <summary>
+    /// The mods a save's header names, read without the game; null for a
+    /// version 1 save (made before the header had them) or a file that is
+    /// not a save.
+    /// </summary>
+    public static IReadOnlyList<string>? ReadMods(Stream stream)
+    {
+        try
+        {
+            using var reader = new BinaryReader(stream, System.Text.Encoding.UTF8, leaveOpen: true);
+            if (reader.ReadUInt32() != Magic || reader.ReadInt32() is var version && version < 2)
+            {
+                return null;
+            }
+
+            var count = reader.ReadInt32();
+            if (count is < 0 or > 1000)
+            {
+                return null;
+            }
+
+            var mods = new List<string>(count);
+            for (var i = 0; i < count; i++)
+            {
+                mods.Add(reader.ReadString());
+            }
+
+            return mods;
+        }
+        catch (Exception e) when (e is EndOfStreamException or IOException)
+        {
+            return null;
+        }
     }
 
     /// <summary>

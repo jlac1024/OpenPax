@@ -148,6 +148,65 @@ public sealed class ModHost
     /// <summary>What the mods logged while loading (ModContext.Log), each line under its mod's id.</summary>
     public IReadOnlyList<string> Messages => [.. _contexts.SelectMany(c => c.LogLines)];
 
+    /// <summary>
+    /// A saved game loaded here (docs/modding/lua.md, Saves): each mod turned
+    /// on hears the version it was saved with (null when it was not in the
+    /// game) and may bring its saved values up to date; the players are told
+    /// what changed. A mod the save had that is not turned on keeps its
+    /// record and its saved values, for when it is turned on again. Then the
+    /// mods attach as to any game.
+    /// </summary>
+    public void Resume(Game game)
+    {
+        var saved = game.Mods.Select(SplitKey).ToList();
+        var notes = new List<string>();
+        foreach (var context in _contexts)
+        {
+            var manifest = context.Mod.Manifest;
+            var was = saved.FirstOrDefault(s => s.Id.Equals(manifest.Id, StringComparison.OrdinalIgnoreCase));
+            if (was.Id is null)
+            {
+                notes.Add(string.Format(CultureInfo.InvariantCulture, Strings.SaveModAdded, manifest.Name));
+            }
+            else if (was.Version != manifest.Version)
+            {
+                notes.Add(string.Format(CultureInfo.InvariantCulture, Strings.SaveModChanged, manifest.Name, was.Version, manifest.Version));
+            }
+
+            foreach (var action in context.LoadedGameActions)
+            {
+                action(game, was.Version);
+            }
+        }
+
+        var missing = saved.Where(s => !Mods.Any(m => m.Manifest.Id.Equals(s.Id, StringComparison.OrdinalIgnoreCase))).ToList();
+        foreach (var gone in missing)
+        {
+            notes.Add(string.Format(CultureInfo.InvariantCulture, Strings.SaveModMissing, gone.Key));
+        }
+
+        // The game now records the mods it plays with, then the ones it keeps state for.
+        game.Mods.Clear();
+        game.Mods.AddRange(Mods.Select(m => m.Manifest.Key));
+        game.Mods.AddRange(missing.Select(m => m.Key));
+        foreach (var player in game.Players.Where(p => !p.IsAi))
+        {
+            foreach (var note in notes)
+            {
+                game.Tell(player, note);
+            }
+        }
+
+        Attach(game);
+    }
+
+    // "id@version" as the game records a mod; a key with no version has none.
+    private static (string Id, string? Version, string Key) SplitKey(string key)
+    {
+        var at = key.LastIndexOf('@');
+        return at < 0 ? (key, null, key) : (key[..at], key[(at + 1)..], key);
+    }
+
     /// <summary>A game run here (new or loaded): the mods' step rules act after each of its steps.</summary>
     public void Attach(Game game)
     {
@@ -182,6 +241,18 @@ public sealed class ModHost
 
     private bool LoadCode(ModInfo mod)
     {
+        if (mod.Manifest.Script is { } script)
+        {
+            var scripted = new ModContext(mod);
+            if (!Lua.LuaModScript.Load(mod, script, scripted, _errors))
+            {
+                return false;
+            }
+
+            _contexts.Add(scripted);
+            return true;
+        }
+
         if (mod.AssemblyPath is not { } path)
         {
             _contexts.Add(new ModContext(mod));

@@ -23,10 +23,15 @@ internal sealed class SaveWriter
         _tables = new SaveTables(tables);
     }
 
-    public void WriteHeader(int version)
+    public void WriteHeader(int version, IReadOnlyList<string> mods)
     {
         _out.Write(SaveFile.Magic);
         _out.Write(version);
+        _out.Write(mods.Count);
+        foreach (var mod in mods)
+        {
+            _out.Write(mod);
+        }
     }
 
     public void Flush() => _out.Flush();

@@ -4,9 +4,10 @@ namespace OpenPax.Modding;
 
 /// <summary>
 /// A mod's mod.toml (docs/modding.md): who it is, and what it brings: a data
-/// pack (its data folder, laid out as the game's), a C# assembly, or both.
+/// pack (its data folder, laid out as the game's), a C# assembly or a Lua
+/// script (docs/modding/lua.md), or a pack with either.
 /// </summary>
-public sealed record ModManifest(string Id, string Name, string Version, string Description, string? Assembly)
+public sealed record ModManifest(string Id, string Name, string Version, string Description, string? Assembly, string? Script = null)
 {
     public const string FileName = "mod.toml";
 
@@ -27,6 +28,13 @@ public sealed record ModManifest(string Id, string Name, string Version, string 
             throw new FormatException(string.Format(System.Globalization.CultureInfo.InvariantCulture, Strings.BadId, id));
         }
 
-        return new ModManifest(id, Text("name") ?? id, Text("version") ?? "1", Text("description") ?? "", Text("assembly"));
+        var assembly = Text("assembly");
+        var script = Text("script");
+        if (assembly is not null && script is not null)
+        {
+            throw new FormatException(Strings.AssemblyAndScript);
+        }
+
+        return new ModManifest(id, Text("name") ?? id, Text("version") ?? "1", Text("description") ?? "", assembly, script);
     }
 }

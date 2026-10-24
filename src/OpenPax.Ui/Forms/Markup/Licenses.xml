@@ -1,0 +1,25 @@
+<!-- The open source and attributions window (mode 6), from Game Start: every component the game includes or follows, and its license in full. -->
+<Form xmlns="https://openpax.local/forms" xmlns:x="https://openpax.local/forms/x">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="12" RowSpacing="8">
+    <Border Grid.Row="0" Look="Strip" Height="20">
+      <TextBlock Text="OPEN SOURCE AND ATTRIBUTIONS" Look="Heading" Bold="True" HorizontalAlignment="Center" VerticalAlignment="Center" />
+    </Border>
+    <Grid Grid.Row="1" ColumnDefinitions="170,*" ColumnSpacing="8">
+      <ListBox Grid.Column="0" x:Name="Components" ItemsSource="{Binding Names}" SelectedIndex="{Binding Picked}" />
+      <Border Grid.Column="1" Look="Well" Padding="6">
+        <ScrollViewer x:Name="Page">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{Binding Name}" Look="Heading" Bold="True" />
+            <TextBlock Text="{Binding Use}" Look="Bright" TextWrapping="True" />
+            <TextBlock Text="{Binding License}" Look="Bright" TextWrapping="True" />
+            <TextBlock Text="{Binding Home}" Look="Muted" TextWrapping="True" />
+            <TextBlock Text="{Binding Text}" Look="Muted" TextWrapping="True" />
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+    </Grid>
+    <DockPanel Grid.Row="2" LastChildFill="False">
+      <Button DockPanel.Dock="Left" x:Name="Done" Text="DONE" Width="122" Click="OnDone" />
+    </DockPanel>
+  </Grid>
+</Form>

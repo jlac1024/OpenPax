@@ -45,6 +45,9 @@ public sealed class Canvas
         _clip = (Math.Max(_clip.X, x), Math.Max(_clip.Y, y), Math.Min(_clip.R, x + width), Math.Min(_clip.B, y + height));
     }
 
+    /// <summary>The rows the clip leaves drawable, top and bottom (exclusive), in the canvas's pixels.</summary>
+    public (int Top, int Bottom) ClipRows => (_clip.Y, _clip.B);
+
     public void PopClip()
     {
         _clip = _clips.Count > 0 ? _clips.Pop() : (0, 0, Width, Height);

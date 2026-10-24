@@ -12,7 +12,7 @@ internal sealed class MemorySaves : ISaveGames
     public bool Save(string name, SavedSession session)
     {
         using var stream = new MemoryStream();
-        SaveFile.Write(stream, session, session.Game.Tables);
+        SaveFile.Write(stream, session, session.Game.Tables, session.Game.Mods);
         Files[name] = stream.ToArray();
         return true;
     }
@@ -29,4 +29,6 @@ internal sealed class MemorySaves : ISaveGames
     }
 
     public void Delete(string name) => Files.Remove(name);
+
+    public IReadOnlyList<string>? ModsOf(string name) => Files.TryGetValue(name, out var bytes) ? SaveFile.ReadMods(new MemoryStream(bytes)) : null;
 }

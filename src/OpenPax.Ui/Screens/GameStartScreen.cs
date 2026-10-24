@@ -29,6 +29,9 @@ public sealed class GameStartScreen : Screen
     /// <summary>The port's own Options button, an id the original's view does not use.</summary>
     private const int OptionsButton = 31190;
 
+    /// <summary>The port's Licenses button (the open source and attributions window), another id of its own.</summary>
+    private const int LicensesButton = 31191;
+
     private static readonly int[] _mainButtons = [SinglePlayer, Multiplayer, ReplayIntro, Credits, Exit];
     private static readonly int[] _singlePlayerButtons = [NewGame, LoadGame, PreviousMenu];
 
@@ -39,6 +42,7 @@ public sealed class GameStartScreen : Screen
     private static readonly int[] _multiplayerSlots = [SinglePlayer, Multiplayer, ReplayIntro, Credits];
 
     private readonly Widgets.ButtonPane _options;
+    private readonly Widgets.ButtonPane _licenses;
     private readonly (int Left, int Top, int Width, int Height)[] _mainPlaces;
     private bool _multiplayerMenu;
 
@@ -56,10 +60,20 @@ public sealed class GameStartScreen : Screen
             Caption = UiText.MenuOptions,
         };
         Window.AddOverlay(_options);
-        foreach (var b in _mainButtons.Select(id => Window.Get<Widgets.ButtonPane>(id)).Append(_options))
+
+        // Licenses sits apart at the bottom, under the menu's column, where it does not crowd the game's own buttons.
+        _licenses = new Widgets.ButtonPane(credits.Node with { Base = credits.Node.Base with { Id = LicensesButton } }, credits.Left, credits.Top, credits.Details)
+        {
+            Caption = UiText.MenuLicenses,
+        };
+        Window.AddOverlay(_licenses);
+        foreach (var b in _mainButtons.Select(id => Window.Get<Widgets.ButtonPane>(id)).Append(_options).Append(_licenses))
         {
             b.PictureIsBackground = true;
         }
+
+        var column = _mainPlaces[0];
+        _licenses.Place(column.Left, 480 - column.Height - 6, column.Width, column.Height);
 
         PlaceMainButtons(withOptions: true);
         if (app.OpenMultiplayerMenu)
@@ -71,6 +85,9 @@ public sealed class GameStartScreen : Screen
 
     /// <summary>The port's Options button, which the view's own lookup does not hold.</summary>
     public Widgets.ButtonPane OptionsPane => _options;
+
+    /// <summary>The port's Licenses button.</summary>
+    public Widgets.ButtonPane LicensesPane => _licenses;
 
     public override void Handle(UiMessage message, long now)
     {
@@ -85,12 +102,17 @@ public sealed class GameStartScreen : Screen
             case SinglePlayer:
                 Show(_mainButtons, false);
                 _options.Visible = false;
+                _licenses.Visible = false;
                 Show(_singlePlayerButtons, true);
                 break;
             case PreviousMenu:
                 Show(_singlePlayerButtons, false);
                 Show(_mainButtons, true);
                 _options.Visible = true;
+                _licenses.Visible = true;
+                break;
+            case LicensesButton:
+                App.Switch(ScreenMode.Licenses);
                 break;
             case OptionsButton:
                 App.Switch(ScreenMode.Options);
@@ -101,7 +123,8 @@ public sealed class GameStartScreen : Screen
                 FillSaves();
                 break;
             case SaveList:
-                Window.Get(LoadButton).Enabled = true;
+                // A save that needs mods not turned on cannot be loaded; its mark says which.
+                Window.Get(LoadButton).Enabled = Window.Get<Widgets.ListBoxPane>(SaveList).Selected is Widgets.SaveRow { Blocked: false };
                 break;
             case LoadButton or SaveActivated:
                 // the picked save, if any.
@@ -190,6 +213,7 @@ public sealed class GameStartScreen : Screen
 
         Window.Get(Exit).Visible = !shown;
         _options.Visible = !shown;
+        _licenses.Visible = !shown;
         PlaceMainButtons(withOptions: !shown);
     }
 
@@ -224,7 +248,7 @@ public sealed class GameStartScreen : Screen
         var names = App.SaveGames?.Names() ?? [];
         for (var i = names.Count - 1; i >= 0; i--)
         {
-            list.Add(new Widgets.SaveRow(names[i]));
+            list.Add(new Widgets.SaveRow(names[i]) { Warning = App.SaveWarning(names[i]), Blocked = App.SaveBlocked(names[i]) });
         }
 
         Window.Get(LoadButton).Enabled = false;

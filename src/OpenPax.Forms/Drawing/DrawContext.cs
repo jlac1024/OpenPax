@@ -147,6 +147,13 @@ public sealed class DrawContext(Canvas canvas, Theme theme, int scale, int origi
 
     public void PopClip() => Canvas.PopClip();
 
+    /// <summary>Whether a band of rows (the form's coordinates) can show at all under the clip.</summary>
+    public bool RowsVisible(int y, int height)
+    {
+        var (top, bottom) = Canvas.ClipRows;
+        return Y(y) + (height * Scale) > top && Y(y) < bottom;
+    }
+
     private int X(int x) => originX + x * Scale;
 
     private int Y(int y) => originY + y * Scale;

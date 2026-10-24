@@ -5,6 +5,8 @@
   <ItemGroup>
     <!-- The game's forms ship inside the assembly; mods bring theirs as files. -->
     <EmbeddedResource Include="Forms/Markup/*.xml" />
+    <!-- The open source and attributions window's list and license texts (Attributions.cs). -->
+    <EmbeddedResource Include="Attributions/*" LogicalName="Attributions/%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../OpenPax.Render/OpenPax.Render.csproj" />
