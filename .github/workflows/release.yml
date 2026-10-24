@@ -199,7 +199,7 @@ jobs:
           OPENPAX_SIGNING_KEY: ${{ secrets.OPENPAX_SIGNING_KEY }}
         run: |
           if [[ -n "$OPENPAX_SIGNING_KEY" ]]; then
-            printf '%s\n' "$OPENPAX_SIGNING_KEY" | gpg --batch --import
+            printf '%s\n' "$OPENPAX_SIGNING_KEY" | gpg --batch --quiet --import 2> /dev/null
           fi
       - name: .deb
         run: |

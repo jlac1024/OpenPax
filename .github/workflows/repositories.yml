@@ -40,7 +40,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Packages
         timeout-minutes: 10
-        run: sudo apt-get -o Acquire::Retries=3 update && sudo apt-get -o Acquire::Retries=3 install -y --no-install-recommends flatpak dpkg-dev
+        run: sudo apt-get -o Acquire::Retries=3 update && sudo apt-get -o Acquire::Retries=3 install -y --no-install-recommends flatpak ostree dpkg-dev
       - name: The release's packages
         env:
           GH_TOKEN: ${{ github.token }}
@@ -53,7 +53,7 @@ jobs:
             echo "The OPENPAX_SIGNING_KEY secret is not set: no repositories to sign." >&2
             exit 1
           fi
-          printf '%s\n' "$OPENPAX_SIGNING_KEY" | gpg --batch --import
+          printf '%s\n' "$OPENPAX_SIGNING_KEY" | gpg --batch --quiet --import 2> /dev/null
       - name: Repositories
         run: tools/publish_repos.sh "${VERSION#v}" release site
       - uses: actions/upload-pages-artifact@v3

@@ -26,7 +26,9 @@ rm -rf "$SITE"
 mkdir -p "$SITE/flatpak" "$SITE/apt"
 cp "$KEY_FILE" "$SITE/openpax-signing-key.asc"
 
-# Flatpak: the release's bundle imported into a new repository, signed.
+# Flatpak: the release's bundle imported into a new repository (an OSTree
+# archive, as Flatpak repositories are served), signed.
+ostree init --mode=archive-z2 --repo="$SITE/flatpak/repo"
 flatpak build-import-bundle --gpg-sign="$KEY_ID" "$SITE/flatpak/repo" "$RELEASE/OpenPax-$VERSION-linux-x64.flatpak"
 flatpak build-update-repo --gpg-sign="$KEY_ID" --title="OpenPax" --default-branch=stable "$SITE/flatpak/repo"
 cat > "$SITE/flatpak/openpax.flatpakrepo" <<REPO
