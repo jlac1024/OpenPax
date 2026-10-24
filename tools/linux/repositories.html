@@ -5,16 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OpenPax packages</title>
 <style>
-  :root { color-scheme: light dark; --bg: #f7f7f5; --fg: #1d1d1b; --dim: #5d5d58; --code: #ecebe6; --accent: #b3471b; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #151515; --fg: #e9e9e4; --dim: #a5a59e; --code: #232321; --accent: #f0a46c; } }
+  :root { color-scheme: light dark; --bg: #f7f7f5; --fg: #1d1d1b; --dim: #5d5d58; --code: #ecebe6; --line: #d9d8d1; --accent: #b3471b; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #151515; --fg: #e9e9e4; --dim: #a5a59e; --code: #232321; --line: #3a3a37; --accent: #f0a46c; } }
   body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 system-ui, sans-serif; }
-  main { max-width: 46rem; margin: 0 auto; padding: 2.5rem 16px 4rem; }
+  main { max-width: 64rem; margin: 0 auto; padding: 2.5rem 16px 4rem; }
   h1 { font-size: 1.8rem; margin: 0 0 .25rem; }
   h2 { font-size: 1.2rem; margin: 2.2rem 0 .5rem; }
   p { margin: .5rem 0; }
   .dim { color: var(--dim); }
-  pre { background: var(--code); padding: .8rem 1rem; border-radius: 6px; overflow-x: auto; font-size: .9rem; }
   a { color: var(--accent); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+  .commands { display: grid; gap: .45rem; margin: .7rem 0 1rem; }
+  .command { display: flex; align-items: flex-start; gap: .6rem; background: var(--code); border: 1px solid var(--line); border-radius: 6px; padding: .55rem .6rem .55rem .9rem; }
+  .command code { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; padding-top: .15rem; }
+  .copy { flex: none; font: 600 .8rem system-ui, sans-serif; color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 5px; padding: .3rem .65rem; cursor: pointer; }
+  .copy:hover { border-color: var(--accent); color: var(--accent); }
+  .copy.done { color: var(--accent); border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -26,16 +32,24 @@
 
   <h2>Flatpak</h2>
   <p>Install the release's <code>.flatpak</code>, or add this repository and install from it:</p>
-  <pre>flatpak remote-add --user --if-not-exists openpax @URL@/flatpak/openpax.flatpakrepo
-flatpak install --user openpax io.github.jlac1024.OpenPax</pre>
+  <div class="commands">
+    <div class="command"><code>flatpak remote-add --user --if-not-exists openpax @URL@/flatpak/openpax.flatpakrepo</code><button class="copy" type="button">Copy</button></div>
+    <div class="command"><code>flatpak install --user openpax io.github.jlac1024.OpenPax</code><button class="copy" type="button">Copy</button></div>
+  </div>
   <p>Updates then come through your software center, or <code>flatpak update</code>.</p>
 
   <h2>Debian, Ubuntu, Mint</h2>
-  <p>Install the release's <code>.deb</code> (<code>sudo apt install ./openpax_@VERSION@_amd64.deb</code>), or add the repository by hand:</p>
-  <pre>curl -fsSL @URL@/openpax-signing-key.asc | sudo gpg --dearmor -o /usr/share/keyrings/openpax-archive-keyring.gpg
-echo "deb [arch=amd64 signed-by=/usr/share/keyrings/openpax-archive-keyring.gpg] @URL@/apt stable main" | sudo tee /etc/apt/sources.list.d/openpax.list
-sudo apt update
-sudo apt install openpax</pre>
+  <p>Install the release's <code>.deb</code> from the folder you downloaded it to:</p>
+  <div class="commands">
+    <div class="command"><code>sudo apt install ./openpax_@VERSION@_amd64.deb</code><button class="copy" type="button">Copy</button></div>
+  </div>
+  <p>Or add the repository by hand, one command at a time:</p>
+  <div class="commands">
+    <div class="command"><code>curl -fsSL @URL@/openpax-signing-key.asc | sudo gpg --dearmor -o /usr/share/keyrings/openpax-archive-keyring.gpg</code><button class="copy" type="button">Copy</button></div>
+    <div class="command"><code>echo "deb [arch=amd64 signed-by=/usr/share/keyrings/openpax-archive-keyring.gpg] @URL@/apt stable main" | sudo tee /etc/apt/sources.list.d/openpax.list</code><button class="copy" type="button">Copy</button></div>
+    <div class="command"><code>sudo apt update</code><button class="copy" type="button">Copy</button></div>
+    <div class="command"><code>sudo apt install openpax</code><button class="copy" type="button">Copy</button></div>
+  </div>
   <p>Updates then come with your system's updates (Software Updater, or <code>sudo apt update &amp;&amp; sudo apt upgrade</code>).</p>
 
   <h2>The signing key</h2>
@@ -43,5 +57,27 @@ sudo apt install openpax</pre>
 
   <p class="dim">OpenPax is free software under the GPL-3.0. <em>Pax Imperia: Eminent Domain</em> was developed by Heliotrope Studios, and the game and the <em>Pax Imperia</em> name belong to THQ Nordic GmbH. OpenPax is a fan project, not affiliated with or endorsed by Heliotrope Studios, THQ Nordic or GOG.</p>
 </main>
+<script>
+  // Each Copy button copies the command beside it, exactly as written.
+  for (const button of document.querySelectorAll(".copy")) {
+    button.addEventListener("click", async () => {
+      const text = button.previousElementSibling.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const field = document.createElement("textarea");
+        field.value = text;
+        document.body.append(field);
+        field.select();
+        document.execCommand("copy");
+        field.remove();
+      }
+
+      button.textContent = "Copied";
+      button.classList.add("done");
+      setTimeout(() => { button.textContent = "Copy"; button.classList.remove("done"); }, 1500);
+    });
+  }
+</script>
 </body>
 </html>
