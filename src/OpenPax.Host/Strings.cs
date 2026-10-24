@@ -53,6 +53,11 @@ internal static class Strings
     public const string UpdateNotWritable = "OpenPax cannot change the folder it is installed in. Download the update from {0} instead.";
     public const string UpdatePackagedFlatpak = "This copy of OpenPax is a Flatpak, so your system brings OpenPax {0}: through your software center's updates, or run flatpak update.";
     public const string UpdatePackagedDeb = "This copy of OpenPax came from its .deb package, so your system's updates bring OpenPax {0}: Software Updater, or sudo apt update && sudo apt upgrade.";
+    public const string FlatpakNoMonitor = "the Flatpak portal gave no update monitor";
+    public const string FlatpakNothingNew = "the Flatpak repository has nothing newer yet; it may still be on its way there, so try again in a few minutes";
+    public const string FlatpakFailed = "the Flatpak portal could not install it";
+    public const string UpdateFlatpakFailed = "The update did not go in, and nothing changed: {0}. Update OpenPax with your package manager instead: your software center's updates, or run flatpak update.";
+    public const string InstallWatchFailed = "Not watching for updates installed outside the game: {0}";
     public const string UpdatePackaged = "This copy of OpenPax came from a {0} package. Install OpenPax {1} the way you installed it.";
     public const string UpdateBadDownload = "the download does not match the release (its size or SHA-256 differs)";
     public const string UpdateBadBundle = "the download is not an OpenPax bundle";

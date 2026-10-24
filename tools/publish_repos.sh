@@ -18,7 +18,7 @@ VERSION="$1"
 RELEASE="$(cd "$2" && pwd)"
 SITE="$3"
 APP_ID=io.github.jlac1024.OpenPax
-URL=https://jlac1024.github.io/OpenPax
+URL="${OPENPAX_REPOSITORIES:-https://jlac1024.github.io/OpenPax}"
 KEY_FILE="$ROOT/tools/linux/openpax-signing-key.asc"
 KEY_ID="$(gpg --with-colons --import-options show-only --import < "$KEY_FILE" | awk -F: '$1 == "fpr" { print $10; exit }')"
 

@@ -90,4 +90,28 @@ public sealed class UpdateOfferTests
         model.UpdatePreReleases = false;
         Assert.False(app.Preferences.Flag(Preferences.UpdatePreReleases));
     }
+
+    [Fact]
+    public void AVersionInstalledFromOutsideIsOfferedAsARestartOnTheMenu()
+    {
+        var app = InGame();
+        app.Updates.InstalledOutside = true;
+        _ = app.Tick(0).ToList();
+
+        // Not over a game: it waits for the main menu, where nothing is lost.
+        Assert.Null(app.Forms.Top);
+        app.NewGame();
+        _ = app.Tick(16).ToList();
+        var dialog = Dialog(app);
+        Assert.Equal(UiText.UpdateInstalledOutside, dialog.Message);
+        Assert.Equal(OpenPax.Forms.Layout.Visibility.Visible, dialog.RestartShown);
+        Assert.Equal(OpenPax.Forms.Layout.Visibility.Collapsed, dialog.OfferShown);
+
+        dialog.OnRestart();
+        Assert.Contains(app.Tick(32), r => r.Kind == HostRequestKind.RestartForUpdate);
+
+        // Offered once a run.
+        _ = app.Tick(48).ToList();
+        Assert.Null(app.Forms.Top);
+    }
 }

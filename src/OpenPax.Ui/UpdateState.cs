@@ -23,4 +23,10 @@ public sealed class UpdateState
 
     /// <summary>Set once the main menu has offered <see cref="Available"/>, so it asks only once a run.</summary>
     public bool Offered { get; set; }
+
+    /// <summary>A newer version was installed outside the game while it ran (a package's updates); the main menu offers to restart into it.</summary>
+    public bool InstalledOutside { get; set; }
+
+    /// <summary>Set once the main menu has offered that restart.</summary>
+    public bool RestartOffered { get; set; }
 }

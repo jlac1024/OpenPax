@@ -45,11 +45,16 @@ public sealed class UpdateDialog : Observable
 
     public Visibility DoneShown => _stage == UpdateStage.Done ? Visibility.Visible : Visibility.Collapsed;
 
+    public Visibility RestartShown => _stage == UpdateStage.Restart ? Visibility.Visible : Visibility.Collapsed;
+
     /// <summary>Whether it is still on the screen.</summary>
     public bool IsOpen => _app.Forms.Contains(Form);
 
     /// <summary>The offer of <see cref="UpdateState.Available"/>.</summary>
     public static UpdateDialog Offer(UiApp app) => Show(new UpdateDialog(app, UpdateStage.Offer));
+
+    /// <summary>The restart into a version installed outside the game (<see cref="UpdateState.InstalledOutside"/>).</summary>
+    public static UpdateDialog RestartOffer(UiApp app) => Show(new UpdateDialog(app, UpdateStage.Restart));
 
     /// <summary>The download under way (it was started from Options).</summary>
     public static UpdateDialog Working(UiApp app) => Show(new UpdateDialog(app, UpdateStage.Working));
@@ -61,6 +66,12 @@ public sealed class UpdateDialog : Observable
     }
 
     public void OnLater() => Close();
+
+    public void OnRestart()
+    {
+        _app.Request(new HostRequest(HostRequestKind.RestartForUpdate));
+        Close();
+    }
 
     public void OnCancel() => _app.Request(new HostRequest(HostRequestKind.CancelUpdate));
 
@@ -74,6 +85,9 @@ public sealed class UpdateDialog : Observable
         {
             case UpdateStage.Offer:
                 Message = string.Format(CultureInfo.InvariantCulture, UiText.UpdateOffer, u.Available, u.Running);
+                break;
+            case UpdateStage.Restart:
+                Message = UiText.UpdateInstalledOutside;
                 break;
             case UpdateStage.Working when u.Busy:
                 Message = u.Status;
@@ -94,6 +108,7 @@ public sealed class UpdateDialog : Observable
         Changed(nameof(OfferShown));
         Changed(nameof(WorkingShown));
         Changed(nameof(DoneShown));
+        Changed(nameof(RestartShown));
     }
 
     private static UpdateDialog Show(UpdateDialog dialog)

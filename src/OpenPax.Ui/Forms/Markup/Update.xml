@@ -12,6 +12,10 @@
           <Button x:Name="UpdateNow" Text="UPDATE" Width="100" Click="OnUpdate" />
           <Button x:Name="Later" Text="LATER" Width="100" Click="OnLater" />
         </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Visibility="{Binding RestartShown}">
+          <Button x:Name="RestartNow" Text="RESTART" Width="100" Click="OnRestart" />
+          <Button x:Name="RestartLater" Text="LATER" Width="100" Click="OnLater" />
+        </StackPanel>
         <Button x:Name="Cancel" Text="CANCEL" Width="100" HorizontalAlignment="Center" Click="OnCancel" Visibility="{Binding WorkingShown}" />
         <Button x:Name="Ok" Text="OK" Width="100" HorizontalAlignment="Center" Click="OnOk" Visibility="{Binding DoneShown}" />
       </StackPanel>

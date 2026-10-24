@@ -17,7 +17,7 @@ DEB_VERSION="${VERSION/-/\~}"
 OUT="$ROOT/build/release/openpax_${VERSION}_amd64.deb"
 TREE="$ROOT/build/release/deb-tree"
 APP_ID=io.github.jlac1024.OpenPax
-REPOSITORIES=https://jlac1024.github.io/OpenPax
+REPOSITORIES="${OPENPAX_REPOSITORIES:-https://jlac1024.github.io/OpenPax}"
 SIGNING_KEY="$ROOT/tools/linux/openpax-signing-key.asc"
 ICON="$ROOT/src/OpenPax.Host/Icon"
 

@@ -17,4 +17,7 @@ public enum HostRequestKind
 
     /// <summary>Stop a download under way.</summary>
     CancelUpdate,
+
+    /// <summary>Restart into the version a package's updates installed while the game ran.</summary>
+    RestartForUpdate,
 }

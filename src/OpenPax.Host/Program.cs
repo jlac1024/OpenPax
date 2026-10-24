@@ -157,6 +157,12 @@ try
         updater.Check(app.Preferences.Flag(Preferences.UpdatePreReleases), say: false);
     }
 
+    // A .deb or Flatpak updated from outside while the game runs (docs/updates.md): offered as a restart.
+    using var installWatch = new OpenPax.Host.Update.InstallWatch(installFolder);
+
+    // For trying updates (docs/updates.md): OPENPAX_UPDATE_NOW installs the update the check finds without asking.
+    var updateNow = Environment.GetEnvironmentVariable("OPENPAX_UPDATE_NOW") is { Length: > 0 };
+
     app.EnabledMods.AddRange(enabledMods);
     app.OwnModsLoaded();
     var ignored = new List<string>();
@@ -301,6 +307,15 @@ try
                 case HostRequestKind.CancelUpdate:
                     updater.Cancel();
                     break;
+                case HostRequestKind.RestartForUpdate:
+                    // The new version is started; this one then closes, as Quit closes it.
+                    if (installWatch.Restart())
+                    {
+                        return false;
+                    }
+
+                    app.Tell(OpenPax.Host.Strings.UpdateRestartYourself);
+                    break;
             }
         }
 
@@ -435,6 +450,17 @@ try
         if (focused || !app.Preferences.Flag(Preferences.PauseInBackground) || app.Session?.Link is not null)
         {
             running = running && Carry(app.Tick(now));
+        }
+
+        if (installWatch.Changed && !app.Updates.InstalledOutside)
+        {
+            app.Updates.InstalledOutside = true;
+        }
+
+        if (updateNow && app.Updates is { Available: not null, Busy: false })
+        {
+            updateNow = false;
+            app.StartUpdate();
         }
 
         // The new version is in place: start it, and this one closes.

@@ -26,6 +26,8 @@ internal sealed class Updater : IDisposable
     private string _status = "";
     private bool _installed;
     private bool _checkSaysNewest;
+    private bool _viaFlatpak;
+    private bool _throughFlatpak;
 
     public Updater(string install, HttpMessageHandler? handler = null)
     {
@@ -60,6 +62,26 @@ internal sealed class Updater : IDisposable
     {
         if (_found is not { } release || _installing is { IsCompleted: false })
         {
+            return;
+        }
+
+        // A Flatpak updates itself through the portal, from the repository it was installed from.
+        if (InstallFolder.Packaged(_folder) == "Flatpak" && FlatpakPortal.Inside)
+        {
+            _throughFlatpak = true;
+            _cancel = new CancellationTokenSource();
+            var token = _cancel.Token;
+            _progress = 0;
+            SetStatus(string.Format(Strings.UpdateDownloading, release.Version, 0));
+            _installing = Task.Run(async () =>
+            {
+                await FlatpakPortal.UpdateAsync(percent => Downloaded(release, percent), token).ConfigureAwait(false);
+                lock (_gate)
+                {
+                    _viaFlatpak = true;
+                    _installed = true;
+                }
+            });
             return;
         }
 
@@ -132,9 +154,10 @@ internal sealed class Updater : IDisposable
             _installing = null;
             if (!install.IsCompletedSuccessfully)
             {
+                // A Flatpak whose own update failed is pointed to its package manager, which can still do it.
                 SetStatus(install.IsCanceled || _cancel?.IsCancellationRequested == true
                     ? Strings.UpdateCancelled
-                    : string.Format(Strings.UpdateFailed, Reason(install.Exception)));
+                    : string.Format(_throughFlatpak ? Strings.UpdateFlatpakFailed : Strings.UpdateFailed, Reason(install.Exception)));
                 UpdateInstaller.CleanUp(_folder);
             }
         }
@@ -153,6 +176,11 @@ internal sealed class Updater : IDisposable
     {
         try
         {
+            if (_viaFlatpak)
+            {
+                return FlatpakPortal.StartLatest(Environment.GetCommandLineArgs().Skip(1));
+            }
+
             var start = new ProcessStartInfo(InstallFolder.Program(_folder)) { UseShellExecute = false, WorkingDirectory = _folder };
             foreach (var arg in Environment.GetCommandLineArgs().Skip(1))
             {

@@ -53,9 +53,35 @@ admin rights, say) is not updated in place: the popup says so and points
 to the release page.
 
 A .deb or Flatpak install (platforms.md) is the package manager's: its
-folder holds `.openpax-packaged`, naming the package, and the popup says
-the system's updater brings the new version (from the package
-repositories the package set up) instead of downloading the bundle.
+folder holds `.openpax-packaged`, naming the package.
+
+- **Flatpak:** UPDATE asks the Flatpak portal to install the newest
+  version from the repository the Flatpak came from (`FlatpakPortal`),
+  without leaving the sandbox, and the game restarts into it with
+  `flatpak-spawn --latest-version`. The first time, the system asks the
+  player whether OpenPax may update itself. The game speaks D-Bus with a
+  small client of its own (`Update/DBus`): the portal keeps an update
+  monitor only while the connection that made it is open, so the monitor
+  is made, Update asked for and its Progress signals followed on one
+  connection. If it fails, the popup says why and tells the player to
+  update with their package manager (the software center, or `flatpak
+  update`).
+- **Installed from outside while running** (`InstallWatch`): a Flatpak
+  keeps an update monitor open with the portal, whose UpdateAvailable
+  signal says when the installed version is no longer the running one
+  (the portal looks every five minutes); a .deb looks at its program file
+  every 15 seconds, which apt upgrade replaces. The main menu then offers
+  RESTART or LATER, once a run; over a game it waits for the menu.
+  Tested on lin-dev: the running Flatpak noticed a `flatpak update` from
+  outside and offered the restart.
+- **.deb:** updating needs an administrator, so the popup says the
+  system's updates bring the new version (Software Updater, or `sudo apt
+  update && sudo apt upgrade`), from the apt repository the package set up.
+
+Tested on lin-dev (2026-10-24) with Flatpak unpacked in /projects/store:
+version A, installed from a signed local repository, updated itself to
+version B through the portal. The restart could not be shown there, as
+the portal starts `/usr/bin/flatpak`, which that machine does not have.
 
 On macOS the install folder is the one holding `OpenPax.app`. A bundle the
 game downloads itself carries no download quarantine, so `prepare_mac.sh`
@@ -69,6 +95,8 @@ the game reads its informational version. The assembly version stays
 
 ## Trying it
 
+- `OPENPAX_UPDATE_NOW=1` installs the update a check finds without
+  asking (with `OPENPAX_PRETEND_VERSION`, an update to try without a click).
 - `OPENPAX_PRETEND_VERSION=0.1.0` makes a build check, and offer updates, as
   that version (development builds included).
 - `OPENPAX_NETWORK_TESTS=1 dotnet test --project tests/OpenPax.Host.Tests`

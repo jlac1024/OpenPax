@@ -1212,6 +1212,14 @@ public sealed class UiApp
         }
 
         _updateDialog = null;
+        // A version installed from outside comes first: there is nothing to download, only a restart.
+        if (Updates is { InstalledOutside: true, RestartOffered: false } && Current is Screens.GameStartScreen && Popup is null && Forms.Top is null)
+        {
+            Updates.RestartOffered = true;
+            _updateDialog = OpenPax.Ui.Forms.UpdateDialog.RestartOffer(this);
+            return;
+        }
+
         if (Updates is { Available: not null, Offered: false, Busy: false } && Current is Screens.GameStartScreen && Popup is null && Forms.Top is null)
         {
             Updates.Offered = true;
