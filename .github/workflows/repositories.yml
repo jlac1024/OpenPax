@@ -1,0 +1,76 @@
+# Publishes the package repositories on the project's GitHub Pages
+# (docs/platforms.md): a signed Flatpak repository and a signed apt
+# repository holding a release's .flatpak and .deb, so installs update
+# through the system's own updater. Runs when a release is published
+# (never for a draft), or by hand for a published release.
+name: Package repositories
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: A release's version, such as 0.1.9
+        required: true
+      deploy:
+        description: Put the repositories on GitHub Pages (off builds them only, to check a draft)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+# One publish at a time; a newer one waits for the one under way.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  VERSION: ${{ inputs.version || github.event.release.tag_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    # Write, only so a draft's files can be read for a check run.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Packages
+        timeout-minutes: 10
+        run: sudo apt-get -o Acquire::Retries=3 update && sudo apt-get -o Acquire::Retries=3 install -y --no-install-recommends flatpak dpkg-dev
+      - name: The release's packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "v${VERSION#v}" --pattern '*.flatpak' --pattern '*.deb' --dir release
+      - name: Signing key
+        env:
+          OPENPAX_SIGNING_KEY: ${{ secrets.OPENPAX_SIGNING_KEY }}
+        run: |
+          if [[ -z "$OPENPAX_SIGNING_KEY" ]]; then
+            echo "The OPENPAX_SIGNING_KEY secret is not set: no repositories to sign." >&2
+            exit 1
+          fi
+          printf '%s\n' "$OPENPAX_SIGNING_KEY" | gpg --batch --import
+      - name: Repositories
+        run: tools/publish_repos.sh "${VERSION#v}" release site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    if: github.event_name == 'release' || inputs.deploy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4

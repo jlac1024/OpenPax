@@ -68,8 +68,21 @@ for a version tag such as `v0.1.0`, or by hand as a draft:
   installer comes through the file picker (the desktop portal). The menu
   entry and app data are in `tools/linux/`. The job installs each package
   and starts the game once. Both packages leave `.openpax-packaged` in the
-  install folder: the package manager owns those files, so the game points
-  to the new package instead of updating itself (updates.md).
+  install folder: the package manager owns those files, so the game leaves
+  updating to the system (updates.md).
+- **Package repositories** on the project's GitHub Pages
+  (`https://jlac1024.github.io/OpenPax`), published by
+  `.github/workflows/repositories.yml` when a release is published (never a
+  draft), from that release's `.flatpak` and `.deb` (`tools/publish_repos.sh`):
+  a Flatpak repository (`flatpak/repo`) and an apt repository (`apt`,
+  "stable main"), both signed with the key in the `OPENPAX_SIGNING_KEY`
+  secret, whose public half is `tools/linux/openpax-signing-key.asc`. With
+  that file in place the packages point at them: the `.flatpak` names the
+  Flatpak repository and its key (`build-bundle --repo-url --gpg-keys`), and
+  the `.deb` installs `/etc/apt/sources.list.d/openpax.list` and the key in
+  `/usr/share/keyrings`. Installing either once is enough: the software
+  center, `flatpak update` and `apt upgrade` bring later versions. The
+  repositories hold only the latest published release.
 
 The icon is OpenPax's own (`src/OpenPax.Host/Icon/openpax.svg`, drawn for
 the project). `tools/make_icon.sh` renders it to the Windows `.ico` (the

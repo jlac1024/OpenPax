@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http.Headers;
 using OpenPax.Ui;
 
@@ -64,7 +65,13 @@ internal sealed class Updater : IDisposable
 
         if (InstallFolder.Packaged(_folder) is { } kind)
         {
-            SetStatus(string.Format(Strings.UpdatePackaged, kind, release.Page));
+            // A package's install is the system's to update, from the repositories the package named (docs/platforms.md).
+            SetStatus(kind switch
+            {
+                "Flatpak" => string.Format(CultureInfo.InvariantCulture, Strings.UpdatePackagedFlatpak, release.Version),
+                "deb" => string.Format(CultureInfo.InvariantCulture, Strings.UpdatePackagedDeb, release.Version),
+                _ => string.Format(CultureInfo.InvariantCulture, Strings.UpdatePackaged, kind, release.Version),
+            });
             _installing = Task.CompletedTask;
             return;
         }

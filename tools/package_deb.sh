@@ -5,7 +5,8 @@
 # Writes build/release/openpax_VERSION_amd64.deb. The bundle goes in
 # /opt/openpax as it is, with the openpax and openpax-lobby commands, a menu
 # entry and the icon. A mark in the bundle tells the game it came from a
-# package, so it points to the new .deb instead of updating itself.
+# package, so it leaves updating to the system (the apt repository the
+# package names, when the signing key is in tools/linux).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -16,6 +17,8 @@ DEB_VERSION="${VERSION/-/\~}"
 OUT="$ROOT/build/release/openpax_${VERSION}_amd64.deb"
 TREE="$ROOT/build/release/deb-tree"
 APP_ID=io.github.jlac1024.OpenPax
+REPOSITORIES=https://jlac1024.github.io/OpenPax
+SIGNING_KEY="$ROOT/tools/linux/openpax-signing-key.asc"
 ICON="$ROOT/src/OpenPax.Host/Icon"
 
 if [[ ! -x "$BUNDLE/openpax" ]]; then
@@ -48,6 +51,16 @@ for png in "$ICON"/hicolor/*.png; do
 done
 cp "$ICON/openpax.svg" "$TREE/usr/share/icons/hicolor/scalable/apps/$APP_ID.svg"
 cp "$ROOT/LICENSE" "$TREE/usr/share/doc/openpax/copyright"
+
+# The apt repository on the project's GitHub Pages (docs/platforms.md): the
+# package names it and carries its key, so installing it once is enough for
+# the system's updates to bring every later version.
+if [[ -f "$SIGNING_KEY" ]]; then
+  mkdir -p "$TREE/usr/share/keyrings" "$TREE/etc/apt/sources.list.d"
+  gpg --dearmor < "$SIGNING_KEY" > "$TREE/usr/share/keyrings/openpax-archive-keyring.gpg"
+  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/openpax-archive-keyring.gpg] $REPOSITORIES/apt stable main" > "$TREE/etc/apt/sources.list.d/openpax.list"
+  echo "/etc/apt/sources.list.d/openpax.list" > "$TREE/DEBIAN/conffiles"
+fi
 
 # .NET (self-contained, invariant globalization) needs the C and C++
 # runtimes, and OpenSSL for HTTPS (update checks). SDL loads the display and

@@ -51,7 +51,9 @@ internal static class Strings
     public const string UpdateCancelled = "The update was cancelled; nothing changed.";
     public const string UpdateFailed = "The update did not go in, and nothing changed: {0}";
     public const string UpdateNotWritable = "OpenPax cannot change the folder it is installed in. Download the update from {0} instead.";
-    public const string UpdatePackaged = "This copy of OpenPax came from a {0} package. Download the new {0} from {1} and install it.";
+    public const string UpdatePackagedFlatpak = "This copy of OpenPax is a Flatpak, so your system brings OpenPax {0}: through your software center's updates, or run flatpak update.";
+    public const string UpdatePackagedDeb = "This copy of OpenPax came from its .deb package, so your system's updates bring OpenPax {0}: Software Updater, or sudo apt update && sudo apt upgrade.";
+    public const string UpdatePackaged = "This copy of OpenPax came from a {0} package. Install OpenPax {1} the way you installed it.";
     public const string UpdateBadDownload = "the download does not match the release (its size or SHA-256 differs)";
     public const string UpdateBadBundle = "the download is not an OpenPax bundle";
     public const string UpdateRestartFailed = "Could not start the updated game: {0}";

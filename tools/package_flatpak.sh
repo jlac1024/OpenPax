@@ -17,6 +17,8 @@ BUNDLE="$ROOT/build/release/OpenPax-$VERSION-linux-x64"
 OUT="$ROOT/build/release/OpenPax-$VERSION-linux-x64.flatpak"
 WORK="$ROOT/build/release/flatpak"
 APP_ID=io.github.jlac1024.OpenPax
+REPOSITORIES=https://jlac1024.github.io/OpenPax
+SIGNING_KEY="$ROOT/tools/linux/openpax-signing-key.asc"
 RUNTIME=org.freedesktop.Platform
 RUNTIME_VERSION=25.08
 ICON="$ROOT/src/OpenPax.Host/Icon"
@@ -71,7 +73,16 @@ flatpak build-finish "$APP" --command=openpax \
 
 flatpak build-export "$WORK/repo" "$APP" stable
 rm -f "$OUT"
-flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo \
+# With the signing key, the bundle names the Flatpak repository on the
+# project's GitHub Pages and trusts its key: installing it once is enough for
+# the system's updater (and flatpak update) to bring every later version.
+ORIGIN=()
+if [[ -f "$SIGNING_KEY" ]]; then
+  gpg --dearmor < "$SIGNING_KEY" > "$WORK/signing-key.gpg"
+  ORIGIN=(--repo-url="$REPOSITORIES/flatpak/repo" --gpg-keys="$WORK/signing-key.gpg")
+fi
+
+flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo "${ORIGIN[@]}" \
   "$WORK/repo" "$OUT" "$APP_ID" stable
 rm -rf "$WORK"
 echo "$OUT" >&3
