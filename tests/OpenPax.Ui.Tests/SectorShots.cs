@@ -56,6 +56,61 @@ public sealed class SectorShots
         PngWriter.WriteRgba(file, canvas.Width, canvas.Height, System.Runtime.InteropServices.MemoryMarshal.AsBytes(canvas.Pixels.AsSpan()));
     }
 
+    [Fact]
+    public void TheHistoryWide()
+    {
+        if (Environment.GetEnvironmentVariable("OPENPAX_TEST_SHOT") is not { Length: > 0 } folder)
+        {
+            return;
+        }
+
+        var app = InGame();
+        app.Command(UiCommand.SectorDisplay);
+        app.FitWindow(2560, 1080);
+        foreach (var text in new[] { "Game Paused", "Speed set to 3", "Research complete: Fusion Drive", "A long message that runs well across the line, to show the history takes the room the wide bar has" })
+        {
+            app.Post(text);
+        }
+
+        _ = app.Tick(0).ToList();
+        var extra = app.ClassicWidth - 640;
+        Click(app, 497 + extra + 5, 8, 100);
+        _ = app.Tick(200).ToList();
+        var frame = new Framebuffer(app.ClassicWidth, app.ClassicHeight) { Palette = app.Assets.Palette(app.PaletteIndex) };
+        app.Draw(frame);
+        var canvas = new Canvas(app.ClassicWidth, app.ClassicHeight);
+        canvas.DrawClassic(frame, app.Assets.Palette(app.PaletteIndex), 0, 0, app.ClassicWidth, app.ClassicHeight);
+        using var file = File.Create(Path.Combine(folder, "history-wide.png"));
+        PngWriter.WriteRgba(file, canvas.Width, canvas.Height, System.Runtime.InteropServices.MemoryMarshal.AsBytes(canvas.Pixels.AsSpan()));
+    }
+
+    [Fact]
+    public void TheBuildPanelTall()
+    {
+        if (Environment.GetEnvironmentVariable("OPENPAX_TEST_SHOT") is not { Length: > 0 } folder)
+        {
+            return;
+        }
+
+        var app = InGame();
+        app.Command(UiCommand.SectorDisplay);
+        app.FitWindow(1280, 2000);
+        app.Session!.Select(app.Session.Local.Colonies[0].Planet);
+        _ = app.Tick(0).ToList();
+        app.Current.Handle(new UiMessage(13203, 0), 0);
+        for (var t = 16L; t < 300; t += 16)
+        {
+            _ = app.Tick(t).ToList();
+        }
+
+        var frame = new Framebuffer(app.ClassicWidth, app.ClassicHeight) { Palette = app.Assets.Palette(app.PaletteIndex) };
+        app.Draw(frame);
+        var canvas = new Canvas(app.ClassicWidth, app.ClassicHeight);
+        canvas.DrawClassic(frame, app.Assets.Palette(app.PaletteIndex), 0, 0, app.ClassicWidth, app.ClassicHeight);
+        using var file = File.Create(Path.Combine(folder, "build-panel-tall.png"));
+        PngWriter.WriteRgba(file, canvas.Width, canvas.Height, System.Runtime.InteropServices.MemoryMarshal.AsBytes(canvas.Pixels.AsSpan()));
+    }
+
     [Theory]
     [InlineData(1280, 2000)]
     [InlineData(2560, 1080)]

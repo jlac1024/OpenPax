@@ -182,7 +182,10 @@ public sealed class SectorDisplayScreen : Screen
         [(296, 307, 17), (442, 452, 17)],
         [(245, 15), (426, 15)],
         RepeatRows: true,
-        SmoothColumns: [(0, 19), (170, 177), (446, 451), (618, 639)]);
+        SmoothColumns: [(0, 19), (170, 177), (446, 451), (618, 639)],
+        // The build panel grows only in the grid behind the ship's picture: the screen's lower
+        // span starts on its BUILD SHIP button (row 426) and would repeat the button's outline.
+        PaneRows: new Dictionary<int, IReadOnlyList<(int Row, int Span)>> { [BuildGroup] = [(245, 15)] });
 
     /// <summary>Both maps keep their own shape, as large as fits, centered: the system with its star in the middle of the view, the galaxy in its frame.</summary>
     protected override void Widened(int extra, int extraHeight)

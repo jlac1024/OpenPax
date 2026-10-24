@@ -79,19 +79,20 @@ public sealed class ViewWindow
     public void Widen(int extra, int extraHeight, WideLayout layout)
     {
         (Extra, ExtraHeight, Stretch) = (Math.Max(0, extra), Math.Max(0, extraHeight), layout);
-        var rowShares = layout.RowShares(ExtraHeight);
         foreach (var pane in Panes(Root))
         {
             var o = pane.Original ??= (pane.Left, pane.Top, pane.Width, pane.Height);
             var (shift, grow) = layout.For(o.Left - Root.Left, o.Width, Extra);
             var top = o.Top - Root.Top;
-            var (down, taller) = layout.ForRows(top, o.Height, ExtraHeight);
+            var rows = LayoutFor(pane) ?? layout;
+            var rowShares = rows.RowShares(ExtraHeight);
+            var (down, taller) = rows.ForRows(top, o.Height, ExtraHeight);
             if ((pane is ButtonPane || o.Height <= FixedHeight) && taller > 0)
             {
                 (down, taller) = (0, 0);
-                for (var i = 0; i < layout.Rows.Count; i++)
+                for (var i = 0; i < rows.Rows.Count; i++)
                 {
-                    var (row, span) = layout.Rows[i];
+                    var (row, span) = rows.Rows[i];
                     down += row + span <= top || (row < top + o.Height && top + (o.Height / 2) >= row + (span / 2)) ? rowShares[i] : 0;
                 }
             }
@@ -106,6 +107,25 @@ public sealed class ViewWindow
                 pane.MoveTo(o.Left + shift, o.Top + down);
             }
         }
+    }
+
+    /// <summary>The layout a pane grows by: the screen's, with the row spans of the panel it is in when the layout gives that panel its own (WideLayout.PaneRows).</summary>
+    internal WideLayout? LayoutFor(Pane pane)
+    {
+        if (Stretch is not { } layout || layout.PaneRows is not { } panels)
+        {
+            return Stretch;
+        }
+
+        for (var p = (Pane?)pane; p is not null; p = p.Parent)
+        {
+            if (panels.TryGetValue(p.Id, out var rows))
+            {
+                return layout with { RowSpans = rows };
+            }
+        }
+
+        return layout;
     }
 
     /// <summary>Where a rectangle across of the original layout lies now (a list's heading cell): moved and grown as a pane there would be.</summary>

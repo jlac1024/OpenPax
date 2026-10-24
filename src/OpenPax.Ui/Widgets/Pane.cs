@@ -159,7 +159,7 @@ public class Pane
     /// </summary>
     protected void DrawFitted(Framebuffer target, Sprite sprite)
     {
-        if ((Grown > 0 || GrownHeight > 0) && Window?.Stretch is { } layout && Original is { } o && sprite.Width >= o.Width)
+        if ((Grown > 0 || GrownHeight > 0) && Window?.LayoutFor(this) is { } layout && Original is { } o && sprite.Width >= o.Width)
         {
             var (originLeft, originTop) = (o.Left - Window.Root.Left, o.Top - Window.Root.Top);
             var local = new WideLayout(

@@ -12,6 +12,9 @@ namespace OpenPax.Ui;
 /// a grid keeps the grid's lines evenly spaced. Smooth columns (frame
 /// metal) do not repeat: each takes its most common color in the span,
 /// straight down, so the metal keeps its bevel across and shows no steps.
+/// PaneRows gives a panel (by id), and all inside it, row spans of its own
+/// in place of the screen's: a panel whose art a screen row span would cut
+/// through (a button's outline repeated) grows where its art allows.
 /// </summary>
 public sealed record WideLayout(
     IReadOnlyList<(int Column, int Span)> Spans,
@@ -19,7 +22,8 @@ public sealed record WideLayout(
     IReadOnlyList<(int Row, int Span)>? RowSpans = null,
     int WidthStep = 2,
     bool RepeatRows = false,
-    IReadOnlyList<(int Left, int Right)>? SmoothColumns = null)
+    IReadOnlyList<(int Left, int Right)>? SmoothColumns = null,
+    IReadOnlyDictionary<int, IReadOnlyList<(int Row, int Span)>>? PaneRows = null)
 {
     public WideLayout(int column, int span)
         : this([(column, span)], [])

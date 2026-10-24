@@ -193,8 +193,9 @@ public sealed class MapPane(ViewNode node, int left, int top, ByteOptionDetails 
         var local = Session?.Local;
         switch (OrderMode)
         {
+            // The screen's own pointer: the arrow on the Sector Display, the bridge's on the bridge.
             case 0 when cursor.Set != MouseCursor.Slide:
-                cursor.Show(MouseCursor.Arrow);
+                cursor.Show(cursor.Home);
                 break;
             case 1:
                 cursor.Show(MouseCursor.Target);

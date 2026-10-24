@@ -83,6 +83,7 @@ public sealed class UiApp
         Forms = new FormHost(GameTheme.Build(assets));
         Preferences.Changed += PreferenceChanged;
         Current = new GameStartScreen(this);
+        Assets.Cursor.Home = Assets.Cursor.Set;
     }
 
     /// <summary>The player's settings (app +0x60).</summary>
@@ -356,6 +357,11 @@ public sealed class UiApp
         Current.Closed();
         Mode = mode;
         Popup = null;
+
+        // A screen that picks no pointer of its own has the arrow, not the last screen's
+        // (its map, built with it, already goes back to Home).
+        Assets.Cursor.Show(MouseCursor.Arrow);
+        Assets.Cursor.Home = MouseCursor.Arrow;
         Current = mode switch
         {
             ScreenMode.GameStart => new GameStartScreen(this),
@@ -381,7 +387,7 @@ public sealed class UiApp
             _ => new SectorDisplayScreen(this),
         };
 
-        _screenCursor = Assets.Cursor.Set;
+        Assets.Cursor.Home = Assets.Cursor.Set;
         RequestMusic(mode);
         _topBar = null;
         if (mode >= ScreenMode.SectorDisplay)
@@ -862,15 +868,11 @@ public sealed class UiApp
         Popup = popup;
     }
 
-    // The pointer the screen picked as it opened. A popup picks the arrow
-    // over it, and the screen's own comes back when the popup goes: the
-    // bridge's pointer in the arrow's place would draw in the wrong colors.
-    private int _screenCursor = MouseCursor.GameStart;
-
+    // A popup picks the arrow over the screen; the screen's own comes back when it goes.
     private void ClosePopup()
     {
         Popup = null;
-        Assets.Cursor.Show(_screenCursor);
+        Assets.Cursor.Show(Assets.Cursor.Home);
     }
 
     // A popup's answer can open the next one (YES to an update opens its

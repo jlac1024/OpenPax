@@ -36,6 +36,14 @@ public sealed class MouseCursor
     public int Set { get; private set; } = Arrow;
 
     /// <summary>
+    /// The port's own: the set the screen up picked for itself (the arrow
+    /// when it picks none). What a popup or the map's "no order" goes back
+    /// to: the bridge's own pointer, not the arrow, which its palette draws
+    /// in the wrong colors.
+    /// </summary>
+    public int Home { get; set; } = Arrow;
+
+    /// <summary>
     /// Picks a set. Quirk kept: the picture count is not reset,
     /// so a new set starts at whatever picture the last one had reached.
     /// </summary>

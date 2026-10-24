@@ -55,14 +55,25 @@ public sealed class TopBarPane(UiApp app) : Pane(_layout, 0, 0)
         HistoryOpen = false;
     }
 
+    // The history's drop in a wide window: as wide as the message line, so it reaches the lamp
+    // (docs/ui/widescreen.md); its art widens in the middle, as the bar's does.
+    private static readonly WideLayout _wideDrop = new(89, 300);
+
+    private bool InDrop(int x, int y) => x >= 11 && x < MessageRight + Extra && y >= 0 && y < OpenHeight;
+
     public override bool HitTest(int x, int y)
     {
-        return x >= 0 && x < 640 + Extra && (y >= 0 && y < BarHeight || HistoryOpen && x >= 11 && x < 437 && y < OpenHeight);
+        return x >= 0 && x < 640 + Extra && (y >= 0 && y < BarHeight || HistoryOpen && InDrop(x, y));
     }
 
     /// <summary>Which region a point is in, checked in this order.</summary>
     private int RegionAt(int x, int y)
     {
+        if (HistoryOpen && InDrop(x, y))
+        {
+            return HistoryRegion;
+        }
+
         x = Narrow(x);
         if (x >= 497 && x < 529 && y >= 3 && y < 15)
         {
@@ -79,7 +90,7 @@ public sealed class TopBarPane(UiApp app) : Pane(_layout, 0, 0)
             return MessageRegion;
         }
 
-        return HistoryOpen && x >= 11 && x < 437 && y >= 0 && y < OpenHeight ? HistoryRegion : None;
+        return None;
     }
 
     /// <summary>The row under a point: the first whose baseline is below it.</summary>
@@ -192,11 +203,11 @@ public sealed class TopBarPane(UiApp app) : Pane(_layout, 0, 0)
 
         if (HistoryOpen && main.Get(1001) is { } drop)
         {
-            target.Draw(drop, 11, 0);
+            WideDraw.Draw(target, drop, 11, 0, _wideDrop, Extra);
         }
 
         var font = Assets.Fonts.ForIndex(1);
-        target.SetClip(11, 0, 437 - 25 - 11 + (HistoryOpen ? 0 : Extra), Height);
+        target.SetClip(11, 0, 437 - 25 - 11 + Extra, Height);
         for (var row = 0; row < (HistoryOpen ? Rows : 1); row++)
         {
             if (log.History[row] is not { } notice)

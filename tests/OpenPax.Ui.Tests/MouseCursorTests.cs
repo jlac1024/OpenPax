@@ -43,6 +43,20 @@ public class MouseCursorTests
     }
 
     [Fact]
+    public void TheBridgeMapKeepsTheBridgesPointer()
+    {
+        // With no order waiting, the map shows the screen's own pointer: on the bridge, the bridge's.
+        var app = InGame();
+        var map = Descendants(app.Current.Window.Root).OfType<MapPane>().First();
+        map.OrderMode = 1;
+        Assert.Equal(MouseCursor.Target, app.Assets.Cursor.Set);
+        map.OrderMode = 0;
+        Assert.Equal(MouseCursor.Bridge, app.Assets.Cursor.Set);
+    }
+
+    private static IEnumerable<Pane> Descendants(Pane pane) => pane.Children.SelectMany(c => Descendants(c).Prepend(c));
+
+    [Fact]
     public void TheMapPointerFollowsTheOrderWaiting()
     {
         var app = InGame();
