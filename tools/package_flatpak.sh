@@ -76,10 +76,20 @@ rm -f "$OUT"
 # With the signing key, the bundle names the Flatpak repository on the
 # project's GitHub Pages and trusts its key: installing it once is enough for
 # the system's updater (and flatpak update) to bring every later version.
+# Flatpak then wants the bundle signed by that key, so this needs its private
+# half (the release workflow imports it from the OPENPAX_SIGNING_KEY secret);
+# without it the bundle is a plain one that updates by hand.
 ORIGIN=()
 if [[ -f "$SIGNING_KEY" ]]; then
-  gpg --dearmor < "$SIGNING_KEY" > "$WORK/signing-key.gpg"
-  ORIGIN=(--repo-url="$REPOSITORIES/flatpak/repo" --gpg-keys="$WORK/signing-key.gpg")
+  KEY_ID="$(gpg --with-colons --import-options show-only --import < "$SIGNING_KEY" | awk -F: '$1 == "fpr" { print $10; exit }')"
+  if gpg --list-secret-keys "$KEY_ID" > /dev/null 2>&1; then
+    gpg --dearmor < "$SIGNING_KEY" > "$WORK/signing-key.gpg"
+    flatpak build-sign --gpg-sign="$KEY_ID" "$WORK/repo" "$APP_ID" stable
+    flatpak build-update-repo --gpg-sign="$KEY_ID" "$WORK/repo"
+    ORIGIN=(--repo-url="$REPOSITORIES/flatpak/repo" --gpg-keys="$WORK/signing-key.gpg")
+  else
+    echo "package_flatpak.sh: the signing key's private half is not here; a plain bundle, with no repository." >&2
+  fi
 fi
 
 flatpak build-bundle --runtime-repo=https://dl.flathub.org/repo/flathub.flatpakrepo "${ORIGIN[@]}" \
