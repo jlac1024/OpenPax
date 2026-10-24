@@ -136,13 +136,14 @@ internal static class Fleets
         return false;
     }
 
-    /// <summary>The star a planet, wormhole or fleet is in (+0x78).</summary>
+    /// <summary>The star a planet, star center, wormhole or fleet is in (+0x78).</summary>
     public static int StarOf(Game game, ISpaceObject place)
     {
         return place switch
         {
             Fleet f => f.Star,
             Wormhole w => w.Star,
+            StarCenter c => c.Star,
             _ => game.Universe.Stars.First(s => s.Planets.Contains((Planet)place)).Index,
         };
     }

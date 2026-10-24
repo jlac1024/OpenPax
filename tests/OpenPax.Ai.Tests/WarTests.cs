@@ -43,6 +43,15 @@ public class WarTests
     }
 
     [Fact]
+    public void AStarsCenterIsInThatStar()
+    {
+        // A fleet can orbit the sun itself; the war planner asks which star that place is in, and once took it for a planet and crashed.
+        var game = AiGames.New();
+        var star = game.Universe.Stars[^1];
+        Assert.Equal(star.Index, Fleets.StarOf(game, star.Center));
+    }
+
+    [Fact]
     public void WarGamesAreDeterministic()
     {
         ulong Run()

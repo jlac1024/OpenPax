@@ -64,7 +64,12 @@ internal static class NoticeText
 
     private static Star? StarOf(GameSession session, ISpaceObject? place)
     {
-        return place is Planet planet ? session.Game.Universe.Stars.FirstOrDefault(s => s.Planets.Contains(planet)) : null;
+        return place switch
+        {
+            Planet planet => session.Game.Universe.Stars.FirstOrDefault(s => s.Planets.Contains(planet)),
+            StarCenter center => session.Game.Universe.Stars[center.Star],
+            _ => null,
+        };
     }
 
     /// <summary>The common action: open a screen, remembering the one left.</summary>
