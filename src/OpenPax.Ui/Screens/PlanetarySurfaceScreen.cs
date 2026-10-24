@@ -119,6 +119,34 @@ public sealed class PlanetarySurfaceScreen : Screen
         }
     }
 
+    /// <summary>The port's own: what a figure, the subsidy, the plan, the orbitals or the queue is for.</summary>
+    public override string? TooltipAt(int x, int y)
+    {
+        bool Over(params int[] ids) => ids.Any(id => Window.Get(id) is { Shown: true } pane && pane.Inside(x, y));
+        var stats = Window.Get(Stats);
+        if (stats.Inside(x, y))
+        {
+            // The figures' rows, by their baselines in ColonyStatsPane: wealth 16, population 30 with its bar to 42, then 56, 70, 84 and 98.
+            return (y - stats.Top) switch
+            {
+                < 22 => UiText.TipSurfaceHabitability,
+                < 48 => UiText.TipPopulation,
+                < 62 => UiText.TipColonyIncome,
+                < 76 => UiText.TipColonyEspionage,
+                < 90 => UiText.TipColonyResearch,
+                _ => UiText.TipColonyConstruction,
+            };
+        }
+
+        return Over(Subsidy, 14030) ? UiText.TipColonySubsidy
+            : Over(NetIncome, 14028) ? UiText.TipNetIncomeSurface
+            : Over(PreviousPlan, NextPlan, PlanName) ? UiText.TipProject
+            : Over(14035, FirstOrbital, FirstOrbital + 1, FirstOrbital + 2, FirstOrbital + 3, FirstOrbital + 4, FirstOrbital + 5) ? UiText.TipOrbitals
+            : Over(QueueGroup, Extend) ? UiText.TipWorkQueue
+            : Over(PreviousColony, NextColony) ? UiText.TipColonyArrows
+            : null;
+    }
+
     public override void Handle(UiMessage message, long now)
     {
         switch (message.Message)

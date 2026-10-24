@@ -100,6 +100,7 @@ public sealed class SectorDisplayScreen : Screen
     public SectorDisplayScreen(UiApp app)
         : base(app, new ViewWindow(app.Assets, ViewId, PaletteIndex, ViewId, MakePanel))
     {
+        Window.OverBackground = DrawPanelSky;
         // The big pane shows the system and the small one the galaxy, as the
         // VIEW stores them (swap state 1). The other way round
         // (state 0) needs pictures the game's data does not have, so the
@@ -141,6 +142,29 @@ public sealed class SectorDisplayScreen : Screen
         };
     }
 
+    // The planet panel's inside in the art (x 20 to 169, from row 27; its
+    // last row is 448 at 480 high) and its grid: lines every 15 pixels from
+    // column 27 and row 35, in the art's purple.
+    private const int PanelLeft = 20;
+    private const int PanelTop = 27;
+    private const int PanelWidth = 150;
+    private const int PanelHeight = 422;
+
+    private readonly GridSky _panelSky = new(SystemSky.Seed("Sector Display planet panel"), 27 - PanelLeft, 35 - PanelTop, 15, new Data.Art.Rgb(30, 13, 33));
+
+    /// <summary>
+    /// The port's own: grown taller, the planet panel's art would repeat its
+    /// stars every 15 rows down the room, so the panel gets a sky of its own
+    /// under the same grid. At its own height the art shows as it is.
+    /// </summary>
+    private void DrawPanelSky(Render.Framebuffer target)
+    {
+        if (Window.ExtraHeight > 0)
+        {
+            _panelSky.Draw(target, Window.Root.Left + PanelLeft, Window.Root.Top + PanelTop, PanelWidth, PanelHeight + Window.ExtraHeight);
+        }
+    }
+
     private IEnumerable<MapPane> Maps => [Window.Get<MapPane>(BigMap), Window.Get<MapPane>(SmallMap)];
 
     private GameSession Session => App.Session ?? throw new InvalidOperationException("The Sector Display needs a game.");
@@ -157,7 +181,8 @@ public sealed class SectorDisplayScreen : Screen
         [(268, 20), (333, 22)],
         [(296, 307, 17), (442, 452, 17)],
         [(245, 15), (426, 15)],
-        RepeatRows: true);
+        RepeatRows: true,
+        SmoothColumns: [(0, 19), (170, 177), (446, 451), (618, 639)]);
 
     /// <summary>Both maps keep their own shape, as large as fits, centered: the system with its star in the middle of the view, the galaxy in its frame.</summary>
     protected override void Widened(int extra, int extraHeight)

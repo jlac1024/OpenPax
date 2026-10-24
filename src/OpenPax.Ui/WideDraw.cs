@@ -45,6 +45,39 @@ public static class WideDraw
                     target.DrawRegion(picture, sx, sy, sw, sh, x + dx, y + dy, dw, dh, layout.Tiled);
                 }
             }
+
+            if (layout.RepeatRows && dh > sh && layout.SmoothColumns is { } smooth)
+            {
+                Smooth(target, picture, x, y, across, smooth, sy, sh, dy, dh);
+            }
+        }
+    }
+
+    // Each smooth column of a repeated span: its most common color in the
+    // span, filled straight down the span's whole grown height.
+    private static void Smooth(Framebuffer target, Sprite picture, int x, int y, List<(int From, int Length, int To, int ToLength)> across, IReadOnlyList<(int Left, int Right)> smooth, int sy, int sh, int dy, int dh)
+    {
+        var counts = new int[256];
+        foreach (var (left, right) in smooth)
+        {
+            for (var column = Math.Max(0, left); column <= Math.Min(right, picture.Width - 1); column++)
+            {
+                // Only where the column is drawn as it is across (smooth columns lie outside the stretched spans).
+                var piece = across.FindIndex(p => column >= p.From && column < p.From + p.Length && p.Length == p.ToLength);
+                if (piece < 0)
+                {
+                    continue;
+                }
+
+                Array.Clear(counts);
+                for (var row = sy; row < Math.Min(sy + sh, picture.Height); row++)
+                {
+                    counts[picture.Pixels[(row * picture.Width) + column]]++;
+                }
+
+                var color = (byte)Array.IndexOf(counts, counts.Max());
+                target.FillRect(x + across[piece].To + (column - across[piece].From), y + dy, 1, dh, color);
+            }
         }
     }
 }

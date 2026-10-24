@@ -58,3 +58,9 @@ The original listens to the player's broadcasts (improvements and
 structures changed, ships finished, techs learned, the economy pass). The
 port compares the colony's work and plan each frame and the income and
 subsidy once a period.
+
+## Tooltips (the port's own)
+
+The pointer resting 0.6 seconds on a figure, CP Subsidy, Annual Income, the plan, the orbitals, the queue or the colony arrows shows what it is for, in a
+true-color box by the pointer (`Screen.TooltipAt`, the texts in `UiText`).
+The original has labels only.

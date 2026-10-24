@@ -35,13 +35,8 @@ public sealed class GameStartScreen : Screen
     // The original's network choices were its own screens (modes 2 to 7).
     // The port's lobby choices take the main buttons' places instead, with
     // the port's captions, so they look like the single player choices.
-    private static readonly (int Button, string Caption)[] _multiplayerButtons =
-    [
-        (SinglePlayer, UiText.MenuLan),
-        (Multiplayer, UiText.MenuPublicLobby),
-        (ReplayIntro, UiText.MenuPrivateLobby),
-        (Credits, UiText.MenuPreviousMenu),
-    ];
+    // The buttons the multiplayer menu takes over, top down.
+    private static readonly int[] _multiplayerSlots = [SinglePlayer, Multiplayer, ReplayIntro, Credits];
 
     private readonly Widgets.ButtonPane _options;
     private readonly (int Left, int Top, int Width, int Height)[] _mainPlaces;
@@ -141,21 +136,40 @@ public sealed class GameStartScreen : Screen
         }
     }
 
+    /// <summary>
+    /// The multiplayer menu's entries, top down: LAN, the public lobby when
+    /// config.json names one, a private lobby, then back (None). With no
+    /// public lobby the rest move up, so no empty place is left.
+    /// </summary>
+    private List<(string Caption, Forms.LobbyChoice Choice)> MultiplayerEntries()
+    {
+        var entries = new List<(string, Forms.LobbyChoice)> { (UiText.MenuLan, Forms.LobbyChoice.Lan) };
+        if (App.PublicLobbyAddress is not null)
+        {
+            entries.Add((UiText.MenuPublicLobby, Forms.LobbyChoice.Public));
+        }
+
+        entries.Add((UiText.MenuPrivateLobby, Forms.LobbyChoice.Private));
+        entries.Add((UiText.MenuPreviousMenu, Forms.LobbyChoice.None));
+        return entries;
+    }
+
     /// <summary>The port's own: a lobby choice opens its connect page; Previous Menu brings the main buttons back.</summary>
     private void HandleMultiplayerMenu(int button)
     {
-        var choice = button switch
+        var slot = Array.IndexOf(_multiplayerSlots, button);
+        var entries = MultiplayerEntries();
+        if (slot < 0 || slot >= entries.Count)
         {
-            SinglePlayer => Forms.LobbyChoice.Lan,
-            Multiplayer => Forms.LobbyChoice.Public,
-            ReplayIntro => Forms.LobbyChoice.Private,
-            _ => Forms.LobbyChoice.None,
-        };
-        if (button == Credits)
+            return;
+        }
+
+        var choice = entries[slot].Choice;
+        if (choice == Forms.LobbyChoice.None)
         {
             ShowMultiplayerMenu(false);
         }
-        else if (choice != Forms.LobbyChoice.None)
+        else
         {
             App.LobbyChoice = choice;
             App.LobbyStatus = null;
@@ -166,9 +180,12 @@ public sealed class GameStartScreen : Screen
     private void ShowMultiplayerMenu(bool shown)
     {
         _multiplayerMenu = shown;
-        foreach (var (id, caption) in _multiplayerButtons)
+        var entries = MultiplayerEntries();
+        for (var i = 0; i < _multiplayerSlots.Length; i++)
         {
-            Window.Get<Widgets.ButtonPane>(id).Caption = shown ? caption : null;
+            var button = Window.Get<Widgets.ButtonPane>(_multiplayerSlots[i]);
+            button.Caption = shown && i < entries.Count ? entries[i].Caption : null;
+            button.Visible = !shown || i < entries.Count;
         }
 
         Window.Get(Exit).Visible = !shown;

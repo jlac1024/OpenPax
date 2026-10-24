@@ -33,6 +33,24 @@ public sealed class HeaderBarPane(ViewNode node, int left, int top, HeaderBarDet
         }
     }
 
+    /// <summary>The port's own: the code of the heading under a point, clickable or not, or null.</summary>
+    public int? CodeAt(int x, int y)
+    {
+        foreach (var c in Details.Cells)
+        {
+            var (cellLeft, cellWidth) = Cell(c.Left, c.Width);
+            if (x >= cellLeft && x <= cellLeft + cellWidth && y >= c.Top && y <= c.Top + c.Height)
+            {
+                return c.Code;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>The port's own: the code of the heading on a row (any point across), or null.</summary>
+    public int? CodeOnRow(int y) => Details.Cells.FirstOrDefault(c => y >= c.Top && y <= c.Top + c.Height)?.Code;
+
     protected internal override void MouseDown(int x, int y, int clicks)
     {
         for (var i = 0; i < Details.Cells.Count; i++)

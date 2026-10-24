@@ -29,20 +29,34 @@ public static class SystemSky
     }
 
     /// <summary>The sky as palette indices, width by height pixels.</summary>
-    public static byte[] Paint(uint seed, int width, int height, Palette palette)
+    public static byte[] Paint(uint seed, int width, int height, Palette palette) =>
+        Quantize(PaintLight(seed, width, height, 0.55f, 1f), width, height, palette);
+
+    /// <summary>
+    /// The sky in true color, red, green and blue from 0 to 1 for each pixel:
+    /// a nebula on this share of seeds, then the stars, all at this light.
+    /// </summary>
+    internal static float[] PaintLight(uint seed, int width, int height, float nebulaShare, float light)
     {
         var rgb = new float[width * height * 3];
         var rng = new Rng(seed);
         var scale = Math.Max(1f, Math.Min(width, height) / 270f);
 
-        if (rng.Next() < 0.55f)
+        if (rng.Next() < nebulaShare)
         {
             Nebula(rgb, width, height, ref rng, scale);
         }
 
         Stars(rgb, width, height, ref rng, scale);
+        if (light != 1f)
+        {
+            for (var i = 0; i < rgb.Length; i++)
+            {
+                rgb[i] *= light;
+            }
+        }
 
-        return Quantize(rgb, width, height, palette);
+        return rgb;
     }
 
     private static void Nebula(float[] rgb, int width, int height, ref Rng rng, float scale)
@@ -146,7 +160,7 @@ public static class SystemSky
     }
 
     /// <summary>Into the palette, with an ordered dither so smooth light does not band; the never-drawn index is avoided.</summary>
-    private static byte[] Quantize(float[] rgb, int width, int height, Palette palette)
+    internal static byte[] Quantize(float[] rgb, int width, int height, Palette palette)
     {
         var lookup = new Dictionary<int, byte>();
         var pixels = new byte[width * height];

@@ -91,13 +91,23 @@ public sealed class LobbyScreenTests : IDisposable
         }
     }
 
-    /// <summary>Game Start's Multiplayer Game, then one of the choices that take the main buttons' places (31100 LAN, 31101 public, 31102 private).</summary>
-    private void Choose(UiApp app, int button)
+    /// <summary>
+    /// Game Start's Multiplayer Game, then one of the choices that take the
+    /// main buttons' places: LAN first, then the public lobby when one is
+    /// named, then a private lobby.
+    /// </summary>
+    private void Choose(UiApp app, LobbyChoice choice)
     {
         Assert.Equal(ScreenMode.GameStart, app.Mode);
         ClickButton(app, 31101);
         Assert.Equal(ScreenMode.GameStart, app.Mode);
-        ClickButton(app, button);
+        var publicShown = app.PublicLobbyAddress is not null ? 1 : 0;
+        ClickButton(app, choice switch
+        {
+            LobbyChoice.Lan => 31100,
+            LobbyChoice.Public => 31101,
+            _ => 31101 + publicShown,
+        });
         Assert.Equal(ScreenMode.LobbyConnect, app.Mode);
         Frame();
     }
@@ -110,7 +120,7 @@ public sealed class LobbyScreenTests : IDisposable
 
     private void Connect(UiApp app, string name)
     {
-        Choose(app, 31102);
+        Choose(app, LobbyChoice.Private);
         Type(app, "Address", "127.0.0.1:" + _port);
         Type(app, "PlayerName", name);
         Click(app, Get<Button>(app, "Connect"));
@@ -251,7 +261,7 @@ public sealed class LobbyScreenTests : IDisposable
     public void ALobbyOnTheLanIsFoundAndJoined()
     {
         _ann.LanScanAlso.Add(new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, _port));
-        Choose(_ann, 31100);
+        Choose(_ann, LobbyChoice.Lan);
         var model = (LobbyConnectModel)FormOf(_ann).CodeBehind!; // The screen's model is the form's code-behind.
         var address = "127.0.0.1:" + _port;
 
@@ -267,7 +277,7 @@ public sealed class LobbyScreenTests : IDisposable
     public void ThePublicPageOffersThePublicLobby()
     {
         _ann.PublicLobbyAddress = "127.0.0.1:" + _port;
-        Choose(_ann, 31101);
+        Choose(_ann, LobbyChoice.Public);
         Assert.Equal(OpenPax.Forms.Layout.Visibility.Collapsed, Get<TextBox>(_ann, "Address").Visibility);
         Click(_ann, Get<Button>(_ann, "Connect"));
         Until(() => _ann.Mode == ScreenMode.LobbyRooms, "the public lobby takes Ann in");
@@ -286,10 +296,10 @@ public sealed class LobbyScreenTests : IDisposable
         Assert.Null(_ann.Lobby);
         Assert.Null(_ann.Forms.Top);
 
-        // Game Start comes back on its multiplayer choices; Previous Menu leaves them.
-        Assert.Equal("Private Lobby", _ann.Current.Window.Get<OpenPax.Ui.Widgets.ButtonPane>(31102).Caption);
-        ClickButton(_ann, 31103);
-        Assert.Null(_ann.Current.Window.Get<OpenPax.Ui.Widgets.ButtonPane>(31102).Caption);
+        // Game Start comes back on its multiplayer choices (no public lobby named: Private Lobby second); Previous Menu leaves them.
+        Assert.Equal(UiText.MenuPrivateLobby, _ann.Current.Window.Get<OpenPax.Ui.Widgets.ButtonPane>(31101).Caption);
+        ClickButton(_ann, 31102);
+        Assert.Null(_ann.Current.Window.Get<OpenPax.Ui.Widgets.ButtonPane>(31101).Caption);
         Assert.True(_ann.Current.Window.Get(31104).Visible);
     }
 

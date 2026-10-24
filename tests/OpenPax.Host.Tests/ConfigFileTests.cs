@@ -74,4 +74,14 @@ public sealed class ConfigFileTests : IDisposable
         Assert.Null(none);
         Assert.Empty(noHosts);
     }
+
+    [Fact]
+    public void TheAddressEarlyReleasesShippedIsNoPublicLobby()
+    {
+        var path = Path.Combine(_folder, GameConfig.FileName);
+        File.WriteAllText(path, "{ \"publicLobby\": \"127.0.0.1:10421\" }");
+        Assert.Null(GameConfig.Read(path, TextWriter.Null).PublicLobby);
+        File.WriteAllText(path, "{ \"publicLobby\": \"\" }");
+        Assert.Null(GameConfig.Read(path, TextWriter.Null).PublicLobby);
+    }
 }

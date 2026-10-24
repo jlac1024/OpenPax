@@ -27,6 +27,13 @@ public abstract class Screen
     /// </summary>
     public virtual WideLayout? WideAt => null;
 
+    /// <summary>
+    /// The port's own: what the thing under a point (the screen's own
+    /// coordinates) is for, shown as a tooltip when the pointer rests on it;
+    /// a heading line, then the explanation. Null where there is nothing to say.
+    /// </summary>
+    public virtual string? TooltipAt(int x, int y) => null;
+
     /// <summary>Lays the screen out larger by some amount across and down (0 for its own size).</summary>
     public void Widen(int extra, int extraHeight)
     {

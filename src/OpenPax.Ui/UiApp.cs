@@ -173,8 +173,8 @@ public sealed class UiApp
     /// <summary>The private lobby last typed, kept for the next visit.</summary>
     public string LobbyAddress { get; set; } = "";
 
-    /// <summary>The public lobby's address (config.json beside the game).</summary>
-    public string PublicLobbyAddress { get; set; } = "127.0.0.1:" + NetProtocol.DefaultLobbyPort.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    /// <summary>The public lobby's address (config.json beside the game), or null for none: the multiplayer menu then offers no PUBLIC LOBBY.</summary>
+    public string? PublicLobbyAddress { get; set; }
 
     /// <summary>The lobby choice made on Game Start's multiplayer menu, whose page the connect screen shows (and reopens when a lobby is lost).</summary>
     public LobbyChoice LobbyChoice { get; set; } = LobbyChoice.Private;
@@ -336,6 +336,7 @@ public sealed class UiApp
             _ => new SectorDisplayScreen(this),
         };
 
+        _screenCursor = Assets.Cursor.Set;
         RequestMusic(mode);
         _topBar = null;
         if (mode >= ScreenMode.SectorDisplay)
@@ -552,6 +553,21 @@ public sealed class UiApp
         _ => null,
     };
 
+    // The pointer must rest this long on a thing before its tooltip shows.
+    private const int TooltipDelay = 600;
+
+    private long _restingSince;
+
+    /// <summary>The screen's tooltip for what the resting pointer is on, over the screen with nothing open over it.</summary>
+    private void DrawTooltip(Canvas canvas)
+    {
+        if (Pointer is { } p && CanvasPointer is { } c && Popup is null && Forms.Top is null && _now - _restingSince >= TooltipDelay
+            && Current.TooltipAt(p.X, p.Y) is { Length: > 0 } tip)
+        {
+            Forms.DrawTip(canvas, tip, c.X, c.Y);
+        }
+    }
+
     /// <summary>The true-color pass: the forms over the window, then the pointer.</summary>
     public void DrawCanvas(Canvas canvas, ClassicPlacement classic)
     {
@@ -563,6 +579,7 @@ public sealed class UiApp
         }
 
         Forms.Draw(canvas);
+        DrawTooltip(canvas);
         if (CursorOnCanvas && CanvasPointer is { } p)
         {
             Assets.Cursor.Draw(canvas, Assets, Assets.Palette(PaletteIndex), p.X, p.Y, classic.Scale, _now);
@@ -645,6 +662,11 @@ public sealed class UiApp
 
     public void MouseMove(int x, int y, long now)
     {
+        if (Pointer != (x, y))
+        {
+            _restingSince = now;
+        }
+
         Pointer = (x, y);
         Input.MouseMove(x, y, now);
     }
@@ -748,9 +770,15 @@ public sealed class UiApp
         Popup = popup;
     }
 
+    // The pointer the screen picked as it opened. A popup picks the arrow
+    // over it, and the screen's own comes back when the popup goes: the
+    // bridge's pointer in the arrow's place would draw in the wrong colors.
+    private int _screenCursor = MouseCursor.GameStart;
+
     private void ClosePopup()
     {
         Popup = null;
+        Assets.Cursor.Show(_screenCursor);
     }
 
     // A popup's answer can open the next one (YES to an update opens its
@@ -759,7 +787,7 @@ public sealed class UiApp
     {
         if (Popup == answered)
         {
-            Popup = null;
+            ClosePopup();
         }
     }
 

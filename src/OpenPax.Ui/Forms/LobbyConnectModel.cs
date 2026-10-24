@@ -149,7 +149,7 @@ public sealed class LobbyConnectModel : Observable, IDisposable
         }
         else if (Choice == LobbyChoice.Public)
         {
-            text = _app.PublicLobbyAddress;
+            text = _app.PublicLobbyAddress ?? "";
         }
         else
         {

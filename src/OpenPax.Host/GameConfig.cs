@@ -13,6 +13,8 @@ internal static class GameConfig
 {
     public const string FileName = "config.json";
 
+    private const string OldDefaultLobby = "127.0.0.1:10421";
+
     /// <summary>The public lobby's address (null when the file or the key is missing) and the LAN page's extra hosts; a broken file says so.</summary>
     public static (string? PublicLobby, List<string> LanHosts) Read(string path, TextWriter errors)
     {
@@ -29,7 +31,9 @@ internal static class GameConfig
             var hosts = root.TryGetProperty("lanHosts", out var h) && h.ValueKind == JsonValueKind.Array
                 ? h.EnumerateArray().Where(e => e.ValueKind == JsonValueKind.String).Select(e => e.GetString()!.Trim()).Where(x => x.Length > 0).ToList() // Not null: a string element.
                 : [];
-            return (lobby, hosts);
+            // Releases up to 0.1.6 shipped this address as the public lobby,
+            // and updates keep a player's config.json; it was never a real one.
+            return (lobby == OldDefaultLobby ? null : lobby, hosts);
         }
         catch (Exception e) when (e is JsonException or IOException)
         {

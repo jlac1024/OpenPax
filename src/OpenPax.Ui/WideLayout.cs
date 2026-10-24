@@ -9,14 +9,17 @@ namespace OpenPax.Ui;
 /// extra width comes in whole steps (a table's column, so its tiled columns
 /// close cleanly); what is left over is bars. With RepeatRows the row spans
 /// repeat their rows down instead of stretching them: a span one period of
-/// a grid keeps the grid's lines evenly spaced.
+/// a grid keeps the grid's lines evenly spaced. Smooth columns (frame
+/// metal) do not repeat: each takes its most common color in the span,
+/// straight down, so the metal keeps its bevel across and shows no steps.
 /// </summary>
 public sealed record WideLayout(
     IReadOnlyList<(int Column, int Span)> Spans,
     IReadOnlyList<(int Top, int Bottom, int Period)> Tiled,
     IReadOnlyList<(int Row, int Span)>? RowSpans = null,
     int WidthStep = 2,
-    bool RepeatRows = false)
+    bool RepeatRows = false,
+    IReadOnlyList<(int Left, int Right)>? SmoothColumns = null)
 {
     public WideLayout(int column, int span)
         : this([(column, span)], [])

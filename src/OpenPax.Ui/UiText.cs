@@ -15,6 +15,34 @@ internal static class UiText
     public const string OptionsStarSpeed = "Star speed: {0}%";
     public const string FixesQuestion = "OpenPax can fix bugs to the original game, such as ships given to the computer never reaching it, trades of over 21 ships losing some, and fast shots missing planets. Turn on all the fixes?";
     public const string FixesNote = "They apply to new games; a game already started keeps its rules. Each fix can be turned on or off in Options, GAME. Network games use the host's.";
+    // Tooltips: what a thing on the economy and planet screens is for (Screen.TooltipAt). A heading, then '\n' and the explanation.
+    public const string TipTreasury = "Imperial Treasury\nYour money. Each year it gains your net income. If it runs out, construction subsidies are cut first, then research, espionage and construction spending, and upkeep left unpaid damages your ships and orbitals.";
+    public const string TipAnnualIncome = "Annual Income\nWhat your colonies earn in a year, less the upkeep of your orbitals and shipyards. It grows with population, wealth rating and finance improvements, and with trade treaties.";
+    public const string TipResearchSpending = "Research spending\nHow much of the upkeep of your research improvements you pay, 0 to 100%. Your colonies make that share of their research points, which discover new technologies.";
+    public const string TipEspionageSpending = "Espionage spending\nHow much of the upkeep of your espionage improvements you pay, 0 to 100%. Your colonies make that share of their espionage points, which pay for spy missions and guard against other empires' spies.";
+    public const string TipConstructionSpending = "Construction spending\nHow much of the upkeep of your construction improvements you pay, 0 to 100%. Your colonies make that share of their construction points, which build ships, orbitals and improvements.";
+    public const string TipSubsidyCost = "CP Subsidy Cost\nWhat you pay in a year to buy construction points at your colonies, 20 credits for each point. Bought points build that colony's ships, orbitals and improvements sooner. Set it for a colony on its planet screen (F7). When money runs short, subsidies are cut first.";
+    public const string TipFleetCost = "Fleet Cost\nThe yearly upkeep of your ships. When the treasury cannot pay it, ships are damaged and can be lost.";
+    public const string TipNetIncome = "Net Income\nWhat the treasury gains, or loses when negative, in a year: income less spending, subsidies and all upkeep.";
+    public const string TipFilters = "Display Filters\nWhich planets the list below shows: by how well your species can live there (Good, Fair, Bad) and by status (your Colonized planets, Explored planets with no colony).";
+    public const string TipDomesticAdvisor = "Domestic advisor\nTheir skill raises every colony's construction. REPLACE picks another.";
+    public const string TipEmpire = "Empire\nWho the colony belongs to. Click a caption to sort the planets by it.";
+    public const string TipPlanet = "Planet\nThe planet's name. Click a column to pick its planet; double click to see its surface.";
+    public const string TipHabitability = "Habitability\nHow well your species can live there: good with breathable air and a tolerable temperature, fair with one of the two, bad with neither. It sets how many people the planet holds and how fast they grow.";
+    public const string TipWealth = "Wealth Rating\nThe planet's riches: the income its people make is multiplied by it.";
+    public const string TipPopulation = "Population\nPeople now and the most the planet holds, and how much they grow in a year. People make the colony's income, research, espionage and construction.";
+    public const string TipColonyIncome = "Income\nWhat the colony earns in a year, less the upkeep of its orbitals.";
+    public const string TipColonyEspionage = "Espionage\nThe colony's espionage points in a year: they pay for spy missions and guard against other empires' spies. Measured against your empire's people, so it can read below zero.";
+    public const string TipColonyResearch = "Research\nThe colony's research points in a year, toward new technologies.";
+    public const string TipColonyConstruction = "Construction\nThe colony's construction points in a year. They go to its shipyard first, then to repairing and building orbitals, then to its improvements in plan order.";
+    public const string TipColonySubsidy = "CP Subsidy\nBuys this colony construction points with money: each point adds one construction point a year, on top of what its people make, for 20 credits a year. Its shipyard, orbitals and improvements get built sooner. The points do not depend on its population or your Construction spending. When money runs short, subsidies are cut first.";
+    public const string TipProject = "Project\nThe colony's plan: which improvements it builds first. The arrows step through Quickest, Population, Construction, Research, Espionage and Finance.";
+    public const string TipSurfaceHabitability = "Wealth and habitability\nThe planet's wealth rating multiplies the income its people make. The face shows how well your species can live there.";
+    public const string TipNetIncomeSurface = "Annual Income\nYour empire's net income in a year (the Domestic Policy screen's Net Income), after this colony's subsidy and all other spending.";
+    public const string TipOrbitals = "Orbitals\nThe defenses and stations the colony has: fighter and missile bases, battle stations, mine fields, academies and shipyards. Build them from the Sector Display's planet panel.";
+    public const string TipWorkQueue = "Construction queue\nWhat the colony builds: its shipyard's ship or a repair first, then its improvements in plan order. EXTEND LIST shows the whole list.";
+    public const string TipColonyArrows = "Colonies\nStep through your colonies.";
+
     public const string OptionsMasterVolume = "Master volume: {0}%";
     public const string OptionsMusicVolume = "Music: {0}%";
     public const string OptionsEffectsVolume = "Sound effects: {0}%";

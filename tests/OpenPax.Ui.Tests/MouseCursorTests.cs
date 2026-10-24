@@ -30,6 +30,19 @@ public class MouseCursorTests
     }
 
     [Fact]
+    public void APopupsArrowGoesWithIt()
+    {
+        // The arrow drawn in the bridge's palette comes out in the wrong colors, so the bridge's own pointer must come back.
+        var app = InGame();
+        app.Tell("A notice");
+        Assert.Equal(MouseCursor.Arrow, app.Assets.Cursor.Set);
+        app.Key(UiKey.Return, false, 0);
+        _ = app.Tick(0).ToList();
+        Assert.Null(app.Popup);
+        Assert.Equal(MouseCursor.Bridge, app.Assets.Cursor.Set);
+    }
+
+    [Fact]
     public void TheMapPointerFollowsTheOrderWaiting()
     {
         var app = InGame();

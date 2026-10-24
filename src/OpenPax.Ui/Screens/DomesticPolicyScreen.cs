@@ -111,6 +111,54 @@ public sealed class DomesticPolicyScreen : Screen
         Window.Get<MapPane>(17033).KeepShape();
     }
 
+    // The budget's rows, each its label, value and spinner panes, and what it is for.
+    private static readonly (int[] Panes, string Tip)[] _budgetTips =
+    [
+        ([17036, Treasury], UiText.TipTreasury),
+        ([17034, Income], UiText.TipAnnualIncome),
+        ([17019, FirstSpinner, FirstCost], UiText.TipResearchSpending),
+        ([17020, FirstSpinner + 1, FirstCost + 1], UiText.TipEspionageSpending),
+        ([17021, FirstSpinner + 2, FirstCost + 2], UiText.TipConstructionSpending),
+        ([17022, Subsidy], UiText.TipSubsidyCost),
+        ([17032, FleetCost], UiText.TipFleetCost),
+        ([17035, Net], UiText.TipNetIncome),
+        ([17037, FirstFilter, FirstFilter + 1, FirstFilter + 2, FirstFilter + 3, FirstFilter + 4], UiText.TipFilters),
+        ([Advisor, Replace], UiText.TipDomesticAdvisor),
+        ([PreviousPlan, NextPlan], UiText.TipProject),
+    ];
+
+    /// <summary>The port's own: what a budget line, filter or planet row is for. A planet column's figure explains its row.</summary>
+    public override string? TooltipAt(int x, int y)
+    {
+        foreach (var (panes, tip) in _budgetTips)
+        {
+            if (panes.Any(id => Window.Get(id) is { Shown: true } pane && pane.Inside(x, y)))
+            {
+                return tip;
+            }
+        }
+
+        var captions = Window.Get<HeaderBarPane>(Captions);
+        var code = captions.Inside(x, y) ? captions.CodeAt(x, y)
+            : Window.Get(Columns).Inside(x, y) ? captions.CodeOnRow(y)
+            : null;
+        return code switch
+        {
+            100 => UiText.TipEmpire,
+            101 => UiText.TipPlanet,
+            102 => UiText.TipHabitability,
+            103 => UiText.TipWealth,
+            104 => UiText.TipPopulation,
+            105 => UiText.TipColonyIncome,
+            106 => UiText.TipColonyEspionage,
+            107 => UiText.TipColonyResearch,
+            108 => UiText.TipColonyConstruction,
+            109 => UiText.TipColonySubsidy,
+            110 => UiText.TipProject,
+            _ => null,
+        };
+    }
+
     public override void Handle(UiMessage message, long now)
     {
         var id = message.Message;

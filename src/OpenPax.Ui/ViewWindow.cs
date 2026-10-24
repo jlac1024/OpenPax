@@ -185,11 +185,15 @@ public sealed class ViewWindow
             }
         }
 
+        OverBackground?.Invoke(target);
         foreach (var child in Pane.InPaintOrder(Root.Children))
         {
             child.DrawTree(target);
         }
     }
+
+    /// <summary>The screen's own painting over its art and under every pane (the Sector Display's grown planet panel).</summary>
+    public Action<Framebuffer>? OverBackground { get; set; }
 
     /// <summary>A stamp for a picture just changed, later than every one before (see Pane.InPaintOrder).</summary>
     internal long NextPaint() => ++_paints;

@@ -70,3 +70,9 @@ a colony is founded or lost or a star's sight changes.
 ## Not ported yet
 
 Stopping the map's animation while the message history is open.
+
+## Tooltips (the port's own)
+
+The pointer resting 0.6 seconds on a budget line, a filter, the advisor, a caption, or a planet column's figure (which explains its row) shows what it is for, in a
+true-color box by the pointer (`Screen.TooltipAt`, the texts in `UiText`).
+The original has labels only.
