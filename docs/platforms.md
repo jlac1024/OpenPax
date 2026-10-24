@@ -82,7 +82,10 @@ for a version tag such as `v0.1.0`, or by hand as a draft:
   the `.deb` installs `/etc/apt/sources.list.d/openpax.list` and the key in
   `/usr/share/keyrings`. Installing either once is enough: the software
   center, `flatpak update` and `apt upgrade` bring later versions. The
-  repositories hold only the latest published release.
+  repositories hold only the latest published release. Publishing a draft
+  by hand does not reliably start the workflow (0.1.8's did not), so a hand
+  publish runs it too: `gh workflow run repositories.yml -f version=X`; a
+  version tag's release starts it from the release workflow.
 
 The icon is OpenPax's own (`src/OpenPax.Host/Icon/openpax.svg`, drawn for
 the project). `tools/make_icon.sh` renders it to the Windows `.ico` (the

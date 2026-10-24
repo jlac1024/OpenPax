@@ -261,6 +261,7 @@ jobs:
     timeout-minutes: 45
     permissions:
       contents: write
+      actions: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -293,4 +294,7 @@ jobs:
           gh release upload "$tag" bundles/* --clobber
           if [[ "${{ github.event_name }}" == push ]]; then
             gh release edit "$tag" --draft=false
+            # The package repositories follow (repositories.yml); the release
+            # event from this workflow's own token would not start them.
+            gh workflow run repositories.yml -f version="${VERSION#v}"
           fi
